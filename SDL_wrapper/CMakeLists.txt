@@ -1,10 +1,11 @@
 file(GLOB FILES *.cpp )
 
 find_package(SDL2 REQUIRED)
-list(APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake)
+list(APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/../cmake)
 find_package(SDL2_ttf REQUIRED)
 find_package(SDL2_image REQUIRED)
 
+include_directories(../Tools)
 MESSAGE( "Library path:  ${SDL2_TTF_LIBRARIES}"   )
 
 add_library( wrappers  ${FILES}  )

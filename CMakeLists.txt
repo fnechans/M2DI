@@ -33,5 +33,11 @@ ENDIF(UNIX)
 add_subdirectory(SDL_wrapper)
 include_directories(SDL_wrapper)
 
+add_subdirectory(Tools)
+include_directories(Tools)
+
+add_subdirectory(Objects)
+include_directories(Objects)
+
 add_executable(SDL2Test main.cpp)
-target_link_libraries(SDL2Test PUBLIC wrappers)
+target_link_libraries(SDL2Test PUBLIC wrappers tools objects)
