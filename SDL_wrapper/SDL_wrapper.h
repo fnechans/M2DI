@@ -15,8 +15,8 @@ public:
     //Frees media and shuts down SDL
     void close();
     // put img on surface
-    void render_image( IMG_wrapper & img, int x = 0, int y = 0, SDL_Rect * clip = nullptr );
-    void render_image( IMG_wrapper & img, SDL_Rect * renderQuad, SDL_Rect * clip = nullptr );
+    void render_image(IMG_wrapper & img, int x = 0, int y = 0, SDL_Rect * clip = nullptr , double angle = 0 );
+    void render_image( IMG_wrapper & img, SDL_Rect * renderQuad, SDL_Rect * clip = nullptr, double angle = 0, SDL_RendererFlip flip = SDL_FLIP_NONE );
     // update the window ..
     void update_window();
 

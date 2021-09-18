@@ -1,15 +1,12 @@
 #include "button.h"
 
-button::button(uint x, uint y, int ws, int hs )
+button::button( SDL_Rect pos, double ws, double hs )
 {
-	posX = x;
-	posY = y;
-    sizeX = TILESIZERENDER/ws;
-    sizeY = TILESIZERENDER/hs;
+    screenPos = pos;
 
 	for( int c = DEFAULT; c<COUNT; ++c )
 	{
-        clips[c] = { c*TILESIZE, 0, TILESIZE, TILESIZE/2 };
+        clips[c] = { c*TILESIZEINPUT, 0, (int) (TILESIZEINPUT*ws), (int) (TILESIZEINPUT*hs) };
 	}	
 }
 
@@ -21,7 +18,11 @@ int button::evaluate(SDL_Event & e)
         //Get mouse position
         int x, y;
         SDL_GetMouseState( &x, &y );
-        if( x >= posX && x <= posX+sizeX && y >= posY && y <= posY+sizeY  )
+        if(x >= viewPort->x+screenPos.x 
+           && x <= viewPort->x+screenPos.x+screenPos.w
+           && y >= viewPort->y+screenPos.y
+           && y <= viewPort->y+screenPos.y+screenPos.h
+           && e.button.button == SDL_BUTTON_LEFT)
         {
             //Set mouse over sprite
             switch( e.type )
@@ -47,9 +48,8 @@ int button::evaluate(SDL_Event & e)
 void button::plot( SDL_wrapper & wrapper )
 {
     image->set_color(255,0,0);
-    SDL_Rect r = {posX,posY,sizeX,sizeY};
-    wrapper.render_image(*image,&r,&clips[state]);
-    if(text) wrapper.render_image(*text,&r);
+    wrapper.render_image(*image,&screenPos,&clips[state]);
+    if(text) wrapper.render_image(*text,&screenPos);
 }
 
 bool button::set_image(std::string imagePath,std::string title,SDL_Color color)
@@ -59,7 +59,7 @@ bool button::set_image(std::string imagePath,std::string title,SDL_Color color)
     if( title!="" )
     {
         text = std::make_shared< IMG_wrapper>();
-        if( !text->load_text(title, color, sizeY) ) return false;
+        if( !text->load_text(title, color, screenPos.h) ) return false;
     }
     return true;
 }

@@ -1,44 +1,49 @@
 #include "map.h"
-#include <fstream>
 #include <iostream>
 
 M2DI::Map_wrapper::Map_wrapper()
 {
-    minimap = {0,0,sWidth/2,sHeight/2};
+    gameplayScreen = {0,0,sWidth-TILESIZEINPUT*6,sHeight}; //hardcoded for now
+    viewPort = new SDL_Rect({sWidth-TILESIZEINPUT*6,0,TILESIZEINPUT*6,sHeight});
     image = std::make_shared<IMG_wrapper>();
     clips = std::make_shared<std::map<int,SDL_Rect>>();
 }
 
 void M2DI::Map_wrapper::render_map( SDL_wrapper & wrapper, SDL_Rect & mapPosition )
 {
-    screen =  {0,0,sWidth,sHeight};
-    SDL_RenderSetViewport( wrapper.gRenderer, &screen );
-    for( auto t : tiles )
+    gameplayScreen = {0,0,sWidth-TILESIZEINPUT*12,sHeight}; //hardcoded for now
+    SDL_RenderSetViewport( wrapper.gRenderer, &gameplayScreen );
+    for( auto& t : tiles )
     {
-        //    std::cout << t->position.x <<"/"<< mapPosition.x << " " <<  t->position.y<<"/"<<mapPosition.y << std::endl;
-        //SDL_Rect rectM = { t->position.x-mapPosition.x, t->position.y-mapPosition.y, TILESIZERENDER, TILESIZERENDER };
-        //if( t->position.x<mapPosition.x-TILESIZERENDER || t->position.x>mapPosition.x+mapPosition.w || t->position.y<mapPosition.y-TILESIZERENDER || t->position.y>mapPosition.y+mapPosition.h ) continue;
-        //wrapper.render_image(img, &rectM, &mapping[t->spriteType] );
+        t->plot(wrapper,&mapPosition);
+    }
+    for( auto& t : blocks )
+    {
         t->plot(wrapper,&mapPosition);
     }
 }
 
-void M2DI::Map_wrapper::render_minimap( SDL_wrapper & wrapper, std::vector<std::shared_ptr<object>> & objects  )
+void M2DI::Map_wrapper::render_minimap( SDL_wrapper & wrapper, std::vector<Object*> & objects  )
 {
-    //  minimap = {0,0,mWidth*sHeight/mHeight/4,sHeight/4};
-    scale = (mHeight+TILESIZERENDER)/minimap.h;
-    SDL_RenderSetViewport( wrapper.gRenderer, &minimap );
-    for( auto t : tiles )
+    *viewPort = {sWidth-TILESIZEINPUT*12,0,TILESIZEINPUT*12,TILESIZEINPUT*12};
+    scale = ((double) mWidth)/viewPort->w;
+    SDL_RenderSetViewport( wrapper.gRenderer, viewPort );
+    for( auto const& t : tiles )
     {
-        SDL_Rect rectMM = { (t->position.x)/scale, (t->position.y)/scale, TILESIZERENDER/scale+1, TILESIZERENDER/scale+1 };
-        //   wrapper.render_image(img, &rectMM, &mapping[t->frame] );
+        SDL_Rect rectMM = { (int) (t->position.x)/scale, (int) (t->position.y)/scale, (int) TILESIZE/scale+1, (int) TILESIZE/scale+1 };
+        SDL_SetRenderDrawColor( wrapper.gRenderer, mappingColor[t->spriteType].r, mappingColor[t->spriteType].g, mappingColor[t->spriteType].b, mappingColor[t->spriteType].a );
+        SDL_RenderFillRect( wrapper.gRenderer, &rectMM );
+    }
+    for( auto const& t : blocks )
+    {
+        SDL_Rect rectMM = { (int) (t->position.x)/scale,(int) (t->position.y)/scale, (int) TILESIZE/scale+1, (int) TILESIZE/scale+1 };
         SDL_SetRenderDrawColor( wrapper.gRenderer, mappingColor[t->spriteType].r, mappingColor[t->spriteType].g, mappingColor[t->spriteType].b, mappingColor[t->spriteType].a );
         SDL_RenderFillRect( wrapper.gRenderer, &rectMM );
     }
 
     for( auto obj : objects )
     {
-        SDL_Rect r =  {obj->position.x/scale,obj->position.y/scale,2,2};
+        SDL_Rect r =  {(int) obj->position.x/scale, (int) obj->position.y/scale, 2, 2};
         SDL_SetRenderDrawColor( wrapper.gRenderer, obj->mapColor.r, obj->mapColor.g, obj->mapColor.b, obj->mapColor.a );
         SDL_RenderFillRect( wrapper.gRenderer, &r );
     }
@@ -46,47 +51,37 @@ void M2DI::Map_wrapper::render_minimap( SDL_wrapper & wrapper, std::vector<std::
 
 bool M2DI::Map_wrapper::load_map( std::string mapFile, int mapSizeX, int mapSizeY )
 {
-    mWidth = mapSizeX*TILESIZERENDER;
-    mHeight= mapSizeY*TILESIZERENDER;
+    mWidth = mapSizeX*TILESIZE;
+    mHeight= mapSizeY*TILESIZE;
 
-    int x = 0;
-    int y = 0;
-
-    std::ifstream mapStream( mapFile );
-    if( mapStream.fail() ) return false;
-    else
+    tiles = import_map(mapFile,mapSizeX,mapSizeY);
+    if(tiles.empty()) return false;
+    for( auto& t : tiles )
     {
-        int tileType = -1;
-        for( int i = 0; i < mapSizeX*mapSizeY; ++i )
-        {
-            mapStream >> tileType;
-            if( mapStream.fail() )
-            {
-                printf( "Error loading map: Unexpected end of file!\n" );
-                break;
-            }
-
-            auto t = std::make_shared<object>( x, y );
-            tiles.push_back(t);
-            t->spriteType = tileType;
-            t->image = image;
-            t->clips = clips;
-            t->mapColor = mappingColor[tileType];
-
-            x += TILESIZERENDER;
-            if( x >= mapSizeX*TILESIZERENDER )
-            {
-                x = 0;
-                y += TILESIZERENDER;
-            }
-            //      std::cout << tiles.back()->position.x <<"/"<< tiles.back()->position.y<< std::endl;
-        }
+        t->mapColor = mappingColor[t->spriteType];
+        t->image = image;
+        t->clips = clips;
     }
     return true;
 }
 
-void M2DI::Map_wrapper::add_sprite(int type, int posX, int posY, SDL_Color col )
+bool M2DI::Map_wrapper::load_blocks( std::string mapFile, int mapSizeX, int mapSizeY )
 {
-    (*clips)[type] = {posX*TILESIZE,posY*TILESIZE,TILESIZE,TILESIZE};
+    blocks = import_map(mapFile,mapSizeX,mapSizeY);
+    if(blocks.empty()) return false;
+    for( auto& t : blocks )
+    {
+        t->mapColor = mappingColor[t->spriteType];
+        t->image = image;
+        t->clips = clips;
+        t->set_health(mappingHealth[t->spriteType]);
+    }
+    return true;
+}
+
+void M2DI::Map_wrapper::add_sprite(int type, int posX, int posY, SDL_Color col, uint health )
+{
+    (*clips)[type] = {posX*TILESIZEINPUT,posY*TILESIZEINPUT,TILESIZEINPUT,TILESIZEINPUT};
     mappingColor[type] = col;
+    mappingHealth[type] = health;
 }

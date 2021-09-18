@@ -1,68 +1,69 @@
 #include "player.h"
 
-void player::evaluate(SDL_Event & e)
+void Player::evaluate(SDL_Event & e)
 {
     if( e.type == SDL_KEYDOWN && e.key.repeat == 0 )
     {
         switch( e.key.keysym.sym )
         {
-        case SDLK_w: velY += -speed; break;
-        case SDLK_a: velX += -speed; break;
-        case SDLK_s: velY +=  speed; break;
-        case SDLK_d: velX +=  speed; break;
+        case SDLK_w: intrVelY += -speed; break;
+        case SDLK_a: intrVelX += -speed; break;
+        case SDLK_s: intrVelY +=  speed; break;
+        case SDLK_d: intrVelX +=  speed; break;
         }
     }
     else if( e.type == SDL_KEYUP && e.key.repeat == 0 )
     {
         switch( e.key.keysym.sym )
         {
-        case SDLK_w: velY -= -speed; break;
-        case SDLK_a: velX -= -speed; break;
-        case SDLK_s: velY -=  speed; break;
-        case SDLK_d: velX -=  speed; break;
+        case SDLK_w: intrVelY -= -speed; break;
+        case SDLK_a: intrVelX -= -speed; break;
+        case SDLK_s: intrVelY -=  speed; break;
+        case SDLK_d: intrVelX -=  speed; break;
         }
     }
 }
 
-void player::evaluate(const Uint8* state)
+void Player::evaluate(const Uint8* state)
 {
-    if( state[ SDL_SCANCODE_W ] ){ velY = -speed; }
-    else if( state[ SDL_SCANCODE_S ] ){ velY = speed;; }
-    else velY = 0;
+    if( state[ SDL_SCANCODE_W ] ){ intrVelX = -speed; }
+    else if( state[ SDL_SCANCODE_S ] ){ intrVelY = speed;; }
+    else intrVelY = 0;
 
-    if( state[ SDL_SCANCODE_A ] ){ velX = -speed; }
-    else if( state[ SDL_SCANCODE_D ] ){ velX = speed; }
-    else velX = 0;
+    if( state[ SDL_SCANCODE_A ] ){ intrVelX = -speed; }
+    else if( state[ SDL_SCANCODE_D ] ){ intrVelY = speed; }
+    else intrVelX = 0;
 }
 
-void  player::screen_position( int & sX, int & sY )
+void  Player::screen_position(SDL_Rect &screenRect)
 {
-    posSX = sWidth/2;
-    posSY = sHeight/2;
+    posSX = gameplayScreen.x+gameplayScreen.w/2;
+    posSY = gameplayScreen.y+gameplayScreen.h/2;
 
-    sX = position.x-sWidth/2;
-    if(sX<0)
+    screenRect.x = position.x*scaleRender-posSX;
+    if(screenRect.x<0)
     {
-        sX=0;
-        posSX =position.x;
+        screenRect.x=0;
+        posSX =position.x*scaleRender;
     }
-    else if(sX+sWidth>mWidth && mWidth>sWidth )
+    else if(screenRect.x+(gameplayScreen.x+gameplayScreen.w)>mWidth*scaleRender && mWidth*scaleRender>(gameplayScreen.x+gameplayScreen.w) )
     {
-        sX=mWidth-sWidth;
-        posSX = sWidth-(mWidth-position.x);
+        screenRect.x=mWidth*scaleRender-(gameplayScreen.x+gameplayScreen.w);
+        posSX = (gameplayScreen.x+gameplayScreen.w)-(mWidth-position.x)*scaleRender;
     }
 
-    sY = position.y-sHeight/2;
-    if(sY<0)
+    screenRect.y = position.y*scaleRender-posSY;
+    if(screenRect.y<0)
     {
-        sY=0;
-        posSY = position.y;
+        screenRect.y=0;
+        posSY = position.y*scaleRender;
     }
-    else if(sY+sHeight>mHeight && mHeight > sHeight )
+    else if(screenRect.y+(gameplayScreen.y+gameplayScreen.h)>mHeight*scaleRender && mHeight*scaleRender > (gameplayScreen.y+gameplayScreen.h) )
     {
-        sY=mHeight-sHeight;
-        posSY = sHeight-(mHeight-position.y);
+        screenRect.y=mHeight*scaleRender-(gameplayScreen.y+gameplayScreen.h);
+        posSY = (gameplayScreen.y+gameplayScreen.h)-(mHeight-position.y)*scaleRender;
     }
-   // posSX -= TILESIZE/2;
-   // posSY -= TILESIZE/2;
+
+    screenRect.w = gameplayScreen.w;
+    screenRect.h = gameplayScreen.h;
 }

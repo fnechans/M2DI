@@ -6,18 +6,17 @@
 #include <stdio.h>
 #include <vector>
 
-#include "character.h"
+#include "movable.h"
 #include "IMG_wrapper.h"
 #include "SDL_wrapper.h"
 
-class player : public character
+class Player : public Movable 
 {
 public:
-    player(uint x=mWidth/2,uint y=mHeight/2,uint clipShift = 0) : character(x,y,clipShift) {}
+    Player(uint x=mWidth/2,uint y=mHeight/2) : Movable(x,y) {}
     void evaluate(const Uint8* state);
     void evaluate( SDL_Event & event );
-    void screen_position( int & sX, int & sY );
-
+    void screen_position( SDL_Rect & screenRect );
 };
 
 #endif

@@ -6,8 +6,8 @@ bool SDLW::init()
 {
 	//Initialization flag
 	bool success = true;
-    sWidth = 480;
-    sHeight= 320;
+    sWidth = 64*8*2;
+    sHeight= 64*6*2;
 
 	//Initialize SDL
 	if( SDL_Init( SDL_INIT_VIDEO ) < 0 )
@@ -65,7 +65,7 @@ void SDLW::close()
     SDL_Quit();
 }
 
-void SDLW::render_image( IMG_wrapper & img, int x, int y, SDL_Rect * clip )
+void SDLW::render_image(IMG_wrapper & img, int x, int y, SDL_Rect * clip, double angle)
 {
     //Set rendering space and render to screen
     SDL_Rect renderQuad = { x, y, img.width, img.height };
@@ -77,13 +77,13 @@ void SDLW::render_image( IMG_wrapper & img, int x, int y, SDL_Rect * clip )
         renderQuad.h = clip->h;
     }
 
-    render_image(img,&renderQuad,clip);
+    render_image(img,&renderQuad,clip,angle);
 }
 
-void SDLW::render_image( IMG_wrapper & img, SDL_Rect * renderQuad, SDL_Rect * clip )
+void SDLW::render_image( IMG_wrapper & img, SDL_Rect * renderQuad, SDL_Rect * clip, double angle, SDL_RendererFlip flip )
 {
     //Render texture to screen
-	SDL_RenderCopy( gRenderer, img.image, clip, renderQuad );
+    SDL_RenderCopyEx( gRenderer, img.image, clip, renderQuad, angle, nullptr, flip );
 }
 
 void SDLW::update_window()

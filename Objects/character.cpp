@@ -1,82 +1,35 @@
 #include "character.h"
 
-character::character(uint x, uint y, uint clipShift) : object(x,y,clipShift)
+Character::Character(uint x, uint y) : Movable(x,y)
 {
-    velX=0;
-    velY=0;
-    frame=0;
+}
 
-    speed = TILESIZERENDER/16;
+void Character::follow_path()
+{
+    reduce_to_zero(intrVelX,speed);
+    reduce_to_zero(intrVelY,speed);
 
-    for( int c = STAND; c<COUNT; ++c )
+    if( !path.empty() )
     {
-        (*clips)[c] = { c*TILESIZE, clipShift*TILESIZE, TILESIZE, TILESIZE };
+        if( fabs(position.x-path.back()->position.x)<=TILESIZE && fabs(position.y-path.back()->position.y)<=TILESIZE && path.size()>1 ) path.pop_back();
+        int dirX = path.back()->position.x - position.x;
+        int dirY = path.back()->position.y - position.y;
+        if( dirX > 0 ) intrVelX = speed;
+        else if( dirX < 0 ) intrVelX = -speed;
+        if( dirY > 0 ) intrVelY = speed;
+        else if( dirY < 0 ) intrVelY = -speed;
     }
 }
 
-void character::move(std::vector<std::shared_ptr<object>> & collObjects )
+void Character::plot_path(SDL_wrapper & wrapper , SDL_Rect *screen )
 {
-    moved = false;
-    if(velX==0&&velY==0) return;
-
-    SDL_Rect newPosition = position;
-    newPosition.x += velX;
-    newPosition.y += velY;
-
-    if( newPosition.x < 0 ) newPosition.x = 0;
-    if( newPosition.y < 0 ) newPosition.y = 0;
-    if( newPosition.x > mWidth-newPosition.w ) newPosition.x = mWidth-newPosition.w;
-    if( newPosition.y > mHeight-newPosition.h ) newPosition.y = mHeight-newPosition.h;
-
-    if( doesCollide(newPosition, collObjects) )
+    if( !path.empty() )
     {
-        SDL_Rect tmpPosition;
-        // can we move just in x?
-        if( velX!=0 )
+        for( auto t : path )
         {
-            tmpPosition = position;
-            tmpPosition.x = newPosition.x;
-            if( !doesCollide(tmpPosition, collObjects) )
-            {
-                position = tmpPosition;
-                moved = true;
-            }
-        }
-        // can we move just in y?
-        if( velY!=0 )
-        {
-            tmpPosition = position;
-            tmpPosition.y = newPosition.y;
-            if( !doesCollide(tmpPosition, collObjects) )
-            {
-                position = tmpPosition;
-                moved = true;
-            }
+            t->image->set_color( mapColor.r, mapColor.g, mapColor.b );
+            t->plot(wrapper,screen);
+            t->image->set_color( 255, 255, 255 );
         }
     }
-    else
-    {
-        position = newPosition;
-        moved = true;
-    }
-    if(moved)
-    {
-        ++frame;
-        if( frame/4 >= clips->size() )
-        {
-            frame = 0;
-        }
-        spriteType = frame/4;
-    }
-}
-
-bool character::doesCollide( SDL_Rect & pos, std::vector<std::shared_ptr<object>> & collObjects )
-{
-
-    for( auto obj : collObjects )
-    {
-        if( obj.get()==this ) continue;
-        if( SDL_HasIntersection(&obj->position,&pos) ) return true;
-    }
-    return false;
 }
