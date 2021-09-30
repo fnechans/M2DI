@@ -6,11 +6,21 @@ button::button( SDL_Rect pos, double ws, double hs )
 
 	for( int c = DEFAULT; c<COUNT; ++c )
 	{
-        clips[c] = { c*TILESIZEINPUT, 0, (int) (TILESIZEINPUT*ws), (int) (TILESIZEINPUT*hs) };
+        clips[c] = { (int) (c*TILESIZEINPUT*ws), 0, (int) (TILESIZEINPUT*ws), (int) (TILESIZEINPUT*hs) };
 	}	
 }
 
-int button::evaluate(SDL_Event & e)
+button::button( const button& b )
+{
+    screenPos = b.screenPos;
+
+	for( int c = DEFAULT; c<COUNT; ++c )
+	{
+        clips[c] = b.clips[c];
+	}	
+}
+
+int button::evaluate(SDL_Event & e, SDL_Rect viewPort)
 {
     //If mouse event happened
     if( e.type == SDL_MOUSEMOTION || e.type == SDL_MOUSEBUTTONDOWN || e.type == SDL_MOUSEBUTTONUP )
@@ -18,10 +28,10 @@ int button::evaluate(SDL_Event & e)
         //Get mouse position
         int x, y;
         SDL_GetMouseState( &x, &y );
-        if(x >= viewPort->x+screenPos.x 
-           && x <= viewPort->x+screenPos.x+screenPos.w
-           && y >= viewPort->y+screenPos.y
-           && y <= viewPort->y+screenPos.y+screenPos.h
+        if(x >= viewPort.x+screenPos.x 
+           && x <= viewPort.x+screenPos.x+screenPos.w
+           && y >= viewPort.y+screenPos.y
+           && y <= viewPort.y+screenPos.y+screenPos.h
            && e.button.button == SDL_BUTTON_LEFT)
         {
             //Set mouse over sprite

@@ -1,6 +1,9 @@
 #include "object.h"
 
 #include <fstream>
+#include <exception>
+
+const char* const Object::dirName[4] = {"UP", "DOWN", "LEFT", "RIGHT"};
 
 Object::Object( uint x, uint y )
 {
@@ -92,6 +95,28 @@ void Object::modify_health(int value)
     if(property["health"]<0) property["health"] = 0; 
 }
 
+void Object::copy_animation(Object const & object )
+{
+    for( auto& iter : object.animations )
+    {
+        if(animations.find(iter.first)!=animations.end())
+        std::cout<<"Warning: Animation " << iter.first << " already exists!\n";
+        animations[iter.first] = Animation(iter.second);
+    }
+}
+
+void Object::set_animation(std::string animationName)
+{
+    if(animationName==curAnimation) return;
+
+    if(curAnimation != "") animations[curAnimation].stop();
+    if(animations.find(animationName) == animations.end())
+        throw std::runtime_error("Animation with "+animationName+" does not exist!");
+
+    animations[animationName].play();
+    curAnimation = animationName;
+}
+
 void Object::plot_animation(SDL_wrapper & wrapper , SDL_Rect *screen, bool pause)
 {
     // whether to skip the actual plotting (but keeps the animation playing and sets up the posSX/Y)
@@ -103,17 +128,20 @@ void Object::plot_animation(SDL_wrapper & wrapper , SDL_Rect *screen, bool pause
         posSY = position.y*scaleRender-screen->y;
     }
 
-    for( auto iter : animations )
+    if(curAnimation!="")
     {
-        auto anim = iter.second;
-        if( !anim->running && !anim->display ) continue;
-        if(pause) anim->pause();
-        SDL_Rect spriteRect = anim->get();
-        if(pause) anim->play();
-        if( skipPlot ) continue;
-        SDL_Rect renderRect = {posSX+(int) anim->shiftX*scaleRender,posSY+(int) anim->shiftY*scaleRender,(int) spriteRect.w*scaleRenderInput,(int) spriteRect.h*scaleRenderInput};
+        auto& anim = animations[curAnimation];
+        if(pause) anim.pause();
+        SDL_Rect spriteRect = anim.get();
+        if(pause) anim.play();
+        if( skipPlot ) return;
+        SDL_Rect renderRect = {
+            posSX+(int) (anim.shiftX*scaleRender),
+            posSY+(int) (anim.shiftY*scaleRender),
+            (int) (spriteRect.w*scaleRenderInput),
+            (int) (spriteRect.h*scaleRenderInput)
+        };
     // image->set_color(255,0,0);
-        wrapper.render_image(*anim->image,&renderRect,&spriteRect,anim->angle,anim->flip);
-
+        wrapper.render_image(*anim.image,&renderRect,&spriteRect,anim.angle,anim.flip);
     }
 }

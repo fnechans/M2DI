@@ -20,6 +20,17 @@ public:
     // update the window ..
     void update_window();
 
+    // clears everything
+    void clear()
+    {
+        SDL_RenderClear( gRenderer );
+    }
+    void render()
+    {
+        SDL_SetRenderDrawColor( gRenderer, 0x00, 0x00, 0x00, 0xFF );
+        SDL_RenderPresent( gRenderer );
+    }
+
     SDL_Renderer * gRenderer;
 private:
 

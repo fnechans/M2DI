@@ -2,7 +2,8 @@
 #define MELEE_H
 
 #include "base.h"
-#include "character.h"
+#include "movable.h"
+#include "timer.h"
 
 #include <stdexcept>
 #include <sstream>
@@ -22,19 +23,27 @@ public:
         textDMG << damage;
         imgDMG->load_text(textDMG.str(), {255,100,100,255});
     }
+    Melee(const Melee& m) : damage(m.damage), shift(m.shift), length(m.length), width(m.width)
+    {
+        imgDMG = std::make_shared<IMG_wrapper>();
+        textDMG.str("");
+        textDMG << damage;
+        imgDMG->load_text(textDMG.str(), {255,100,100,255});
+    }
     // evaluates if target was hit, returns true if yes
     bool evaluate_target(SDL_Rect & targetZone, SDL_Rect & origin, Object * target);
     // evaluates for all targets, and reduces health, evaluates knockback...
     // attacker is character:
-    void evaluate(Movable * ch, std::vector<Object*> targets, SDL_wrapper * wrapper = nullptr);
+    bool evaluate(Movable * ch, std::vector<Object*> targets);
     // attack at location:
-    void evaluate(SDL_Rect & origin, direction dir, std::vector<Object*> targets, SDL_wrapper * wrapper = nullptr);
+    bool evaluate(SDL_Rect & origin, Object::direction dir, std::vector<Object*> targets);
     
     // TODO: move private, helper function
     uint knockback = 0; // target gains velocity in direction from origin
     float lifesteal = 0; // character gains fraction of damage dealt as health
+    uint cooldown = 1; //time before next attack
 private:
-    SDL_Rect get_targetZone(SDL_Rect & origin, direction dir);
+    SDL_Rect get_targetZone(SDL_Rect & origin, Object::direction dir);
 
     // properties
     uint damage; // damage done to target
@@ -49,6 +58,7 @@ private:
     std::shared_ptr<IMG_wrapper> imgDMG; // shows damage dealth on screen
     std::stringstream textDMG;
 
+    timer clock;
 };
 
 #endif // MELEE_H

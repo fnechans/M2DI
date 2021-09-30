@@ -1,6 +1,7 @@
 #include "IMG_wrapper.h"
 
 typedef IMG_wrapper IMGW;
+SDL_Renderer * IMG_wrapper::gRenderer(nullptr);
 
 void IMGW::clear()
 {        
@@ -23,7 +24,7 @@ void IMGW::set_color( Uint8 red, Uint8 green, Uint8 blue )
 bool IMGW::load_media( const char * path )
 {
 	//Load image at specified path
-	SDL_Surface * loadedSurface = SDL_LoadBMP( path );
+	SDL_Surface * loadedSurface = IMG_Load( path );
 	if( loadedSurface == nullptr )
 	{
 		printf( "Unable to load image %s! SDL Error: %s\n", path, SDL_GetError() );

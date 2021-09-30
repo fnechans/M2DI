@@ -14,10 +14,24 @@ void Character::follow_path()
         if( fabs(position.x-path.back()->position.x)<=TILESIZE && fabs(position.y-path.back()->position.y)<=TILESIZE && path.size()>1 ) path.pop_back();
         int dirX = path.back()->position.x - position.x;
         int dirY = path.back()->position.y - position.y;
+
+        // set speed
         if( dirX > 0 ) intrVelX = speed;
         else if( dirX < 0 ) intrVelX = -speed;
         if( dirY > 0 ) intrVelY = speed;
         else if( dirY < 0 ) intrVelY = -speed;
+
+        // set dir
+        if( fabs(dirX) > fabs(dirY) ) 
+        {
+            if( dirX > 0 ) dir = RIGHT;
+            else if( dirX < 0 ) dir = LEFT;
+        }
+        else
+        {
+            if( dirY > 0 ) dir = DOWN;
+            else if( dirY < 0 ) dir = UP;
+        }
     }
 }
 

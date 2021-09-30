@@ -35,5 +35,4 @@ public:
 private:
     TTF_Font *gFont;
 };
-
 #endif

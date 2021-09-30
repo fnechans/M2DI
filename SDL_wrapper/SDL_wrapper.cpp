@@ -47,6 +47,7 @@ bool SDLW::init()
             }
         }
     }
+    IMG_wrapper::gRenderer = gRenderer;
 
     return success;
 }

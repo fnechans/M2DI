@@ -1,8 +1,9 @@
 #include "gameplay.h"
 
+SDL_Rect gameplay::gameplayScreen={0,0,0,0};
+
 gameplay::gameplay()
 {
-
 }
 
 void reduce_to_zero( int & value, const int & reducer )

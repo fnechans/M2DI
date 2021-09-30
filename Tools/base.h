@@ -6,17 +6,22 @@
 #include <stdio.h>
 #include <memory>
 #include <iostream>
+#include <vector>
+#include <algorithm>
+#include <map>
 
 class base
 {
 public:
     base();
-    
-    enum direction {UP,DOWN,LEFT,RIGHT};
 
-    static const int TILESIZE = 128;
-    static const int TILESIZEINPUT = 16;
-    static int TILESIZERENDER;
+    static const int TILESIZE = 128; // defines physical size
+                                     // so it is more related to
+                                     // speed and such
+    static const int TILESIZEINPUT = 16; // defines basic size of
+                                         // tile in input
+    static int TILESIZERENDER; // defines size of tile on screen
+                               // so can change if zooming in/out
     static double scaleRender;
     static double scaleRenderInput;
 
@@ -29,12 +34,43 @@ public:
     //Map dimension constants
     static int mWidth;
     static int mHeight;
-
-   // Any derived object can be in viewport, this keeps track of that
-    SDL_Rect * viewPort;
-
 };
 
-bool key_down(SDL_Event & e, SDL_Keycode keycode);
-bool key_up(SDL_Event & e, SDL_Keycode keycode);
+
+namespace tools{
+    bool key_down(SDL_Event & e, SDL_Keycode keycode);
+    bool key_up(SDL_Event & e, SDL_Keycode keycode);
+    // cleaup up functions, currently for "dead" chars (health=0),
+    // could be generalized in future if needed
+
+    template<typename T>
+    void remove_dead_vector( std::vector<T> & objects )
+    {
+        objects.erase(std::remove_if(objects.begin(), objects.end(),
+                      [](T& o)
+                      { return o->property.count("health") && o->property.at("health")==0; }),
+                      objects.end());
+    }
+
+    // For now <string,T>, generalize? Not needed right now...
+    template <typename T>
+    void remove_dead_map(std::map<std::string, T> &objects)
+    {
+        erase_if(objects, [](auto &item)
+                      { return item.second.property["health"] == 0; });
+    }
+
+    template <typename ContainerT, typename PredicateT>
+    void erase_if(ContainerT &items, const PredicateT &predicate)
+    {
+        for (auto it = items.begin(); it != items.end();)
+        {
+            if (predicate(*it))
+                it = items.erase(it);
+            else
+                ++it;
+        }
+    }
+}
+
 #endif

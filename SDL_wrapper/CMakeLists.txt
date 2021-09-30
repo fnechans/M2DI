@@ -8,5 +8,5 @@ PKG_SEARCH_MODULE(SDL2TTF REQUIRED SDL2_ttf>=2.0.0)
 include_directories(../Tools)
 
 add_library( wrappers  ${FILES}  )
-target_link_libraries( wrappers ${SDL2_LIBRARIES} ${SDL2TTF_LIBRARIES} -lstdc++fs )
-target_include_directories( wrappers PUBLIC ${SDL2_INCLUDE_DIRS} ${SDL2TTF_INCLUDE_DIRS} )
+target_link_libraries( wrappers ${SDL2_LIBRARIES}  ${SDL2IMAGE_LIBRARIES} ${SDL2TTF_LIBRARIES} -lstdc++fs )
+target_include_directories( wrappers PUBLIC ${SDL2_INCLUDE_DIRS} ${SDL2IMAGE_INCLUDE_DIRS} ${SDL2TTF_INCLUDE_DIRS} )

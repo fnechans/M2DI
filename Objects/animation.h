@@ -6,31 +6,53 @@
 
 #include <vector>
 
-class animation : public gameplay
+class Animation : public gameplay
 {
 public:
-    animation( int x = 0, int y = 0 ) : shiftX(x),shiftY(y){ frame = 0; }
-    animation( const animation & other );
+    Animation( int x = 0, int y = 0 ) : shiftX(x),shiftY(y){ frame = 0; }
+    Animation( const Animation & other );
     void play(){ running = true; }
     void pause(){ running = false; }
     SDL_Rect get();
     void stop(){ running = false; frame = 0; }
-    std::vector<SDL_Rect> clips;
     // shared because multiple animation will share it
     std::shared_ptr<IMG_wrapper> image; 
     bool set_image(std::string imagePath);
+    void add_clip(SDL_Rect clip){clips.push_back(clip);}
+    void add_clip_relative(std::vector<float> clip);
 
     int shiftX;
     int shiftY;
-    uint frequency = 4;
-    double angle = 0;
+    uint frequency = base::TILESIZE/16;
+    float angle = 0;
     SDL_RendererFlip flip = SDL_FLIP_NONE;
 
-    bool display = true;
+    bool repeat = true;
     bool running = false;
+    std::vector<SDL_Rect> clips;
 private:
     uint frame;
 
 };
 
+class animation_data : base
+{
+public:
+    animation_data() : shiftX(0), shiftY(0){}
+    float shiftX;
+    float shiftY;
+    uint frequency = TILESIZE/16;
+    std::vector<std::vector<float>> clips;
+    bool repeat = true;
+    Animation get_animation()
+    {
+        Animation a((int)(shiftX*TILESIZE), (int)(shiftY*TILESIZE));
+        for(auto clip :clips)
+            a.add_clip_relative(clip);
+        if(frequency==0) frequency = 1;
+        a.frequency = frequency;
+        a.repeat = repeat;
+        return a;
+    }
+};
 #endif // ANIMATION_H

@@ -20,10 +20,10 @@ void Movable::move(std::vector<Object*> & collObjects )
     int dY = extVelY+intrVelY;
 
     moved = false;
-    if(intrVelX>0) dir = RIGHT;
+  /*  if(intrVelX>0) dir = RIGHT;
     else if(intrVelX<0) dir = LEFT;
     else if(intrVelY>0) dir = DOWN;
-    else if(intrVelY<0) dir = UP;
+    else if(intrVelY<0) dir = UP;*/
     if(dX==0&&dY==0) return;
 
     SDL_Rect newPosition = position;

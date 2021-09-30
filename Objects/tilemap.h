@@ -8,12 +8,11 @@
 #include <vector>
 #include <map>
 
-namespace M2DI {
 class Map_wrapper : public gameplay
 {
 public:
-    Map_wrapper();
-    ~Map_wrapper(){ delete viewPort; }
+    Map_wrapper(SDL_Rect border = {0, 0, TILESIZEINPUT*12, 0});
+    ~Map_wrapper(){}
 
     void render_minimap( SDL_wrapper & wrapper, std::vector<Object*> & objects );
     void render_map( SDL_wrapper & wrapper, SDL_Rect & mapPosition );
@@ -28,6 +27,11 @@ public:
     std::vector<std::unique_ptr<Object>> tiles;
     std::vector<std::unique_ptr<Object>> blocks;
     std::shared_ptr<IMG_wrapper> image;
+
+// TODO: General problem, most stuff public!
+private:
+    SDL_Rect gameplayBorder;
+    SDL_Rect minimapBorder;
+    SDL_Rect viewPort;
 };
-}
 #endif // MAP_H

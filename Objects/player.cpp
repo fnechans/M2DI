@@ -6,10 +6,10 @@ void Player::evaluate(SDL_Event & e)
     {
         switch( e.key.keysym.sym )
         {
-        case SDLK_w: intrVelY += -speed; break;
-        case SDLK_a: intrVelX += -speed; break;
-        case SDLK_s: intrVelY +=  speed; break;
-        case SDLK_d: intrVelX +=  speed; break;
+        case SDLK_w: intrVelY += -speed; dir = UP; break;
+        case SDLK_a: intrVelX += -speed; dir = LEFT; break;
+        case SDLK_s: intrVelY +=  speed; dir = DOWN; break;
+        case SDLK_d: intrVelX +=  speed; dir = RIGHT; break;
         }
     }
     else if( e.type == SDL_KEYUP && e.key.repeat == 0 )

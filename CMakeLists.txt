@@ -4,7 +4,7 @@ project(SDL2Test)
 SET(CMAKE_BUILD_TYPE Debug)
 
 SET(WLEVEL     " -Wall -Wextra")
-SET(CXX11 "-std=c++11 -std=c++14 ${WLEVEL} ")
+SET(CXX11 "-std=c++11 -std=c++14 -std=c++17 ${WLEVEL} ")
 IF(UNIX)
     MESSAGE( STATUS "Found UNIX System (including OS X and CygWin)" )
     ADD_DEFINITIONS(${ROOT_COMPILE_FLAGS})
@@ -32,12 +32,19 @@ ENDIF(UNIX)
 
 add_subdirectory(SDL_wrapper)
 include_directories(SDL_wrapper)
+link_directories(SDL_wrapper)
 
 add_subdirectory(Tools)
 include_directories(Tools)
+link_directories(Tools)
 
 add_subdirectory(Objects)
 include_directories(Objects)
+link_directories(Objects)
+
+add_subdirectory(Complex)
+include_directories(Complex)
+link_directories(Complex)
 
 add_executable(SDL2Test main.cpp)
-target_link_libraries(SDL2Test PUBLIC wrappers tools objects)
+target_link_libraries(SDL2Test PUBLIC wrappers tools objects complex)

@@ -1,29 +1,29 @@
 #include "melee.h"
 
-SDL_Rect Melee::get_targetZone(SDL_Rect & origin, direction dir)
+SDL_Rect Melee::get_targetZone(SDL_Rect & origin, Object::direction dir)
 {
     SDL_Rect targetZone;
     switch(dir)
     {
-        case direction::UP:
+        case Object::direction::UP:
             targetZone.x = origin.x-TILESIZE*(width/2);
             targetZone.y = origin.y-shift;
             targetZone.w = width*TILESIZE;
             targetZone.h = length*TILESIZE;
             break;
-        case direction::DOWN:
+        case Object::direction::DOWN:
             targetZone.x = origin.x-TILESIZE*(width/2);
             targetZone.y = origin.y+shift;
             targetZone.w = width*TILESIZE;
             targetZone.h = length*TILESIZE;
             break;
-        case direction::LEFT:
+        case Object::direction::LEFT:
             targetZone.x = origin.x-shift;
             targetZone.y = origin.y-TILESIZE*(width/2);
             targetZone.w = length*TILESIZE;
             targetZone.h = width*TILESIZE;
             break;
-        case direction::RIGHT:
+        case Object::direction::RIGHT:
             targetZone.x = origin.x+shift;
             targetZone.y = origin.y-TILESIZE*(width/2);
             targetZone.w = length*TILESIZE;
@@ -39,12 +39,12 @@ bool Melee::evaluate_target(SDL_Rect &targetZone, SDL_Rect & origin, Object *tar
     {
         ++hits;
         target->modify_health(-damage);
-        target->animations["DMG"] = std::make_shared<animation>(0, -TILESIZERENDER * 2);
-        target->animations["DMG"]->image = imgDMG;
-        target->animations["DMG"]->clips.push_back({0, 0, imgDMG->width, imgDMG->height});
-        target->animations["DMG"]->frequency = 20;
-        target->animations["DMG"]->display = false;
-        target->animations["DMG"]->play();
+        target->animations["DMG"] = Animation(0, -TILESIZERENDER * 2);
+        target->animations["DMG"].image = imgDMG;
+        target->animations["DMG"].clips.push_back({0, 0, imgDMG->width, imgDMG->height});
+        target->animations["DMG"].frequency = 20;
+        target->animations["DMG"].repeat = false;
+        target->animations["DMG"].play();
 
         if (knockback)
         {
@@ -53,11 +53,17 @@ bool Melee::evaluate_target(SDL_Rect &targetZone, SDL_Rect & origin, Object *tar
             target->extVelX += knockback * dirX / sqrt(dirX * dirX + dirY * dirY);
             target->extVelY += knockback * dirY / sqrt(dirX * dirX + dirY * dirY);
         }
+        return true;
     }
+    else return false;
 }
 
-void Melee::evaluate(Movable * ch, std::vector<Object*> targets, SDL_wrapper * wrapper)
-{
+bool Melee::evaluate(Movable * ch, std::vector<Object*> targets)
+{   
+    if(clock.isStarted && clock.getTicks()<cooldown*1000)
+        return false;
+    else clock.restart();
+    // TODO: why is there wrapper here?
    // evaluate(ch->position, ch->dir, targets, wrapper);
     hits = 0;
     for(auto t : targets)
@@ -71,10 +77,15 @@ void Melee::evaluate(Movable * ch, std::vector<Object*> targets, SDL_wrapper * w
         evaluate_target(targetZone, ch->position, t);
     }
     if(lifesteal) ch->modify_health((int) damage*lifesteal*hits);
+    return true;
 }
 
-void Melee::evaluate(SDL_Rect & origin, direction dir, std::vector<Object*> targets, SDL_wrapper * wrapper)
+bool Melee::evaluate(SDL_Rect & origin, Object::direction dir, std::vector<Object*> targets)
 {
+    if(clock.isStarted && clock.getTicks()<cooldown*1000)
+        return false;
+    else clock.restart();
+
     hits = 0;
     for(auto t : targets)
     {
@@ -83,4 +94,5 @@ void Melee::evaluate(SDL_Rect & origin, direction dir, std::vector<Object*> targ
         SDL_Rect targetZone = get_targetZone(origin, dir);
         evaluate_target(targetZone, origin, t);
     }
+    return true;
 }

@@ -1,5 +1,5 @@
-#ifndef CHAR_H
-#define CHAR_H
+#ifndef PLAYER_H
+#define PLAYER_H
 
 //Using SDL and standard IO
 #include <SDL2/SDL.h>
