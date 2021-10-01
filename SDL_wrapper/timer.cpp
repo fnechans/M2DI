@@ -6,7 +6,7 @@ timer::timer()
     pauseTicks = 0;
 
     isStarted = false;
-    isPaused  = false;
+    isPaused = false;
 }
 
 void timer::start()
@@ -15,7 +15,7 @@ void timer::start()
     pauseTicks = 0;
 
     isStarted = true;
-    isPaused  = false;
+    isPaused = false;
 }
 
 void timer::stop()
@@ -24,12 +24,12 @@ void timer::stop()
     pauseTicks = 0;
 
     isStarted = false;
-    isPaused  = false;
+    isPaused = false;
 }
 
 void timer::pause()
 {
-    if( isStarted && !isPaused )
+    if (isStarted && !isPaused)
     {
         isPaused = true;
         pauseTicks = SDL_GetTicks() - startTicks;
@@ -39,7 +39,7 @@ void timer::pause()
 
 void timer::unpause()
 {
-    if( isStarted && isPaused )
+    if (isStarted && isPaused)
     {
         isPaused = false;
         startTicks = SDL_GetTicks() - pauseTicks;
@@ -51,9 +51,9 @@ Uint32 timer::getTicks()
 {
     Uint32 time = 0;
 
-    if( isStarted )
+    if (isStarted)
     {
-        if( isPaused )
+        if (isPaused)
         {
             time = pauseTicks;
         }

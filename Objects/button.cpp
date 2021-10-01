@@ -1,75 +1,75 @@
 #include "button.h"
 
-button::button( SDL_Rect pos, double ws, double hs )
+button::button(SDL_Rect pos, double ws, double hs)
 {
     screenPos = pos;
 
-	for( int c = DEFAULT; c<COUNT; ++c )
-	{
-        clips[c] = { (int) (c*TILESIZEINPUT*ws), 0, (int) (TILESIZEINPUT*ws), (int) (TILESIZEINPUT*hs) };
-	}	
+    for (int c = DEFAULT; c < COUNT; ++c)
+    {
+        clips[c] = {(int)(c * TILESIZEINPUT * ws), 0, (int)(TILESIZEINPUT * ws), (int)(TILESIZEINPUT * hs)};
+    }
 }
 
-button::button( const button& b )
+button::button(const button &b)
 {
     screenPos = b.screenPos;
 
-	for( int c = DEFAULT; c<COUNT; ++c )
-	{
+    for (int c = DEFAULT; c < COUNT; ++c)
+    {
         clips[c] = b.clips[c];
-	}	
+    }
 }
 
-int button::evaluate(SDL_Event & e, SDL_Rect viewPort)
+int button::evaluate(SDL_Event &e, SDL_Rect viewPort)
 {
     //If mouse event happened
-    if( e.type == SDL_MOUSEMOTION || e.type == SDL_MOUSEBUTTONDOWN || e.type == SDL_MOUSEBUTTONUP )
+    if (e.type == SDL_MOUSEMOTION || e.type == SDL_MOUSEBUTTONDOWN || e.type == SDL_MOUSEBUTTONUP)
     {
         //Get mouse position
         int x, y;
-        SDL_GetMouseState( &x, &y );
-        if(x >= viewPort.x+screenPos.x 
-           && x <= viewPort.x+screenPos.x+screenPos.w
-           && y >= viewPort.y+screenPos.y
-           && y <= viewPort.y+screenPos.y+screenPos.h
-           && e.button.button == SDL_BUTTON_LEFT)
+        SDL_GetMouseState(&x, &y);
+        if (x >= viewPort.x + screenPos.x && x <= viewPort.x + screenPos.x + screenPos.w && y >= viewPort.y + screenPos.y && y <= viewPort.y + screenPos.y + screenPos.h && e.button.button == SDL_BUTTON_LEFT)
         {
             //Set mouse over sprite
-            switch( e.type )
+            switch (e.type)
             {
-                case SDL_MOUSEMOTION:
+            case SDL_MOUSEMOTION:
                 state = HOVER;
                 break;
-            
-                case SDL_MOUSEBUTTONDOWN:
+
+            case SDL_MOUSEBUTTONDOWN:
                 state = CLICK;
                 break;
-                
-                case SDL_MOUSEBUTTONUP:
+
+            case SDL_MOUSEBUTTONUP:
                 state = HOVER;
                 break;
             }
         }
-        else state = DEFAULT;
+        else
+            state = DEFAULT;
     }
     return state;
 }
 
-void button::plot( Window & window )
+void button::plot(Window &window)
 {
-    image->set_color(255,0,0);
-    image->render_image(window,&screenPos,&clips[state]);
-    if(text) text->render_image(window,&screenPos);
+    image->set_color(255, 0, 0);
+    image->render_image(window, &screenPos, &clips[state]);
+    if (text)
+        text->render_image(window, &screenPos);
 }
 
-bool button::set_image(Window& window, std::string imagePath,std::string title,SDL_Color color)
+bool button::set_image(Window &window, std::string imagePath, std::string title, SDL_Color color)
 {
-    image =std::make_shared<IMG_wrapper>();
-    if( !image->load_media(window, imagePath.c_str()) ) return false;
-    if( title!="" )
+    image = std::make_shared<IMG_wrapper>();
+    if (!image->load_media(window, imagePath.c_str()))
+        return false;
+    if (title != "")
     {
-        text = std::make_shared< IMG_wrapper>();
-        if( !text->load_text(window, title, color, screenPos.h) ) return false;
+        text = std::make_shared<IMG_wrapper>();
+        if (!text->load_text(window, title, color, screenPos.h))
+            return false;
     }
     return true;
 }

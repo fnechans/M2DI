@@ -13,44 +13,45 @@ typedef std::shared_ptr<screen> screen_ptr;
 class screen
 {
 public:
-    screen(){window = std::make_shared<Window>();}
-    screen(std::shared_ptr<Window> _window) : window(_window){}
+    screen() { window = std::make_shared<Window>(); }
+    screen(std::shared_ptr<Window> _window) : window(_window) {}
 
-    ~screen(){}
+    ~screen() {}
     std::shared_ptr<Window> window;
     SDL_Event event;
 
+    virtual void user_init() {}
+    virtual void user_evaluate() {}
+    virtual void user_update() {}
+    virtual void user_plot() {}
+    virtual screen_ptr user_nextScreen() { return nullptr; }
 
-    virtual void user_init(){}
-    virtual void user_evaluate(){}
-    virtual void user_update(){}
-    virtual void user_plot(){}
-    virtual screen_ptr user_nextScreen(){return nullptr;}
-
-    template<typename T>
+    template <typename T>
     screen_ptr make_screen(bool copyWindow = false)
     {
-        if(copyWindow) return std::make_shared<T>(window);
+        if (copyWindow)
+            return std::make_shared<T>(window);
         return std::make_shared<T>();
     }
 
-    Menu& add_menu(Menu::Position pos = Menu::RIGHT, SDL_Rect border = {base::TILESIZEINPUT*12, base::TILESIZEINPUT*12, 0, 0})
-    { 
-        menus.emplace_back(Menu(window.get(), pos, border)); 
+    Menu &add_menu(Menu::Position pos = Menu::RIGHT, SDL_Rect border = {base::TILESIZEINPUT * 12, base::TILESIZEINPUT * 12, 0, 0})
+    {
+        menus.emplace_back(Menu(window.get(), pos, border));
         return menus.back();
     }
-    Level& add_level() {
-         levels.push_back(std::move(Level(window.get())));
-         return levels.back(); 
+    Level &add_level()
+    {
+        levels.push_back(std::move(Level(window.get())));
+        return levels.back();
     }
 
     screen_ptr loop()
     {
         if (!isInit)
             init();
-        while (!quit )
+        while (!quit)
         {
-        // TODO: naming! preprocess vs reset()!
+            // TODO: naming! preprocess vs reset()!
             for (auto &m : menus)
                 m.reset();
             for (auto &l : levels)
@@ -74,7 +75,7 @@ public:
             user_update();
 
             for (auto &l : levels)
-                l.plot(); 
+                l.plot();
             for (auto &m : menus)
                 m.plot();
 
@@ -86,16 +87,18 @@ public:
     }
 
     bool quit = false;
+
 private:
     bool isInit = false;
 
     std::string switchName = "";
 
     void init()
-    {    
+    {
         base::set_tilerender(64);
         // TODO: without else?
-        if( !window->isInit && !window->init() ) throw std::runtime_error("Problem in init");
+        if (!window->isInit && !window->init())
+            throw std::runtime_error("Problem in init");
 
         user_init();
         isInit = true;

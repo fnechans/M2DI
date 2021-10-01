@@ -7,21 +7,27 @@
 class button : public base
 {
 public:
-    button(SDL_Rect pos, double ws=2, double hs=1);
-    button(const button& b);
-    ~button(){}
+    button(SDL_Rect pos, double ws = 2, double hs = 1);
+    button(const button &b);
+    ~button() {}
 
-	enum clipType {DEFAULT,HOVER,CLICK,COUNT};
-	SDL_Rect clips[COUNT];
+    enum clipType
+    {
+        DEFAULT,
+        HOVER,
+        CLICK,
+        COUNT
+    };
+    SDL_Rect clips[COUNT];
 
     SDL_Rect screenPos;
-	uint state = DEFAULT;
+    uint state = DEFAULT;
 
     std::shared_ptr<IMG_wrapper> image;
     std::shared_ptr<IMG_wrapper> text;
-	void plot(Window & wrapper);
-	int evaluate(SDL_Event & event, SDL_Rect viewPort);
-    bool set_image(Window& window, std::string imagePath,std::string title="",SDL_Color color={255,255,150,255});
+    void plot(Window &wrapper);
+    int evaluate(SDL_Event &event, SDL_Rect viewPort);
+    bool set_image(Window &window, std::string imagePath, std::string title = "", SDL_Color color = {255, 255, 150, 255});
 };
 
 #endif //BUTTON_H

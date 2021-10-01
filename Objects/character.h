@@ -6,19 +6,19 @@
 
 class Melee_instance;
 
-class Character : public Object 
+class Character : public Object
 {
 public:
-    Character(uint x=mWidth/2,uint y=mHeight/2);
+    Character(uint x = mWidth / 2, uint y = mHeight / 2);
 
     void follow_path();
-    void plot_path( Window & wrapper, SDL_Rect * screen);
+    void plot_path(Window &wrapper, SDL_Rect *screen);
 
     std::vector<Object *> path = {};
-    Object * target;
+    Object *target;
 
-    void move( std::vector<Object*> & collObjects );
-    bool doesCollide( SDL_Rect & pos, std::vector<Object*> & collObjects );
+    void move(std::vector<Object *> &collObjects);
+    bool doesCollide(SDL_Rect &pos, std::vector<Object *> &collObjects);
 
     // intrinsic speed of the character
     int intrVelX;
@@ -26,7 +26,7 @@ public:
     direction dir;
     int speed;
     bool moved;
-    std::map<std::string,Melee_instance> melees;
+    std::map<std::string, Melee_instance> melees;
 };
 
 #endif // CHARACTER_H

@@ -16,12 +16,12 @@ public:
     base();
 
     static const int TILESIZEPHYSICS = 128; // defines physical size
-                                     // so it is more related to
-                                     // speed and such
-    static const int TILESIZEINPUT = 16; // defines basic size of
-                                         // tile in input
-    static int TILESIZERENDER; // defines size of tile on screen
-                               // so can change if zooming in/out
+                                            // so it is more related to
+                                            // speed and such
+    static const int TILESIZEINPUT = 16;    // defines basic size of
+                                            // tile in input
+    static int TILESIZERENDER;              // defines size of tile on screen
+                                            // so can change if zooming in/out
     static double scaleRender;
     static double scaleRenderInput;
 
@@ -32,29 +32,29 @@ public:
     static int mHeight;
 };
 
-
-namespace tools{
-    bool key_down(SDL_Event & e, SDL_Keycode keycode);
-    bool key_up(SDL_Event & e, SDL_Keycode keycode);
+namespace tools
+{
+    bool key_down(SDL_Event &e, SDL_Keycode keycode);
+    bool key_up(SDL_Event &e, SDL_Keycode keycode);
     void reduce_to_zero(int &value, const int &reducer);
 
     // cleaup up functions, currently for "dead" chars
     // could be generalized in future if needed
-    template<typename T>
-    void remove_dead_vector( std::vector<T*> & objects )
+    template <typename T>
+    void remove_dead_vector(std::vector<T *> &objects)
     {
         objects.erase(std::remove_if(objects.begin(), objects.end(),
-                      [](T*&o)
-                      { return o->dead; }),
+                                     [](T *&o)
+                                     { return o->dead; }),
                       objects.end());
     }
 
-    template<typename T>
-    void remove_dead_vector( std::vector<T> & objects )
+    template <typename T>
+    void remove_dead_vector(std::vector<T> &objects)
     {
         objects.erase(std::remove_if(objects.begin(), objects.end(),
-                      [](T& o)
-                      { return o.dead; }),
+                                     [](T &o)
+                                     { return o.dead; }),
                       objects.end());
     }
 
@@ -63,7 +63,7 @@ namespace tools{
     void remove_dead_map(std::map<std::string, T> &objects)
     {
         erase_if(objects, [](auto &item)
-                      { return item.second.dead; });
+                 { return item.second.dead; });
     }
 
     template <typename ContainerT, typename PredicateT>

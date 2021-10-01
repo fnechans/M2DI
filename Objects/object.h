@@ -5,19 +5,25 @@
 #include "IMG_wrapper.h"
 #include "animation.h"
 
-#include<vector>
-#include<map>
+#include <vector>
+#include <map>
 
 class Object : public base
 {
 public:
-    Object(uint x=mWidth/2, uint y=mHeight/2);
-    ~Object(){}
+    Object(uint x = mWidth / 2, uint y = mHeight / 2);
+    ~Object() {}
 
-    enum direction {UP,DOWN,LEFT,RIGHT};
-    static const char* const dirName[4];// = {"UP", "DOWN", "LEFT", "RIGHT"};
+    enum direction
+    {
+        UP,
+        DOWN,
+        LEFT,
+        RIGHT
+    };
+    static const char *const dirName[4]; // = {"UP", "DOWN", "LEFT", "RIGHT"};
 
-    std::shared_ptr<std::map<int,SDL_Rect>> clips;
+    std::shared_ptr<std::map<int, SDL_Rect>> clips;
 
     // global coor. vars
     SDL_Rect position;
@@ -34,23 +40,24 @@ public:
     SDL_Color mapColor;
 
     std::shared_ptr<IMG_wrapper> image;
-    bool set_image(Window & window,std::string imagePath);
-    void plot( Window & wrapper, SDL_Rect * screen = nullptr );
+    bool set_image(Window &window, std::string imagePath);
+    void plot(Window &wrapper, SDL_Rect *screen = nullptr);
 
-    std::map<std::string,int> property;
+    std::map<std::string, int> property;
     void set_health(uint value);
     void modify_health(int value);
 
-    std::map<std::string,Animation> animations;
-    void copy_animation(Object const & object );
-    void plot_animation( Window & window, SDL_Rect * screen = nullptr, bool pause = false);
+    std::map<std::string, Animation> animations;
+    void copy_animation(Object const &object);
+    void plot_animation(Window &window, SDL_Rect *screen = nullptr, bool pause = false);
     void set_animation(std::string animationName);
 
     bool dead = false;
+
 private:
     std::string curAnimation = "";
 };
 
-std::vector<Object> import_map( std::string mapFile, int mapSizeX, int mapSizeY );
+std::vector<Object> import_map(std::string mapFile, int mapSizeX, int mapSizeY);
 
 #endif // OBJECT_H

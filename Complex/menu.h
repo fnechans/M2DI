@@ -10,11 +10,18 @@
 class Menu : base
 {
 public:
-    enum Position {CENTER, RIGHT, LEFT, TOP, BOTTOM};
-    
-    Menu(Window* _wrapper, Position pos = RIGHT, SDL_Rect border = {TILESIZEINPUT*12, TILESIZEINPUT*12, 0, 0}); 
+    enum Position
+    {
+        CENTER,
+        RIGHT,
+        LEFT,
+        TOP,
+        BOTTOM
+    };
+
+    Menu(Window *_wrapper, Position pos = RIGHT, SDL_Rect border = {TILESIZEINPUT * 12, TILESIZEINPUT * 12, 0, 0});
     void set_viewPort();
-    void evaluate(SDL_Event& event);
+    void evaluate(SDL_Event &event);
     void reset();
     void plot();
 
@@ -22,8 +29,7 @@ public:
     void add_image(std::string name, std::string imagePath)
     {
         images.emplace(name, std::make_shared<IMG_wrapper>());
-        images[name]->load_media(*window,imagePath.c_str());
-
+        images[name]->load_media(*window, imagePath.c_str());
     }
 
     // Buttons
@@ -33,18 +39,19 @@ public:
         buttonKeys.emplace(name, key);
         buttonState.emplace(name, false);
     }
-    void set_button_image(std::string name, std::string imgName, std::string text="", uint textSize =  TILESIZEINPUT*2, SDL_Color textColor = {255,255,150,255})
+    void set_button_image(std::string name, std::string imgName, std::string text = "", uint textSize = TILESIZEINPUT * 2, SDL_Color textColor = {255, 255, 150, 255})
     {
         buttons.at(name).image = images[imgName];
-        if( text!="" )
+        if (text != "")
         {
-            buttons.at(name).text = std::make_shared< IMG_wrapper>();
+            buttons.at(name).text = std::make_shared<IMG_wrapper>();
             buttons.at(name).text->load_text(*window, text, textColor, textSize);
         }
     }
-    bool get_state(std::string name){return buttonState.at(name);}
+    bool get_state(std::string name) { return buttonState.at(name); }
+
 private:
-    Window * window;
+    Window *window;
     SDL_Rect viewPort;
     Position position;
     SDL_Rect border;
