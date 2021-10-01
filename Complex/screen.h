@@ -12,7 +12,7 @@ public:
     screen(){}
     ~screen(){}
     // TODO: move wrapper to funct
-    static SDL_wrapper wrapper;
+    Window window;
 
     virtual void user_init(){}
     virtual void user_evaluate(){}
@@ -22,11 +22,11 @@ public:
 
     Menu& add_menu(Menu::Position pos = Menu::RIGHT, SDL_Rect border = {base::TILESIZEINPUT*12, base::TILESIZEINPUT*12, 0, 0})
     { 
-        menus.emplace_back(Menu(&wrapper, pos, border)); 
+        menus.emplace_back(Menu(&window, pos, border)); 
         return menus.back();
     }
     Level& add_level() {
-         levels.push_back(std::move(Level(&wrapper)));
+         levels.push_back(std::move(Level(&window)));
          return levels.back(); 
     }
 
@@ -56,18 +56,18 @@ public:
                 user_evaluate();
             }
 
+            window.clear();
             for (auto &l : levels)
                 l.move_chars();
             user_update();
 
-            wrapper.clear();
             for (auto &l : levels)
                 l.plot(); 
             for (auto &m : menus)
                 m.plot();
 
             user_plot();
-            wrapper.render();
+            window.render();
         }
 
         return user_nextScreen();
@@ -83,7 +83,7 @@ private:
     {    
         base::set_tilerender(64);
         // TODO: without else?
-        if( !wrapper.isInit && !wrapper.init() ) throw std::runtime_error("Problem in init");
+        if( !window.isInit && !window.init() ) throw std::runtime_error("Problem in init");
 
         user_init();
         isInit = true;

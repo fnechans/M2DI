@@ -21,17 +21,9 @@ public:
         {
             throw std::invalid_argument("Attack width has to be odd!");
         }
-        imgDMG = std::make_shared<IMG_wrapper>();
-        textDMG.str("");
-        textDMG << damage;
-        imgDMG->load_text(textDMG.str(), {255,100,100,255});
     }
     Melee(const Melee& m) : damage(m.damage), shift(m.shift), length(m.length), width(m.width)
     {
-        imgDMG = std::make_shared<IMG_wrapper>();
-        textDMG.str("");
-        textDMG << damage;
-        imgDMG->load_text(textDMG.str(), {255,100,100,255});
     }
     // evaluates if target was hit, returns true if yes
     bool evaluate_target(SDL_Rect & targetZone, SDL_Rect & origin, Object * target);
@@ -57,9 +49,6 @@ private:
     
     // internal counters
     uint hits; //how many targets hit per attack, useful for e.g. lifesteal
-
-    std::shared_ptr<IMG_wrapper> imgDMG; // shows damage dealth on screen
-    std::stringstream textDMG;
 };
 
 

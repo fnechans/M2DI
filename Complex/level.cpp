@@ -1,6 +1,6 @@
 #include "level.h"
 
-Level::Level(SDL_wrapper * _wrapper) : wrapper(_wrapper), bScreen({0,0,0,0})
+Level::Level(Window * _wrapper) : window(_wrapper), bScreen({0,0,0,0})
 {
 }
 
@@ -30,8 +30,8 @@ void Level::evaluate(SDL_Event& event)
 {
     if( event.type == SDL_WINDOWEVENT && event.window.event == SDL_WINDOWEVENT_RESIZED )
     {
-        wrapper->sWidth = event.window.data1;
-        wrapper->sHeight = event.window.data2;
+        window->sWidth = event.window.data1;
+        window->sHeight = event.window.data2;
     }
     bScreen.screenPos = curMap.gameplayScreen;
     
@@ -67,16 +67,16 @@ void Level::move_chars()
 void Level::plot()
 {
     player.screen_position(screenRect);
-    curMap.render_map(*wrapper, screenRect );
+    curMap.render_map(*window, screenRect );
     // TODO: are all collision objects needed here?
 
 
     for(auto& cIt: characters)
     {
         Character* chr = &cIt.second;
-        chr->plot_path(*wrapper,&screenRect);
-        chr->plot_animation(*wrapper, &screenRect, pause);
+        chr->plot_path(*window,&screenRect);
+        chr->plot_animation(*window, &screenRect, pause);
     }
-    player.plot_animation(*wrapper, nullptr, pause);
-    curMap.render_minimap(*wrapper, collisionObjects);
+    player.plot_animation(*window, nullptr, pause);
+    curMap.render_minimap(*window, collisionObjects);
 }

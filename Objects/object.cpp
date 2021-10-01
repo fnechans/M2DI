@@ -22,7 +22,7 @@ Object::Object( uint x, uint y )
     clips = std::make_shared<std::map<int,SDL_Rect>>();
 }
 
-void Object::plot(SDL_wrapper & wrapper , SDL_Rect *screen )
+void Object::plot(Window & window, SDL_Rect *screen )
 {
     if(screen)
     {
@@ -33,13 +33,13 @@ void Object::plot(SDL_wrapper & wrapper , SDL_Rect *screen )
 
     SDL_Rect renderRect = {posSX,posSY,TILESIZERENDER,TILESIZERENDER};
     // image->set_color(255,0,0);
-    wrapper.render_image(*image,&renderRect,&(*clips).at(spriteType));
+    image->render_image(window,&renderRect,&(*clips).at(spriteType));
 }
 
-bool Object::set_image(std::string imagePath)
+bool Object::set_image(Window & window, std::string imagePath)
 {
     image =std::make_shared<IMG_wrapper>();
-    return image->load_media(imagePath.c_str());
+    return image->load_media(window, imagePath.c_str());
 }
 
 
@@ -118,7 +118,7 @@ void Object::set_animation(std::string animationName)
     curAnimation = animationName;
 }
 
-void Object::plot_animation(SDL_wrapper & wrapper , SDL_Rect *screen, bool pause)
+void Object::plot_animation(Window & window , SDL_Rect *screen, bool pause)
 {
     // whether to skip the actual plotting (but keeps the animation playing and sets up the posSX/Y)
     bool skipPlot = false;
@@ -143,6 +143,6 @@ void Object::plot_animation(SDL_wrapper & wrapper , SDL_Rect *screen, bool pause
             (int) (spriteRect.h*scaleRenderInput)
         };
     // image->set_color(255,0,0);
-        wrapper.render_image(*anim.image,&renderRect,&spriteRect,anim.angle,anim.flip);
+        anim.image->render_image(window,&renderRect,&spriteRect,anim.angle,anim.flip);
     }
 }

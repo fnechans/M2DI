@@ -26,10 +26,10 @@ SDL_Rect Animation::get()
     return clips.at(pos);
 }
 
-bool Animation::set_image(std::string imagePath)
+bool Animation::set_image(Window& window, std::string imagePath)
 {
     image = std::make_shared<IMG_wrapper>();
-    return image->load_media(imagePath.c_str());
+    return image->load_media(window, imagePath.c_str());
 }
 
 void Animation::add_clip_relative(std::vector<float> clip)

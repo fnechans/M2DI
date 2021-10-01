@@ -55,21 +55,21 @@ int button::evaluate(SDL_Event & e, SDL_Rect viewPort)
     return state;
 }
 
-void button::plot( SDL_wrapper & wrapper )
+void button::plot( Window & window )
 {
     image->set_color(255,0,0);
-    wrapper.render_image(*image,&screenPos,&clips[state]);
-    if(text) wrapper.render_image(*text,&screenPos);
+    image->render_image(window,&screenPos,&clips[state]);
+    if(text) text->render_image(window,&screenPos);
 }
 
-bool button::set_image(std::string imagePath,std::string title,SDL_Color color)
+bool button::set_image(Window& window, std::string imagePath,std::string title,SDL_Color color)
 {
     image =std::make_shared<IMG_wrapper>();
-    if( !image->load_media(imagePath.c_str()) ) return false;
+    if( !image->load_media(window, imagePath.c_str()) ) return false;
     if( title!="" )
     {
         text = std::make_shared< IMG_wrapper>();
-        if( !text->load_text(title, color, screenPos.h) ) return false;
+        if( !text->load_text(window, title, color, screenPos.h) ) return false;
     }
     return true;
 }

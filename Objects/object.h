@@ -3,7 +3,6 @@
 
 #include "gameplay.h"
 #include "IMG_wrapper.h"
-#include "SDL_wrapper.h"
 #include "animation.h"
 
 #include<vector>
@@ -35,8 +34,8 @@ public:
     SDL_Color mapColor;
 
     std::shared_ptr<IMG_wrapper> image;
-    bool set_image(std::string imagePath);
-    void plot( SDL_wrapper & wrapper, SDL_Rect * screen = nullptr );
+    bool set_image(Window & window,std::string imagePath);
+    void plot( Window & wrapper, SDL_Rect * screen = nullptr );
 
     std::map<std::string,int> property;
     void set_health(uint value);
@@ -44,7 +43,7 @@ public:
 
     std::map<std::string,Animation> animations;
     void copy_animation(Object const & object );
-    void plot_animation( SDL_wrapper & wrapper, SDL_Rect * screen = nullptr, bool pause = false);
+    void plot_animation( Window & window, SDL_Rect * screen = nullptr, bool pause = false);
     void set_animation(std::string animationName);
 
     bool dead = false;

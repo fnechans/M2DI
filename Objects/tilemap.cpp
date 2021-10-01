@@ -3,35 +3,32 @@
 
 Map_wrapper::Map_wrapper(SDL_Rect border) : gameplay(), gameplayBorder(border)
 {
-    gameplayScreen = {gameplayBorder.x, gameplayBorder.y,sWidth-gameplayBorder.w,sHeight-gameplayBorder.h}; 
-    // TODO: custom setting in future:
-  //  minimapBorder = {sWidth-gameplayBorder.w, 0, gameplayBorder.w, gameplayBorder.w};
-    viewPort = SDL_Rect({sWidth-TILESIZEINPUT*6,0,TILESIZEINPUT*6,sHeight});
     image = std::make_shared<IMG_wrapper>();
     clips = std::make_shared<std::map<int,SDL_Rect>>();
 }
 
-void Map_wrapper::render_map( SDL_wrapper & wrapper, SDL_Rect & mapPosition )
+void Map_wrapper::render_map( Window & window, SDL_Rect & mapPosition )
 {
-    gameplayScreen = {gameplayBorder.x, gameplayBorder.y,sWidth-gameplayBorder.w,sHeight-gameplayBorder.h}; 
-    SDL_RenderSetViewport( wrapper.gRenderer, &gameplayScreen );
+    gameplayScreen = {gameplayBorder.x, gameplayBorder.y,window.sWidth-gameplayBorder.w,window.sHeight-gameplayBorder.h}; 
+
+    window.viewPort(&gameplayScreen);
     for( auto& tile : tiles )
     {
-        tile.plot(wrapper,&mapPosition);
+        tile.plot(window,&mapPosition);
     }
     // TODO: move blocks from tilemap!
     for( auto& tile : blocks )
     {
-        tile.plot(wrapper,&mapPosition);
+        tile.plot(window,&mapPosition);
     }
 }
 
-void Map_wrapper::render_minimap( SDL_wrapper & wrapper, std::vector<Object*> & objects  )
+void Map_wrapper::render_minimap( Window& window, std::vector<Object*> & objects  )
 {
     // TODO: custom setting in future:
-    viewPort = {sWidth-gameplayBorder.w, 0, gameplayBorder.w, gameplayBorder.w};
-    scale = ((double) mWidth)/viewPort.w;
-    SDL_RenderSetViewport( wrapper.gRenderer, &viewPort );
+    minimapViewPort = {window.sWidth-gameplayBorder.w, 0, gameplayBorder.w, gameplayBorder.w};
+    scale = ((double) mWidth)/minimapViewPort.w;
+    window.viewPort(&minimapViewPort);
     for( auto const& tile : tiles )
     {
         SDL_Rect rectMM = { (int) (tile.position.x/scale),
@@ -39,8 +36,7 @@ void Map_wrapper::render_minimap( SDL_wrapper & wrapper, std::vector<Object*> & 
                 (int) (TILESIZEPHYSICS/scale)+1,
                 (int) (TILESIZEPHYSICS/scale)+1
             };
-        SDL_SetRenderDrawColor( wrapper.gRenderer, mappingColor[tile.spriteType].r, mappingColor[tile.spriteType].g, mappingColor[tile.spriteType].b, mappingColor[tile.spriteType].a );
-        SDL_RenderFillRect( wrapper.gRenderer, &rectMM );
+        window.drawColorRect(&rectMM, mappingColor[tile.spriteType]);
     }
 
     for( auto const& tile : blocks )
@@ -50,16 +46,15 @@ void Map_wrapper::render_minimap( SDL_wrapper & wrapper, std::vector<Object*> & 
                 (int) (TILESIZEPHYSICS/scale)+1,
                 (int) (TILESIZEPHYSICS/scale)+1 
             };
-        SDL_SetRenderDrawColor( wrapper.gRenderer, mappingColor[tile.spriteType].r, mappingColor[tile.spriteType].g, mappingColor[tile.spriteType].b, mappingColor[tile.spriteType].a );
-        SDL_RenderFillRect( wrapper.gRenderer, &rectMM );
+        window.drawColorRect(&rectMM, mappingColor[tile.spriteType]);
+;
     }
 
     for( auto& obj : objects )
     {
         SDL_Rect r =  {(int) (obj->position.x/scale),
                        (int) (obj->position.y/scale), 2, 2};
-        SDL_SetRenderDrawColor( wrapper.gRenderer, obj->mapColor.r, obj->mapColor.g, obj->mapColor.b, obj->mapColor.a );
-        SDL_RenderFillRect( wrapper.gRenderer, &r );
+        window.drawColorRect(&r, obj->mapColor);
     }
 }
 

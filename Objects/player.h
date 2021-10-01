@@ -8,7 +8,6 @@
 
 #include "movable.h"
 #include "IMG_wrapper.h"
-#include "SDL_wrapper.h"
 
 class Player : public Movable 
 {

@@ -39,12 +39,6 @@ bool Melee::evaluate_target(SDL_Rect &targetZone, SDL_Rect & origin, Object *tar
     {
         ++hits;
         target->modify_health(-damage);
-        target->animations["DMG"] = Animation(0, -TILESIZERENDER * 2);
-        target->animations["DMG"].image = imgDMG;
-        target->animations["DMG"].clips.push_back({0, 0, imgDMG->width, imgDMG->height});
-        target->animations["DMG"].frequency = 20;
-        target->animations["DMG"].repeat = false;
-        target->animations["DMG"].play();
 
         if (knockback)
         {

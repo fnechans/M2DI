@@ -2,7 +2,7 @@
 #define LEVEL_H
 
 #include "gameplay.h"
-#include "SDL_wrapper.h"
+#include "window.h"
 #include "tilemap.h"
 #include "melee.h"
 #include "IMG_wrapper.h"
@@ -18,7 +18,7 @@
 class Level : gameplay
 {
 public:
-    Level(SDL_wrapper* _wrapper);
+    Level(Window* _wrapper);
     Level(const Level*) = delete;
     void bake(); // called before loop!
 
@@ -54,7 +54,7 @@ public:
     void add_image(std::string name, std::string imagePath)
     {
         images.emplace(name, std::make_shared<IMG_wrapper>());
-        images[name]->load_media(imagePath.c_str());
+        images[name]->load_media(*window,imagePath.c_str());
     }
 
     // Player
@@ -151,7 +151,7 @@ public:
     }
     bool pause = false; // is level paused?
 private:
-    SDL_wrapper * wrapper;
+    Window * window;
     Map_wrapper curMap;
     std::vector<Object*> collisionObjects;
     SDL_Rect screenRect;

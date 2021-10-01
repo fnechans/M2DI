@@ -2,7 +2,6 @@
 #define MAP_H
 
 #include "gameplay.h"
-#include "SDL_wrapper.h"
 #include "object.h"
 
 #include <vector>
@@ -14,8 +13,8 @@ public:
     Map_wrapper(SDL_Rect border = {0, 0, TILESIZEINPUT*12, 0});
     ~Map_wrapper(){}
 
-    void render_minimap( SDL_wrapper & wrapper, std::vector<Object*> & objects );
-    void render_map( SDL_wrapper & wrapper, SDL_Rect & mapPosition );
+    void render_minimap( Window & wrapper, std::vector<Object*> & objects );
+    void render_map( Window & wrapper, SDL_Rect & mapPosition );
     void add_sprite(int type, int posX, int posY , SDL_Color col, uint health = 0);
     bool load_map( std::string mapFile, int mapSizeX, int mapSizeY );
     bool load_blocks( std::string mapFile, int mapSizeX, int mapSizeY );
@@ -32,6 +31,6 @@ public:
 private:
     SDL_Rect gameplayBorder;
     SDL_Rect minimapBorder;
-    SDL_Rect viewPort;
+    SDL_Rect minimapViewPort;
 };
 #endif // MAP_H

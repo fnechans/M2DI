@@ -35,7 +35,7 @@ void Character::follow_path()
     }
 }
 
-void Character::plot_path(SDL_wrapper & wrapper , SDL_Rect *screen )
+void Character::plot_path(Window & wrapper , SDL_Rect *screen )
 {
     if( !path.empty() )
     {

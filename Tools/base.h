@@ -27,14 +27,9 @@ public:
 
     static void set_tilerender(int);
 
-	//Screen dimension constants
-    static int sWidth;
-    static int sHeight;
-
     //Map dimension constants
     static int mWidth;
     static int mHeight;
-    static SDL_Renderer * gRenderer;
 };
 
 

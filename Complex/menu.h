@@ -12,7 +12,7 @@ class Menu : base
 public:
     enum Position {CENTER, RIGHT, LEFT, TOP, BOTTOM};
     
-    Menu(SDL_wrapper* _wrapper, Position pos = RIGHT, SDL_Rect border = {TILESIZEINPUT*12, TILESIZEINPUT*12, 0, 0}); 
+    Menu(Window* _wrapper, Position pos = RIGHT, SDL_Rect border = {TILESIZEINPUT*12, TILESIZEINPUT*12, 0, 0}); 
     void set_viewPort();
     void evaluate(SDL_Event& event);
     void reset();
@@ -22,7 +22,7 @@ public:
     void add_image(std::string name, std::string imagePath)
     {
         images.emplace(name, std::make_shared<IMG_wrapper>());
-        images[name]->load_media(imagePath.c_str());
+        images[name]->load_media(*window,imagePath.c_str());
 
     }
 
@@ -39,12 +39,12 @@ public:
         if( text!="" )
         {
             buttons.at(name).text = std::make_shared< IMG_wrapper>();
-            buttons.at(name).text->load_text(text, textColor, textSize);
+            buttons.at(name).text->load_text(*window, text, textColor, textSize);
         }
     }
     bool get_state(std::string name){return buttonState.at(name);}
 private:
-    SDL_wrapper * wrapper;
+    Window * window;
     SDL_Rect viewPort;
     Position position;
     SDL_Rect border;

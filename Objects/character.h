@@ -9,7 +9,7 @@ public:
     Character(uint x=mWidth/2,uint y=mHeight/2);
 
     void follow_path();
-    void plot_path( SDL_wrapper & wrapper, SDL_Rect * screen);
+    void plot_path( Window & wrapper, SDL_Rect * screen);
 
     bool moved;
     std::vector<Object *> path = {};

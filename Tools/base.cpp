@@ -2,12 +2,9 @@
 
 int base::mWidth(0);
 int base::mHeight(0);
-int base::sWidth(0);
-int base::sHeight(0);
 int base::TILESIZERENDER(0);
 double base::scaleRender;
 double base::scaleRenderInput;
-SDL_Renderer * base::gRenderer;
 
 base::base()
 {

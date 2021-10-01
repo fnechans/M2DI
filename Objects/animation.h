@@ -17,7 +17,7 @@ public:
     void stop(){ running = false; frame = 0; }
     // shared because multiple animation will share it
     std::shared_ptr<IMG_wrapper> image; 
-    bool set_image(std::string imagePath);
+    bool set_image(Window&, std::string imagePath);
     void add_clip(SDL_Rect clip){clips.push_back(clip);}
     void add_clip_relative(std::vector<float> clip);
 
