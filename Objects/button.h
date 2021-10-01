@@ -9,8 +9,8 @@
 class button : public base
 {
 public:
-    button( SDL_Rect pos, double ws=2, double hs=1);
-    button( const button& b);
+    button(SDL_Rect pos, double ws=2, double hs=1);
+    button(const button& b);
     ~button(){}
 
 	enum clipType {DEFAULT,HOVER,CLICK,COUNT};

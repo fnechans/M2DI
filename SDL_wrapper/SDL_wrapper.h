@@ -4,6 +4,7 @@
 #include "base.h"
 #include "IMG_wrapper.h"
 
+// TODO: move from class to functions and static variables
 class SDL_wrapper : public base
 {
 public:
@@ -31,7 +32,7 @@ public:
         SDL_RenderPresent( gRenderer );
     }
 
-    SDL_Renderer * gRenderer;
+    bool isInit = false;
 private:
 
     //The window we'll be rendering to

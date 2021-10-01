@@ -15,13 +15,14 @@ void Map_wrapper::render_map( SDL_wrapper & wrapper, SDL_Rect & mapPosition )
 {
     gameplayScreen = {gameplayBorder.x, gameplayBorder.y,sWidth-gameplayBorder.w,sHeight-gameplayBorder.h}; 
     SDL_RenderSetViewport( wrapper.gRenderer, &gameplayScreen );
-    for( auto& t : tiles )
+    for( auto& tile : tiles )
     {
-        t->plot(wrapper,&mapPosition);
+        tile.plot(wrapper,&mapPosition);
     }
-    for( auto& t : blocks )
+    // TODO: move blocks from tilemap!
+    for( auto& tile : blocks )
     {
-        t->plot(wrapper,&mapPosition);
+        tile.plot(wrapper,&mapPosition);
     }
 }
 
@@ -31,25 +32,25 @@ void Map_wrapper::render_minimap( SDL_wrapper & wrapper, std::vector<Object*> & 
     viewPort = {sWidth-gameplayBorder.w, 0, gameplayBorder.w, gameplayBorder.w};
     scale = ((double) mWidth)/viewPort.w;
     SDL_RenderSetViewport( wrapper.gRenderer, &viewPort );
-    for( auto const& t : tiles )
+    for( auto const& tile : tiles )
     {
-        SDL_Rect rectMM = { (int) (t->position.x/scale),
-                (int) (t->position.y/scale),
-                (int) (TILESIZE/scale)+1,
-                (int) (TILESIZE/scale)+1
+        SDL_Rect rectMM = { (int) (tile.position.x/scale),
+                (int) (tile.position.y/scale),
+                (int) (TILESIZEPHYSICS/scale)+1,
+                (int) (TILESIZEPHYSICS/scale)+1
             };
-        SDL_SetRenderDrawColor( wrapper.gRenderer, mappingColor[t->spriteType].r, mappingColor[t->spriteType].g, mappingColor[t->spriteType].b, mappingColor[t->spriteType].a );
+        SDL_SetRenderDrawColor( wrapper.gRenderer, mappingColor[tile.spriteType].r, mappingColor[tile.spriteType].g, mappingColor[tile.spriteType].b, mappingColor[tile.spriteType].a );
         SDL_RenderFillRect( wrapper.gRenderer, &rectMM );
     }
 
-    for( auto const& t : blocks )
+    for( auto const& tile : blocks )
     {
-        SDL_Rect rectMM = { (int) (t->position.x/scale),
-                (int) (t->position.y/scale),
-                (int) (TILESIZE/scale)+1,
-                (int) (TILESIZE/scale)+1 
+        SDL_Rect rectMM = { (int) (tile.position.x/scale),
+                (int) (tile.position.y/scale),
+                (int) (TILESIZEPHYSICS/scale)+1,
+                (int) (TILESIZEPHYSICS/scale)+1 
             };
-        SDL_SetRenderDrawColor( wrapper.gRenderer, mappingColor[t->spriteType].r, mappingColor[t->spriteType].g, mappingColor[t->spriteType].b, mappingColor[t->spriteType].a );
+        SDL_SetRenderDrawColor( wrapper.gRenderer, mappingColor[tile.spriteType].r, mappingColor[tile.spriteType].g, mappingColor[tile.spriteType].b, mappingColor[tile.spriteType].a );
         SDL_RenderFillRect( wrapper.gRenderer, &rectMM );
     }
 
@@ -64,16 +65,16 @@ void Map_wrapper::render_minimap( SDL_wrapper & wrapper, std::vector<Object*> & 
 
 bool Map_wrapper::load_map( std::string mapFile, int mapSizeX, int mapSizeY)
 {
-    mWidth = mapSizeX*TILESIZE;
-    mHeight= mapSizeY*TILESIZE;
+    mWidth = mapSizeX*TILESIZEPHYSICS;
+    mHeight= mapSizeY*TILESIZEPHYSICS;
 
     tiles = import_map(mapFile,mapSizeX,mapSizeY);
     if(tiles.empty()) return false;
-    for( auto& t : tiles )
+    for( auto& tile : tiles )
     {
-        t->mapColor = mappingColor[t->spriteType];
-        t->image = image;
-        t->clips = clips;
+        tile.mapColor = mappingColor[tile.spriteType];
+        tile.image = image;
+        tile.clips = clips;
     }
     return true;
 }
@@ -82,13 +83,13 @@ bool Map_wrapper::load_blocks( std::string mapFile, int mapSizeX, int mapSizeY )
 {
     blocks = import_map(mapFile,mapSizeX,mapSizeY);
     if(blocks.empty()) return false;
-    for( auto& t : blocks )
+    for( auto& tile : blocks )
     {
-        t->mapColor = mappingColor[t->spriteType];
-        t->image = image;
-        t->clips = clips;
-        if(mappingHealth[t->spriteType]!=0)
-            t->set_health(mappingHealth[t->spriteType]);
+        tile.mapColor = mappingColor[tile.spriteType];
+        tile.image = image;
+        tile.clips = clips;
+        if(mappingHealth[tile.spriteType]!=0)
+            tile.set_health(mappingHealth[tile.spriteType]);
     }
     return true;
 }

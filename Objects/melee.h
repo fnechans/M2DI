@@ -8,6 +8,9 @@
 #include <stdexcept>
 #include <sstream>
 
+// TODO: Could this be avoided?
+class Movable;
+
 class Melee : public base
 {
 public:
@@ -57,7 +60,38 @@ private:
 
     std::shared_ptr<IMG_wrapper> imgDMG; // shows damage dealth on screen
     std::stringstream textDMG;
+};
 
+
+// Melee class is general and holds information about attack we want
+// in the game game
+// Melee_instance is specific for a character, mainly to handle cooldown
+// (and probably other things) and other properties dependent on the actor.
+// Since it only points to melee it is much smaller
+class Melee_instance
+{
+public:
+    Melee_instance(Melee* _melee){melee = _melee;}
+    Melee_instance(const Melee_instance& m){melee = m.melee;}
+
+    // simply wrap around the evaluate functions from
+    // the Melee
+    bool evaluate(Movable * ch, std::vector<Object*> targets)
+    {
+        if(clock.isStarted && clock.getTicks()<melee->cooldown*1000)
+            return false;
+        else clock.restart();
+        return melee->evaluate(ch, targets);
+    }
+    bool evaluate(SDL_Rect & origin, Object::direction dir, std::vector<Object*> targets)
+    {
+        if(clock.isStarted && clock.getTicks()<melee->cooldown*1000)
+            return false;
+        else clock.restart();
+        return melee->evaluate(origin, dir, targets);
+    }
+private:
+    Melee* melee;
     timer clock;
 };
 

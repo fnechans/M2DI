@@ -6,6 +6,7 @@ Level::Level(SDL_wrapper * _wrapper) : wrapper(_wrapper), bScreen({0,0,0,0})
 
 void Level::bake()
 {
+    collisionObjects.clear();
     collisionObjects.push_back(&player);
     for(auto& c : characters)
     {
@@ -13,18 +14,16 @@ void Level::bake()
     }
     for(auto& t : curMap.blocks) 
     {
-        collisionObjects.push_back(t.get());
+        collisionObjects.push_back(&t);
     }
-    baked = true;
 }
 void Level::preprocess()
 {
-    if(!baked) bake();
     screenClick = false;
 
-    tools::remove_dead_vector<Object*>(collisionObjects);
-    tools::remove_dead_vector<std::unique_ptr<Object>>(curMap.blocks);
+    tools::remove_dead_vector<Object>(curMap.blocks);
     tools::remove_dead_map<Character>(characters);
+    bake();
 }
 
 void Level::evaluate(SDL_Event& event)
@@ -40,11 +39,13 @@ void Level::evaluate(SDL_Event& event)
     if(bScreen.evaluate(event, {0,0,0,0}) == bScreen.CLICK) screenClick = true;
 }
 
-void Level::process()
+void Level::move_chars()
 {
+    if(pause) return;
+
     player.move(collisionObjects);
 
-    // TODO: char movement not hardcoded:
+    // TODO: char pathfinding not done here!
     if( AIclick%50==0 )
     {
         for(auto& cIt: characters)

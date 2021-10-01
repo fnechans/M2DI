@@ -46,10 +46,12 @@ public:
     void copy_animation(Object const & object );
     void plot_animation( SDL_wrapper & wrapper, SDL_Rect * screen = nullptr, bool pause = false);
     void set_animation(std::string animationName);
+
+    bool dead = false;
 private:
     std::string curAnimation = "";
 };
 
-std::vector<std::unique_ptr<Object>> import_map( std::string mapFile, int mapSizeX, int mapSizeY );
+std::vector<Object> import_map( std::string mapFile, int mapSizeX, int mapSizeY );
 
 #endif // OBJECT_H

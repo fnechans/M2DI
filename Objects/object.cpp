@@ -10,12 +10,12 @@ Object::Object( uint x, uint y )
     position.x = x;
     position.y = y;
     // DEFAULT hitbox based on tilesize, can be changed
-    position.w = TILESIZE;
-    position.h = TILESIZE;
+    position.w = TILESIZEPHYSICS;
+    position.h = TILESIZEPHYSICS;
 
     extVelX = 0;
     extVelY = 0;
-    friction = TILESIZE/16;
+    friction = TILESIZEPHYSICS/16;
 
     spriteType = 0;
     mapColor = {0,0,0,0};
@@ -45,11 +45,11 @@ bool Object::set_image(std::string imagePath)
 
 // non-class functions
 
-std::vector<std::unique_ptr<Object>> import_map( std::string mapFile, int mapSizeX, int mapSizeY )
+std::vector<Object> import_map( std::string mapFile, int mapSizeX, int mapSizeY )
 {
     int x = 0;
     int y = 0;
-    std::vector<std::unique_ptr<Object>> output;
+    std::vector<Object> output;
 
     std::ifstream mapStream( mapFile );
     if( mapStream.fail() ) return {};
@@ -67,15 +67,15 @@ std::vector<std::unique_ptr<Object>> import_map( std::string mapFile, int mapSiz
 
             if( tileType!=-1 )
             {
-                output.push_back(std::make_unique<Object>( x, y ));
-                output.back()->spriteType = tileType;
+                output.push_back(Object( x, y ));
+                output.back().spriteType = tileType;
             }
 
-            x += base::TILESIZE;
-            if( x >= mapSizeX*base::TILESIZE )
+            x += base::TILESIZEPHYSICS;
+            if( x >= mapSizeX*base::TILESIZEPHYSICS )
             {
                 x = 0;
-                y += base::TILESIZE;
+                y += base::TILESIZEPHYSICS;
             }
         }
     }
@@ -93,6 +93,7 @@ void Object::modify_health(int value)
     property["health"] += value;
     if(property["health"]>property["max_health"]) property["health"] = property["max_health"];
     if(property["health"]<0) property["health"] = 0; 
+    if(property["health"] == 0) dead = true;
 }
 
 void Object::copy_animation(Object const & object )

@@ -6,7 +6,7 @@ Movable::Movable(uint x, uint y) : Object(x,y)
     intrVelY=0;
 
     dir = DOWN;
-    speed = TILESIZE/16;
+    speed = TILESIZEPHYSICS/16;
 
     moved = false;
 }

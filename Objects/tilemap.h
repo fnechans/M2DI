@@ -24,8 +24,8 @@ public:
     std::map<int,SDL_Color> mappingColor;
     std::map<int,uint> mappingHealth;
     std::shared_ptr<std::map<int,SDL_Rect>> clips;
-    std::vector<std::unique_ptr<Object>> tiles;
-    std::vector<std::unique_ptr<Object>> blocks;
+    std::vector<Object> tiles;
+    std::vector<Object> blocks;
     std::shared_ptr<IMG_wrapper> image;
 
 // TODO: General problem, most stuff public!

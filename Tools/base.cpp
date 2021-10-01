@@ -7,6 +7,7 @@ int base::sHeight(0);
 int base::TILESIZERENDER(0);
 double base::scaleRender;
 double base::scaleRenderInput;
+SDL_Renderer * base::gRenderer;
 
 base::base()
 {
@@ -15,7 +16,7 @@ base::base()
 void base::set_tilerender(int TR)
 {
     TILESIZERENDER=TR;
-    scaleRender = ((double) TILESIZERENDER)/TILESIZE;
+    scaleRender = ((double) TILESIZERENDER)/TILESIZEPHYSICS;
     scaleRenderInput = ((double) TILESIZERENDER)/TILESIZEINPUT;
 }
 

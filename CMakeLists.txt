@@ -46,5 +46,7 @@ add_subdirectory(Complex)
 include_directories(Complex)
 link_directories(Complex)
 
+include_directories(User)
+
 add_executable(SDL2Test main.cpp)
 target_link_libraries(SDL2Test PUBLIC wrappers tools objects complex)

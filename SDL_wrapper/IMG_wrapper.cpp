@@ -1,7 +1,6 @@
 #include "IMG_wrapper.h"
 
 typedef IMG_wrapper IMGW;
-SDL_Renderer * IMG_wrapper::gRenderer(nullptr);
 
 void IMGW::clear()
 {        

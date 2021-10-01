@@ -11,7 +11,7 @@ void Character::follow_path()
 
     if( !path.empty() )
     {
-        if( fabs(position.x-path.back()->position.x)<=TILESIZE && fabs(position.y-path.back()->position.y)<=TILESIZE && path.size()>1 ) path.pop_back();
+        if( fabs(position.x-path.back()->position.x)<=TILESIZEPHYSICS && fabs(position.y-path.back()->position.y)<=TILESIZEPHYSICS && path.size()>1 ) path.pop_back();
         int dirX = path.back()->position.x - position.x;
         int dirY = path.back()->position.y - position.y;
 

@@ -6,28 +6,28 @@ SDL_Rect Melee::get_targetZone(SDL_Rect & origin, Object::direction dir)
     switch(dir)
     {
         case Object::direction::UP:
-            targetZone.x = origin.x-TILESIZE*(width/2);
+            targetZone.x = origin.x-TILESIZEPHYSICS*(width/2);
             targetZone.y = origin.y-shift;
-            targetZone.w = width*TILESIZE;
-            targetZone.h = length*TILESIZE;
+            targetZone.w = width*TILESIZEPHYSICS;
+            targetZone.h = length*TILESIZEPHYSICS;
             break;
         case Object::direction::DOWN:
-            targetZone.x = origin.x-TILESIZE*(width/2);
+            targetZone.x = origin.x-TILESIZEPHYSICS*(width/2);
             targetZone.y = origin.y+shift;
-            targetZone.w = width*TILESIZE;
-            targetZone.h = length*TILESIZE;
+            targetZone.w = width*TILESIZEPHYSICS;
+            targetZone.h = length*TILESIZEPHYSICS;
             break;
         case Object::direction::LEFT:
             targetZone.x = origin.x-shift;
-            targetZone.y = origin.y-TILESIZE*(width/2);
-            targetZone.w = length*TILESIZE;
-            targetZone.h = width*TILESIZE;
+            targetZone.y = origin.y-TILESIZEPHYSICS*(width/2);
+            targetZone.w = length*TILESIZEPHYSICS;
+            targetZone.h = width*TILESIZEPHYSICS;
             break;
         case Object::direction::RIGHT:
             targetZone.x = origin.x+shift;
-            targetZone.y = origin.y-TILESIZE*(width/2);
-            targetZone.w = length*TILESIZE;
-            targetZone.h = width*TILESIZE;
+            targetZone.y = origin.y-TILESIZEPHYSICS*(width/2);
+            targetZone.w = length*TILESIZEPHYSICS;
+            targetZone.h = width*TILESIZEPHYSICS;
             break;
     }
     return targetZone;
@@ -60,9 +60,6 @@ bool Melee::evaluate_target(SDL_Rect &targetZone, SDL_Rect & origin, Object *tar
 
 bool Melee::evaluate(Movable * ch, std::vector<Object*> targets)
 {   
-    if(clock.isStarted && clock.getTicks()<cooldown*1000)
-        return false;
-    else clock.restart();
     // TODO: why is there wrapper here?
    // evaluate(ch->position, ch->dir, targets, wrapper);
     hits = 0;
@@ -82,10 +79,6 @@ bool Melee::evaluate(Movable * ch, std::vector<Object*> targets)
 
 bool Melee::evaluate(SDL_Rect & origin, Object::direction dir, std::vector<Object*> targets)
 {
-    if(clock.isStarted && clock.getTicks()<cooldown*1000)
-        return false;
-    else clock.restart();
-
     hits = 0;
     for(auto t : targets)
     {

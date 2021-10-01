@@ -47,7 +47,8 @@ bool SDLW::init()
             }
         }
     }
-    IMG_wrapper::gRenderer = gRenderer;
+    std::cout << gRenderer << std::endl;
+    isInit = success;
 
     return success;
 }
@@ -55,6 +56,7 @@ bool SDLW::init()
 void SDLW::close()
 {
 	//Destroy window
+    std::cout << gRenderer << std::endl;
     SDL_DestroyRenderer( gRenderer );
     gRenderer = nullptr;
 	SDL_DestroyWindow( gWindow );

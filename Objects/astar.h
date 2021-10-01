@@ -94,7 +94,7 @@ public:
             for( auto neighbor : curMap )
             {
                 if(debug) std::cout << "here2" << std::endl;
-                if(  neighbor == current || cost(neighbor, current) > TILESIZE*1.1  ) continue;
+                if(  neighbor == current || cost(neighbor, current) > TILESIZEPHYSICS*1.1  ) continue;
                 if(debug) std::cout << "here4" << std::endl;
 
                 bool collides = false;

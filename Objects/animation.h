@@ -23,7 +23,7 @@ public:
 
     int shiftX;
     int shiftY;
-    uint frequency = base::TILESIZE/16;
+    uint frequency = base::TILESIZEPHYSICS/16;
     float angle = 0;
     SDL_RendererFlip flip = SDL_FLIP_NONE;
 
@@ -41,12 +41,12 @@ public:
     animation_data() : shiftX(0), shiftY(0){}
     float shiftX;
     float shiftY;
-    uint frequency = TILESIZE/16;
+    uint frequency = TILESIZEPHYSICS/16;
     std::vector<std::vector<float>> clips;
     bool repeat = true;
     Animation get_animation()
     {
-        Animation a((int)(shiftX*TILESIZE), (int)(shiftY*TILESIZE));
+        Animation a((int)(shiftX*TILESIZEPHYSICS), (int)(shiftY*TILESIZEPHYSICS));
         for(auto clip :clips)
             a.add_clip_relative(clip);
         if(frequency==0) frequency = 1;

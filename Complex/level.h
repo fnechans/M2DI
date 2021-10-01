@@ -19,12 +19,13 @@ class Level : gameplay
 {
 public:
     Level(SDL_wrapper* _wrapper);
+    Level(const Level*) = delete;
     void bake(); // called before loop!
 
     void preprocess();
     void evaluate(SDL_Event& event);
     bool screenClick = false;
-    void process();
+    void move_chars();
     void plot();
 
     Map_wrapper& get_map(){return curMap;}
@@ -57,11 +58,11 @@ public:
     }
 
     // Player
-    PPlayer * get_player(){return &player;}
+    Player * get_player(){return &player;}
     void set_player_position(int x, int y)
     {
-        player.position.x = x*TILESIZE; 
-        player.position.y = y*TILESIZE; 
+        player.position.x = x*TILESIZEPHYSICS; 
+        player.position.y = y*TILESIZEPHYSICS; 
     }
     void set_player_image(std::string name, SDL_Color color)
     {
@@ -85,7 +86,7 @@ public:
         {
             throw std::runtime_error("Name player is reserved!");
         }
-        characters.emplace(name, Character(x*TILESIZE,y*TILESIZE));
+        characters.emplace(name, Character(x*TILESIZEPHYSICS,y*TILESIZEPHYSICS));
         // TMP
         characters[name].set_health(10);
     }
@@ -125,6 +126,12 @@ public:
         if(name=="player") return Object::dirName[player.dir];
         else return Object::dirName[characters.at(name).dir];
     }
+    void add_character_melee(std::string name, std::string meleeName)
+    {
+        Melee_instance mel(&melees.at(meleeName));
+        if(name=="player")  player.melees.emplace(meleeName, mel);
+        else characters.at(name).melees.emplace(meleeName, mel);
+    }
     void set_character_property(std::string name, std::string property, int value)
     {
         characters[name].property[property] = value;
@@ -139,7 +146,7 @@ public:
     void init_astar()
     {
         std::vector<Object*> astarTiles;
-        for( auto& t : curMap.tiles ) astarTiles.push_back(t.get());
+        for( auto& t : curMap.tiles ) astarTiles.push_back(&t);
         acko = std::make_unique<AStar<Object*>>(astarTiles);
     }
     bool pause = false; // is level paused?
@@ -153,13 +160,11 @@ private:
     std::map<std::string,Melee> melees;
     std::map<std::string,std::shared_ptr<IMG_wrapper>> images;
 
-    PPlayer player;
+    Player player;
     std::map<std::string,Character> characters;
     std::unique_ptr<AStar<Object*>> acko = nullptr;
 
     int AIclick = 0; // how often is AI updated
-    bool baked = false; // defines if level is ready
-    // (finalizes the level after adding all objects)
 };
 
 

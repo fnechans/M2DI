@@ -10,7 +10,9 @@
 #include <string>
 #include <stdio.h>
 
-class IMG_wrapper
+#include "base.h"
+
+class IMG_wrapper : base
 {
 public:
     IMG_wrapper(){ gFont = nullptr; }
@@ -31,7 +33,6 @@ public:
     SDL_Texture * image = nullptr;
     int width = -1;
     int height= -1;
-    static SDL_Renderer * gRenderer;
 private:
     TTF_Font *gFont;
 };

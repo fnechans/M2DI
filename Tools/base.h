@@ -15,7 +15,7 @@ class base
 public:
     base();
 
-    static const int TILESIZE = 128; // defines physical size
+    static const int TILESIZEPHYSICS = 128; // defines physical size
                                      // so it is more related to
                                      // speed and such
     static const int TILESIZEINPUT = 16; // defines basic size of
@@ -34,21 +34,30 @@ public:
     //Map dimension constants
     static int mWidth;
     static int mHeight;
+    static SDL_Renderer * gRenderer;
 };
 
 
 namespace tools{
     bool key_down(SDL_Event & e, SDL_Keycode keycode);
     bool key_up(SDL_Event & e, SDL_Keycode keycode);
-    // cleaup up functions, currently for "dead" chars (health=0),
+    // cleaup up functions, currently for "dead" chars
     // could be generalized in future if needed
+    template<typename T>
+    void remove_dead_vector( std::vector<T*> & objects )
+    {
+        objects.erase(std::remove_if(objects.begin(), objects.end(),
+                      [](T*&o)
+                      { return o->dead; }),
+                      objects.end());
+    }
 
     template<typename T>
     void remove_dead_vector( std::vector<T> & objects )
     {
         objects.erase(std::remove_if(objects.begin(), objects.end(),
                       [](T& o)
-                      { return o->property.count("health") && o->property.at("health")==0; }),
+                      { return o.dead; }),
                       objects.end());
     }
 
@@ -57,7 +66,7 @@ namespace tools{
     void remove_dead_map(std::map<std::string, T> &objects)
     {
         erase_if(objects, [](auto &item)
-                      { return item.second.property["health"] == 0; });
+                      { return item.second.dead; });
     }
 
     template <typename ContainerT, typename PredicateT>

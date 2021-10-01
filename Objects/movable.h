@@ -2,6 +2,11 @@
 #define MOVABLE_H
 
 #include "object.h"
+#include "melee.h"
+
+
+// TODO: Could this be avoided?
+class Melee_instance;
 
 class Movable : public Object
 {
@@ -17,6 +22,7 @@ public:
     direction dir;
     int speed;
     bool moved;
+    std::map<std::string,Melee_instance> melees;
 };
 
 #endif // MOVABLE_H
