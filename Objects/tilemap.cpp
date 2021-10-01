@@ -1,7 +1,7 @@
 #include "tilemap.h"
 #include <iostream>
 
-Map_wrapper::Map_wrapper(SDL_Rect border) : gameplay(), gameplayBorder(border)
+Map_wrapper::Map_wrapper(SDL_Rect border) : base(), gameplayBorder(border)
 {
     image = std::make_shared<IMG_wrapper>();
     clips = std::make_shared<std::map<int,SDL_Rect>>();
@@ -94,4 +94,37 @@ void Map_wrapper::add_sprite(int type, int posX, int posY, SDL_Color col, uint h
     (*clips)[type] = {posX*TILESIZEINPUT,posY*TILESIZEINPUT,TILESIZEINPUT,TILESIZEINPUT};
     mappingColor[type] = col;
     mappingHealth[type] = health;
+}
+
+void Map_wrapper::screen_position(SDL_Rect &screenRect, Object& obj)
+{
+    obj.posSX = gameplayScreen.x+gameplayScreen.w/2;
+    obj.posSY = gameplayScreen.y+gameplayScreen.h/2;
+
+    screenRect.x = obj.position.x*scaleRender-obj.posSX;
+    if(screenRect.x<0)
+    {
+        screenRect.x=0;
+        obj.posSX =obj.position.x*scaleRender;
+    }
+    else if(screenRect.x+(gameplayScreen.x+gameplayScreen.w)>mWidth*scaleRender && mWidth*scaleRender>(gameplayScreen.x+gameplayScreen.w) )
+    {
+        screenRect.x=mWidth*scaleRender-(gameplayScreen.x+gameplayScreen.w);
+        obj.posSX = (gameplayScreen.x+gameplayScreen.w)-(mWidth-obj.position.x)*scaleRender;
+    }
+
+    screenRect.y = obj.position.y*scaleRender-obj.posSY;
+    if(screenRect.y<0)
+    {
+        screenRect.y=0;
+        obj.posSY = obj.position.y*scaleRender;
+    }
+    else if(screenRect.y+(gameplayScreen.y+gameplayScreen.h)>mHeight*scaleRender && mHeight*scaleRender > (gameplayScreen.y+gameplayScreen.h) )
+    {
+        screenRect.y=mHeight*scaleRender-(gameplayScreen.y+gameplayScreen.h);
+        obj.posSY = (gameplayScreen.y+gameplayScreen.h)-(mHeight-obj.position.y)*scaleRender;
+    }
+
+    screenRect.w = gameplayScreen.w;
+    screenRect.h = gameplayScreen.h;
 }

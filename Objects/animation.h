@@ -1,12 +1,12 @@
 #ifndef ANIMATION_H
 #define ANIMATION_H
 
-#include "gameplay.h"
+#include "base.h"
 #include "IMG_wrapper.h"
 
 #include <vector>
 
-class Animation : public gameplay
+class Animation : public base
 {
 public:
     Animation( int x = 0, int y = 0 ) : shiftX(x),shiftY(y){ frame = 0; }

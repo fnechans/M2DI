@@ -1,21 +1,19 @@
 #ifndef LEVEL_H
 #define LEVEL_H
 
-#include "gameplay.h"
 #include "window.h"
 #include "tilemap.h"
 #include "melee.h"
 #include "IMG_wrapper.h"
 #include "astar.h"
 #include "button.h"
-#include "player.h"
 #include "character.h"
 
 #include <utility>
 
 // Goal of Level is that player does not have to
 // interact with any Object unless really necessary
-class Level : gameplay
+class Level : base
 {
 public:
     Level(Window* _wrapper);
@@ -46,7 +44,7 @@ public:
     // TODO: proper casting! not only here
     void eval_melee(std::string charName, std::string meleeName)
     {
-        Movable* chr = (charName=="player") ? (Movable*) &player : (Movable*) &characters.at(charName);
+        Character* chr = &characters.at(charName);
         melees.at(meleeName).evaluate(chr, collisionObjects);
     }
 
@@ -57,38 +55,13 @@ public:
         images[name]->load_media(*window,imagePath.c_str());
     }
 
-    // Player
-    Player * get_player(){return &player;}
-    void set_player_position(int x, int y)
-    {
-        player.position.x = x*TILESIZEPHYSICS; 
-        player.position.y = y*TILESIZEPHYSICS; 
-    }
-    void set_player_image(std::string name, SDL_Color color)
-    {
-        player.image = images[name];
-        player.mapColor = color;
-    }
-    void add_player_animation(std::string name, Animation animation, std::string imgName)
-    {
-        player.animations[name] = std::move(animation);
-        player.animations[name].image = images[imgName];
-    }
-    void set_player_property(std::string property, int value)
-    {
-        player.property[property] = value;
-    }
-
     // Characters
-    void add_character(std::string name, int x, int y)
+    Character* add_character(std::string name, int x, int y)
     {
-        if(name=="player")
-        {
-            throw std::runtime_error("Name player is reserved!");
-        }
         characters.emplace(name, Character(x*TILESIZEPHYSICS,y*TILESIZEPHYSICS));
         // TMP
         characters[name].set_health(10);
+        return &characters[name];
     }
     void add_character_animation(std::string name, std::string aniName, Animation animation, std::string imgName)
     {
@@ -102,8 +75,7 @@ public:
             throw std::runtime_error("fromName and targetName are the same!");
         }
         auto & tarChar = characters.at(targetName);
-        if(fromName=="player") tarChar.copy_animation(player);
-        else tarChar.copy_animation(characters.at(fromName));
+        tarChar.copy_animation(characters.at(fromName));
     }
     void set_character_target(std::string name, std::string targetName)
     {
@@ -112,8 +84,7 @@ public:
             throw std::runtime_error("name and targetName are the same!");
         }
         auto & ch = characters.at(name);
-        if(targetName=="player") ch.target = &player;
-        else ch.target = &characters.at(targetName);
+        ch.target = &characters.at(targetName);
     }
     void set_character_image(std::string name, std::string imgName, SDL_Color color)
     {
@@ -123,14 +94,12 @@ public:
     
     std::string get_direction(std::string name)
     {
-        if(name=="player") return Object::dirName[player.dir];
-        else return Object::dirName[characters.at(name).dir];
+        return Object::dirName[characters.at(name).dir];
     }
     void add_character_melee(std::string name, std::string meleeName)
     {
         Melee_instance mel(&melees.at(meleeName));
-        if(name=="player")  player.melees.emplace(meleeName, mel);
-        else characters.at(name).melees.emplace(meleeName, mel);
+        characters.at(name).melees.emplace(meleeName, mel);
     }
     void set_character_property(std::string name, std::string property, int value)
     {
@@ -139,32 +108,22 @@ public:
 
     // object-collection getter:
     std::map<std::string,Character>& get_chars(){return characters;}
+    Character& get_char(std::string name){return characters.at(name);}
     std::vector<Object*>& get_collisionObjects(){return collisionObjects;}
 
-    // AI related
-    bool tick(uint frequency){return AIclick%frequency==0;}
-    void init_astar()
-    {
-        std::vector<Object*> astarTiles;
-        for( auto& t : curMap.tiles ) astarTiles.push_back(&t);
-        acko = std::make_unique<AStar<Object*>>(astarTiles);
-    }
     bool pause = false; // is level paused?
+    SDL_Rect screenRect;
 private:
     Window * window;
     Map_wrapper curMap;
     std::vector<Object*> collisionObjects;
-    SDL_Rect screenRect;
     button bScreen;
 
     std::map<std::string,Melee> melees;
     std::map<std::string,std::shared_ptr<IMG_wrapper>> images;
 
-    Player player;
     std::map<std::string,Character> characters;
-    std::unique_ptr<AStar<Object*>> acko = nullptr;
 
-    int AIclick = 0; // how often is AI updated
 };
 
 

@@ -1,14 +1,14 @@
 #ifndef OBJECT_H
 #define OBJECT_H
 
-#include "gameplay.h"
+#include "base.h"
 #include "IMG_wrapper.h"
 #include "animation.h"
 
 #include<vector>
 #include<map>
 
-class Object : public gameplay
+class Object : public base
 {
 public:
     Object(uint x=mWidth/2, uint y=mHeight/2);

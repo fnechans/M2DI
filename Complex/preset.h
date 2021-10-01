@@ -92,7 +92,7 @@ namespace preset
             {4, 10, 2, 2},
             {6, 10, 2, 2},
         };
-        animationData["ATTACK_LEF"].shiftX = -0.5;
+        animationData["ATTACK_LEFT"].shiftX = -0.5;
         animationData["ATTACK_LEFT"].shiftY = -0.75;
         animationData["ATTACK_LEFT"].frequency = base::TILESIZEPHYSICS/32;
         animationData["ATTACK_LEFT"].repeat = false;

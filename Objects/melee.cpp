@@ -52,7 +52,7 @@ bool Melee::evaluate_target(SDL_Rect &targetZone, SDL_Rect & origin, Object *tar
     else return false;
 }
 
-bool Melee::evaluate(Movable * ch, std::vector<Object*> targets)
+bool Melee::evaluate(Character * ch, std::vector<Object*> targets)
 {   
     // TODO: why is there wrapper here?
    // evaluate(ch->position, ch->dir, targets, wrapper);

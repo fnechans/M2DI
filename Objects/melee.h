@@ -2,14 +2,14 @@
 #define MELEE_H
 
 #include "base.h"
-#include "movable.h"
+#include "character.h"
 #include "timer.h"
 
 #include <stdexcept>
 #include <sstream>
 
 // TODO: Could this be avoided?
-class Movable;
+class Character;
 
 class Melee : public base
 {
@@ -29,7 +29,7 @@ public:
     bool evaluate_target(SDL_Rect & targetZone, SDL_Rect & origin, Object * target);
     // evaluates for all targets, and reduces health, evaluates knockback...
     // attacker is character:
-    bool evaluate(Movable * ch, std::vector<Object*> targets);
+    bool evaluate(Character * ch, std::vector<Object*> targets);
     // attack at location:
     bool evaluate(SDL_Rect & origin, Object::direction dir, std::vector<Object*> targets);
     
@@ -65,7 +65,7 @@ public:
 
     // simply wrap around the evaluate functions from
     // the Melee
-    bool evaluate(Movable * ch, std::vector<Object*> targets)
+    bool evaluate(Character * ch, std::vector<Object*> targets)
     {
         if(clock.isStarted && clock.getTicks()<melee->cooldown*1000)
             return false;

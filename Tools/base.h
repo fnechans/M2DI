@@ -36,6 +36,8 @@ public:
 namespace tools{
     bool key_down(SDL_Event & e, SDL_Keycode keycode);
     bool key_up(SDL_Event & e, SDL_Keycode keycode);
+    void reduce_to_zero(int &value, const int &reducer);
+
     // cleaup up functions, currently for "dead" chars
     // could be generalized in future if needed
     template<typename T>

@@ -6,31 +6,45 @@
 #include "menu.h"
 #include "level.h"
 
+class screen;
+
+typedef std::shared_ptr<screen> screen_ptr;
+
 class screen
 {
 public:
-    screen(){}
+    screen(){window = std::make_shared<Window>();}
+    screen(std::shared_ptr<Window> _window) : window(_window){}
+
     ~screen(){}
-    // TODO: move wrapper to funct
-    Window window;
+    std::shared_ptr<Window> window;
+    SDL_Event event;
+
 
     virtual void user_init(){}
     virtual void user_evaluate(){}
     virtual void user_update(){}
     virtual void user_plot(){}
-    virtual std::shared_ptr<screen> user_nextScreen(){return nullptr;}
+    virtual screen_ptr user_nextScreen(){return nullptr;}
+
+    template<typename T>
+    screen_ptr make_screen(bool copyWindow = false)
+    {
+        if(copyWindow) return std::make_shared<T>(window);
+        return std::make_shared<T>();
+    }
 
     Menu& add_menu(Menu::Position pos = Menu::RIGHT, SDL_Rect border = {base::TILESIZEINPUT*12, base::TILESIZEINPUT*12, 0, 0})
     { 
-        menus.emplace_back(Menu(&window, pos, border)); 
+        menus.emplace_back(Menu(window.get(), pos, border)); 
         return menus.back();
     }
     Level& add_level() {
-         levels.push_back(std::move(Level(&window)));
+         levels.push_back(std::move(Level(window.get())));
          return levels.back(); 
     }
 
-    std::shared_ptr<screen> loop()
+    screen_ptr loop()
     {
         if (!isInit)
             init();
@@ -56,9 +70,7 @@ public:
                 user_evaluate();
             }
 
-            window.clear();
-            for (auto &l : levels)
-                l.move_chars();
+            window->clear();
             user_update();
 
             for (auto &l : levels)
@@ -67,7 +79,7 @@ public:
                 m.plot();
 
             user_plot();
-            window.render();
+            window->render();
         }
 
         return user_nextScreen();
@@ -83,13 +95,12 @@ private:
     {    
         base::set_tilerender(64);
         // TODO: without else?
-        if( !window.isInit && !window.init() ) throw std::runtime_error("Problem in init");
+        if( !window->isInit && !window->init() ) throw std::runtime_error("Problem in init");
 
         user_init();
         isInit = true;
     }
     std::vector<Menu> menus;
     std::vector<Level> levels;
-    SDL_Event event;
 };
 #endif

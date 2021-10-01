@@ -28,4 +28,19 @@ namespace tools
     {
         return  e.type == SDL_KEYUP && e.key.repeat == 0 && e.key.keysym.sym == keycode;
     }
+     void reduce_to_zero(int &value, const int &reducer)
+    {
+        if (value > 0)
+        {
+            value -= reducer;
+            if (value < 0)
+                value = 0;
+        }
+        if (value < 0)
+        {
+            value += reducer;
+            if (value > 0)
+                value = 0;
+        }
+    }   
 }
