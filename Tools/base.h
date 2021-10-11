@@ -15,12 +15,12 @@ class base
 public:
     base();
 
-    static const int TILESIZEPHYSICS = 128; // defines physical size
+    static const uint TILESIZEPHYSICS = 128; // defines physical size
                                             // so it is more related to
                                             // speed and such
-    static const int TILESIZEINPUT = 16;    // defines basic size of
+    static const uint TILESIZEINPUT = 16;    // defines basic size of
                                             // tile in input
-    static int TILESIZERENDER;              // defines size of tile on screen
+    static uint TILESIZERENDER;              // defines size of tile on screen
                                             // so can change if zooming in/out
     static double scaleRender;
     static double scaleRenderInput;
@@ -28,8 +28,8 @@ public:
     static void set_tilerender(int);
 
     //Map dimension constants
-    static int mWidth;
-    static int mHeight;
+    static uint mWidth;
+    static uint mHeight;
 };
 
 namespace tools
@@ -37,6 +37,7 @@ namespace tools
     bool key_down(SDL_Event &e, SDL_Keycode keycode);
     bool key_up(SDL_Event &e, SDL_Keycode keycode);
     void reduce_to_zero(int &value, const int &reducer);
+    bool point_within_rect(int x, int y, SDL_Rect rect);
 
     // cleaup up functions, currently for "dead" chars
     // could be generalized in future if needed

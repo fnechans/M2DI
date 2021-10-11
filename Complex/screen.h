@@ -34,14 +34,14 @@ public:
         return std::make_shared<T>();
     }
 
-    Menu &add_menu(Menu::Position pos = Menu::RIGHT, SDL_Rect border = {base::TILESIZEINPUT * 12, base::TILESIZEINPUT * 12, 0, 0})
+    Menu &add_menu(Menu::Position pos = Menu::RIGHT, SDL_Rect border = {0, base::TILESIZEINPUT * 12, base::TILESIZEINPUT * 12, 0})
     {
         menus.emplace_back(Menu(window.get(), pos, border));
         return menus.back();
     }
     Level &add_level()
     {
-        levels.push_back(std::move(Level(window.get())));
+        levels.push_back(Level(window.get()));
         return levels.back();
     }
 
@@ -63,6 +63,11 @@ public:
                 if (event.type == SDL_QUIT)
                 {
                     quit = true;
+                }
+                if (event.type == SDL_WINDOWEVENT && event.window.event == SDL_WINDOWEVENT_RESIZED)
+                {
+                    window->sWidth = event.window.data1;
+                    window->sHeight = event.window.data2;
                 }
                 for (auto &l : levels)
                     l.evaluate(event);

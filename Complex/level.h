@@ -116,9 +116,12 @@ public:
 
 private:
     Window *window;
+    // TODO: move to private
+public:
+    button bScreen;
+private:
     Map_wrapper curMap;
     std::vector<Object *> collisionObjects;
-    button bScreen;
 
     std::map<std::string, Melee> melees;
     std::map<std::string, std::shared_ptr<IMG_wrapper>> images;

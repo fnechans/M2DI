@@ -6,15 +6,64 @@ Character::Character(uint x, uint y) : Object(x, y)
     intrVelY = 0;
 
     dir = DOWN;
-    speed = TILESIZEPHYSICS / 16;
+    speedX = TILESIZEPHYSICS / 16;
+    speedY = TILESIZEPHYSICS / 16;
 
     moved = false;
 }
 
-void Character::follow_path()
+void Character::move_left()
 {
-    tools::reduce_to_zero(intrVelX, speed);
-    tools::reduce_to_zero(intrVelY, speed);
+    switch(moveType)
+    {
+        case TopDown:
+        case Sidescroll:
+            intrVelX -= speedX;
+            break;
+    }
+}
+
+void Character::move_right()
+{
+    switch(moveType)
+    {
+        case TopDown:
+        case Sidescroll:
+            intrVelX += speedX;
+            break;
+    }
+}
+
+void Character::move_up(std::vector<Object *> &collObjects)
+{
+    switch(moveType)
+    {
+        case Sidescroll:
+            if(!nextTo(position, DOWN, collObjects)) break; //only jump if standing on ground
+            extVelY -= speedY;
+            break;
+        case TopDown:
+            intrVelY -= speedY;
+            break;
+    }
+}
+
+void Character::move_down()
+{
+    switch(moveType)
+    {
+        case Sidescroll:
+            break;
+        case TopDown:
+            intrVelY += speedY;
+            break;
+    }
+}
+
+void Character::follow_path(std::vector<Object *> &collObjects)
+{
+    intrVelX = 0;
+    intrVelY = 0;
 
     if (!path.empty())
     {
@@ -24,26 +73,10 @@ void Character::follow_path()
         int dirY = path.back()->position.y - position.y;
 
         // set speed
-        if (dirX > 0)
-            intrVelX = speed;
-        else if (dirX < 0)
-            intrVelX = -speed;
-        if (dirY > 0)
-            intrVelY = speed;
-        else if (dirY < 0)
-            intrVelY = -speed;
-        /*
-        // set dir
-        if( fabs(dirX) > fabs(dirY) ) 
-        {
-            if( dirX > 0 ) dir = RIGHT;
-            else if( dirX < 0 ) dir = LEFT;
-        }
-        else
-        {
-            if( dirY > 0 ) dir = DOWN;
-            else if( dirY < 0 ) dir = UP;
-        }*/
+        if (dirX > 0) move_right();
+        else if (dirX < 0) move_left();
+        if (dirY > 0) move_down();
+        else if (dirY < 0) move_up(collObjects);
     }
 }
 
@@ -62,9 +95,10 @@ void Character::plot_path(Window &wrapper, SDL_Rect *screen)
 
 void Character::move(std::vector<Object *> &collObjects)
 {
-    // TODO: this needs to be done better, but not sure how right now
-    tools::reduce_to_zero(extVelX, friction);
-    tools::reduce_to_zero(extVelY, friction);
+    // TODO: this whole thing needs to be done better,
+    // but not sure how right now
+    tools::reduce_to_zero(extVelX, frictionX);
+    tools::reduce_to_zero(extVelY, frictionY);
     int dX = extVelX + intrVelX;
     int dY = extVelY + intrVelY;
 
@@ -87,15 +121,6 @@ void Character::move(std::vector<Object *> &collObjects)
         newPosition.x += dX;
         newPosition.y += dY;
 
-        if (newPosition.x < 0)
-            newPosition.x = 0;
-        if (newPosition.y < 0)
-            newPosition.y = 0;
-        if (newPosition.x > mWidth - newPosition.w)
-            newPosition.x = mWidth - newPosition.w;
-        if (newPosition.y > mHeight - newPosition.h)
-            newPosition.y = mHeight - newPosition.h;
-
         if (!doesCollide(newPosition, collObjects))
         {
             position = newPosition;
@@ -115,21 +140,13 @@ void Character::move(std::vector<Object *> &collObjects)
         newPosition = position;
         newPosition.x += dX;
 
-        if (newPosition.x < 0)
-            newPosition.x = 0;
-        if (newPosition.y < 0)
-            newPosition.y = 0;
-        if (newPosition.x > mWidth - newPosition.w)
-            newPosition.x = mWidth - newPosition.w;
-        if (newPosition.y > mHeight - newPosition.h)
-            newPosition.y = mHeight - newPosition.h;
-
         if (!doesCollide(newPosition, collObjects))
         {
             position = newPosition;
             moved = true;
             return;
         }
+        else set_vel0_x();
 
         tools::reduce_to_zero(dX, 1);
     }
@@ -142,28 +159,23 @@ void Character::move(std::vector<Object *> &collObjects)
         newPosition = position;
         newPosition.y += dY;
 
-        if (newPosition.x < 0)
-            newPosition.x = 0;
-        if (newPosition.y < 0)
-            newPosition.y = 0;
-        if (newPosition.x > mWidth - newPosition.w)
-            newPosition.x = mWidth - newPosition.w;
-        if (newPosition.y > mHeight - newPosition.h)
-            newPosition.y = mHeight - newPosition.h;
-
         if (!doesCollide(newPosition, collObjects))
         {
             position = newPosition;
             moved = true;
             return;
         }
+        else set_vel0_y();
 
         tools::reduce_to_zero(dY, 1);
     }
+
 }
 
 bool Character::doesCollide(SDL_Rect &pos, std::vector<Object *> &collObjects)
 {
+    if (pos.x < 0 || pos.y < 0 || pos.x > mWidth - pos.w || pos.y > mHeight - pos.h)
+        return true;
 
     for (auto obj : collObjects)
     {
@@ -173,4 +185,16 @@ bool Character::doesCollide(SDL_Rect &pos, std::vector<Object *> &collObjects)
             return true;
     }
     return false;
+}
+
+bool Character::nextTo(SDL_Rect pos, direction dir, std::vector<Object *> &collObjects)
+{
+    switch(dir)
+    {
+        case UP: pos.y -= 1; break;
+        case DOWN: pos.y += 1; break;
+        case LEFT: pos.x -= 1; break;
+        case RIGHT: pos.x += 1; break;
+    }
+    return doesCollide(pos, collObjects);
 }

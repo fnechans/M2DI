@@ -61,7 +61,7 @@ bool Melee::evaluate(Character *ch, std::vector<Object *> targets)
     for (auto t : targets)
     {
         // ignore objects without health
-        if (t->property.count("health") == 0)
+        if (t->dead)
             continue;
         // don't attack yourself
         if (ch == t)
@@ -81,7 +81,7 @@ bool Melee::evaluate(SDL_Rect &origin, Object::direction dir, std::vector<Object
     for (auto t : targets)
     {
         // ignore objects without health
-        if (t->property.count("health") == 0)
+        if (t->dead)
             continue;
         SDL_Rect targetZone = get_targetZone(origin, dir);
         evaluate_target(targetZone, origin, t);

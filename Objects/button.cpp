@@ -10,6 +10,24 @@ button::button(SDL_Rect pos, double ws, double hs)
     }
 }
 
+button::button(SDL_Rect pos, SDL_Rect _clips[COUNT])
+{
+    screenPos = pos;
+    for (int c = DEFAULT; c < COUNT; ++c)
+    {
+        clips[c] = _clips[c];
+    }
+}
+
+button::button(SDL_Rect pos, SDL_Rect clip)
+{
+    screenPos = pos;
+    for (int c = DEFAULT; c < COUNT; ++c)
+    {
+        clips[c] = clip;
+    }
+}
+
 button::button(const button &b)
 {
     screenPos = b.screenPos;
@@ -39,6 +57,8 @@ int button::evaluate(SDL_Event &e, SDL_Rect viewPort)
 
             case SDL_MOUSEBUTTONDOWN:
                 state = CLICK;
+                clickX = x;
+                clickY = y;
                 break;
 
             case SDL_MOUSEBUTTONUP:
@@ -54,7 +74,7 @@ int button::evaluate(SDL_Event &e, SDL_Rect viewPort)
 
 void button::plot(Window &window)
 {
-    image->set_color(255, 0, 0);
+   // image->set_color(255, 0, 0);
     image->render_image(window, &screenPos, &clips[state]);
     if (text)
         text->render_image(window, &screenPos);

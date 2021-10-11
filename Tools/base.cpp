@@ -1,8 +1,8 @@
 #include "base.h"
 
-int base::mWidth(0);
-int base::mHeight(0);
-int base::TILESIZERENDER(0);
+uint base::mWidth(0);
+uint base::mHeight(0);
+uint base::TILESIZERENDER(0);
 double base::scaleRender;
 double base::scaleRenderInput;
 
@@ -43,4 +43,8 @@ namespace tools
                 value = 0;
         }
     }
+    bool point_within_rect(int x, int y, SDL_Rect rect)
+    {
+        return (x>=rect.x && x<=rect.x+rect.w && y>=rect.y && y<=rect.y+rect.h);
+    }    
 }

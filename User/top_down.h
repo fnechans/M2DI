@@ -22,7 +22,14 @@ public:
     Character *player;
     int AIclick = 0; // how often is AI updated
     std::unique_ptr<AStar<Object *>> acko = nullptr;
-
+    enum tiles
+    {
+        DIRT,
+        GRASS,
+        STONES,
+        WOOD,
+        WATTER
+    };
     bool tick(uint frequency) { return AIclick % frequency == 0; }
     void init_astar()
     {
@@ -35,20 +42,13 @@ public:
     void user_init()
     {
         level = &add_level();
+        level->get_map().init(40, 36);
 
-        enum tiles
-        {
-            DIRT,
-            GRASS,
-            STONES,
-            WOOD,
-            WATTER
-        };
-        level->get_map().add_sprite(DIRT, 1, 4, {100, 100, 0, 255});
-        level->get_map().add_sprite(GRASS, 0, 0, {0, 150, 0, 255});
-        level->get_map().add_sprite(STONES, 12, 13, {100, 100, 100, 255});
-        level->get_map().add_sprite(WOOD, 4, 5, {150, 100, 50, 255}, 10);
-        level->get_map().add_sprite(WATTER, 0, 1, {0, 0, 150, 255});
+        level->get_map().add_sprite_property(1, 4, {100, 100, 0, 255});
+        level->get_map().add_sprite_property(0, 0, {0, 150, 0, 255});
+        level->get_map().add_sprite_property(12, 13, {100, 100, 100, 255});
+        level->get_map().add_sprite_property(4, 5, {150, 100, 50, 255}, 10);
+        level->get_map().add_sprite_property(0, 1, {0, 0, 150, 255});
         level->add_image("map", "data/gfx/Overworld.png");
         level->set_map_image("map");
         level->get_map().load_map("data/start.map", 16, 16);
@@ -57,7 +57,7 @@ public:
         init_astar();
 
         level->add_melee("attack", Melee(5, 1));
-        level->get_melee("attack").knockback = base::TILESIZEPHYSICS;
+        level->get_melee("attack").knockback = base::TILESIZEPHYSICS/2;
 
         player = level->add_character("player", 9, 9);
         level->add_image("player", "data/gfx/character.png");
@@ -120,7 +120,7 @@ public:
         menu->add_button("fps", {buttonW, 0, buttonW, buttonH});
         menu->set_button_image("fps", "button", "FPS");
 
-        menu->add_button("pause", {buttonW * 2, 0, buttonW, buttonH}, SDLK_p);
+        menu->add_button("pause", {buttonW * 2, 0, buttonW, buttonH}, 2, 1, SDLK_p);
         menu->set_button_image("pause", "button", "pause");
 
         menu->add_button("+", {0, buttonH, buttonW, buttonH});
@@ -132,7 +132,7 @@ public:
         menu->add_button("quit", {buttonW * 2, buttonH, buttonW, buttonH});
         menu->set_button_image("quit", "button", "EXIT");
 
-        if (!textHelp.load_text(*window, "There is no help. You are on your own.", {0, 0, 0, 255}, base::TILESIZERENDER * 2, base::TILESIZERENDER * 2))
+        if (!textHelp.load_text(*window, "There is no help. You are on your own.", {0, 0, 0, 255}, 0, base::TILESIZERENDER * 2))
             return;
     }
     /*
@@ -154,36 +154,20 @@ public:
         {
             switch (event.key.keysym.sym)
             {
-            case SDLK_w:
-                player->intrVelY += -player->speed;
-                break;
-            case SDLK_a:
-                player->intrVelX += -player->speed;
-                break;
-            case SDLK_s:
-                player->intrVelY += player->speed;
-                break;
-            case SDLK_d:
-                player->intrVelX += player->speed;
-                break;
+            case SDLK_w: player->move_up(level->get_collisionObjects()); break;
+            case SDLK_s: player->move_down(); break;
+            case SDLK_a: player->move_left(); break;
+            case SDLK_d: player->move_right(); break;
             }
         }
         else if (event.type == SDL_KEYUP && event.key.repeat == 0)
         {
             switch (event.key.keysym.sym)
             {
-            case SDLK_w:
-                player->intrVelY -= -player->speed;
-                break;
-            case SDLK_a:
-                player->intrVelX -= -player->speed;
-                break;
-            case SDLK_s:
-                player->intrVelY -= player->speed;
-                break;
-            case SDLK_d:
-                player->intrVelX -= player->speed;
-                break;
+            case SDLK_w: player->move_down(); break;
+            case SDLK_s: player->move_up(level->get_collisionObjects()); break;
+            case SDLK_a: player->move_right(); break;
+            case SDLK_d: player->move_left(); break;
             }
         }
     }
@@ -208,19 +192,19 @@ public:
         // move stuff (if not paused)
         if (!level->pause)
         {
-            // use AStar to move non-player chars
             for (auto &chrIt : level->get_chars())
             {
                 Character *chr = &chrIt.second;
                 if (chr == player)
                     continue;
+                // use AStar to move non-player chars
                 if (AIclick % 50 == 0)
                 {
                     auto tmp = acko->find_path(chr, chr->target, level->get_collisionObjects());
                     if (!tmp.empty())
                         chr->path = tmp;
                 }
-                chr->follow_path();
+                chr->follow_path(level->get_collisionObjects());
             }
             AIclick++;
 
@@ -284,7 +268,6 @@ public:
         if (help)
             textHelp.render_image(*window, 0, base::TILESIZERENDER * 2);
 
-        menu->plot();
         textHealth.str("");
         textHealth << "Health: " << player->property["health"];
         if (!playerHealth.load_text(*window, textHealth.str(), {100, 255, 100, 255}, 32, base::TILESIZEINPUT * 12))

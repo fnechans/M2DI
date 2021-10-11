@@ -1,6 +1,5 @@
 #include "object.h"
 
-#include <fstream>
 #include <exception>
 
 const char *const Object::dirName[4] = {"UP", "DOWN", "LEFT", "RIGHT"};
@@ -15,26 +14,34 @@ Object::Object(uint x, uint y)
 
     extVelX = 0;
     extVelY = 0;
-    friction = TILESIZEPHYSICS / 16;
+    frictionX = TILESIZEPHYSICS / 8;
+    frictionY = TILESIZEPHYSICS / 8;
 
-    spriteType = 0;
     mapColor = {0, 0, 0, 0};
-    clips = std::make_shared<std::map<int, SDL_Rect>>();
+}
+
+bool Object::on_screen(SDL_Rect *screen)
+{
+    return !(position.x * scaleRender < screen->x - (int) TILESIZERENDER 
+            || position.x * scaleRender > screen->x + screen->w
+            || position.y * scaleRender < screen->y -  (int) TILESIZERENDER
+            || position.y * scaleRender > screen->y + screen->h
+            );
 }
 
 void Object::plot(Window &window, SDL_Rect *screen)
 {
     if (screen)
     {
-        if (position.x * scaleRender < screen->x - TILESIZERENDER || position.x * scaleRender > screen->x + screen->w || position.y * scaleRender < screen->y - TILESIZERENDER || position.y * scaleRender > screen->y + screen->h)
+        if(!on_screen(screen)) 
             return;
         posSX = position.x * scaleRender - screen->x;
         posSY = position.y * scaleRender - screen->y;
     }
 
-    SDL_Rect renderRect = {posSX, posSY, TILESIZERENDER, TILESIZERENDER};
+    SDL_Rect renderRect = {posSX, posSY, (int) TILESIZERENDER, (int) TILESIZERENDER};
     // image->set_color(255,0,0);
-    image->render_image(window, &renderRect, &(*clips).at(spriteType));
+    image->render_image(window, &renderRect, &clip);
 }
 
 bool Object::set_image(Window &window, std::string imagePath)
@@ -43,45 +50,7 @@ bool Object::set_image(Window &window, std::string imagePath)
     return image->load_media(window, imagePath.c_str());
 }
 
-// non-class functions
 
-std::vector<Object> import_map(std::string mapFile, int mapSizeX, int mapSizeY)
-{
-    int x = 0;
-    int y = 0;
-    std::vector<Object> output;
-
-    std::ifstream mapStream(mapFile);
-    if (mapStream.fail())
-        return {};
-    else
-    {
-        int tileType = -1;
-        for (int i = 0; i < mapSizeX * mapSizeY; ++i)
-        {
-            mapStream >> tileType;
-            if (mapStream.fail())
-            {
-                printf("Error loading map: Unexpected end of file!\n");
-                break;
-            }
-
-            if (tileType != -1)
-            {
-                output.push_back(Object(x, y));
-                output.back().spriteType = tileType;
-            }
-
-            x += base::TILESIZEPHYSICS;
-            if (x >= mapSizeX * base::TILESIZEPHYSICS)
-            {
-                x = 0;
-                y += base::TILESIZEPHYSICS;
-            }
-        }
-    }
-    return output;
-}
 
 void Object::set_health(uint value)
 {
@@ -130,7 +99,7 @@ void Object::plot_animation(Window &window, SDL_Rect *screen, bool pause)
     bool skipPlot = false;
     if (screen)
     {
-        if (position.x * scaleRender < screen->x - TILESIZERENDER || position.x * scaleRender > screen->x + screen->w || position.y * scaleRender < screen->y - TILESIZERENDER || position.y * scaleRender > screen->y + screen->h)
+        if (!on_screen(screen))
             skipPlot = true;
         posSX = position.x * scaleRender - screen->x;
         posSY = position.y * scaleRender - screen->y;

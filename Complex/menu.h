@@ -19,7 +19,7 @@ public:
         BOTTOM
     };
 
-    Menu(Window *_wrapper, Position pos = RIGHT, SDL_Rect border = {TILESIZEINPUT * 12, TILESIZEINPUT * 12, 0, 0});
+    Menu(Window *_wrapper, Position pos = RIGHT, SDL_Rect border = {0, TILESIZEINPUT * 12, TILESIZEINPUT * 12, 0});
     void set_viewPort();
     void evaluate(SDL_Event &event);
     void reset();
@@ -33,15 +33,27 @@ public:
     }
 
     // Buttons
-    void add_button(std::string name, SDL_Rect position, SDL_Keycode key = SDLK_UNKNOWN, float ws = 2, float hs = 1)
+    void add_button(std::string name, SDL_Rect position, float ws = 2, float hs = 1, SDL_Keycode key = SDLK_UNKNOWN)
     {
         buttons.emplace(name, button(position, ws, hs));
         buttonKeys.emplace(name, key);
         buttonState.emplace(name, false);
     }
+    void add_button(std::string name, SDL_Rect position, SDL_Rect clips[button::COUNT], SDL_Keycode key = SDLK_UNKNOWN)
+    {
+        buttons.emplace(name, button(position, clips));
+        buttonKeys.emplace(name, key);
+        buttonState.emplace(name, false);
+    }
+    void add_button(std::string name, SDL_Rect position, SDL_Rect clip, SDL_Keycode key = SDLK_UNKNOWN)
+    {
+        buttons.emplace(name, button(position, clip));
+        buttonKeys.emplace(name, key);
+        buttonState.emplace(name, false);
+    }
     void set_button_image(std::string name, std::string imgName, std::string text = "", uint textSize = TILESIZEINPUT * 2, SDL_Color textColor = {255, 255, 150, 255})
     {
-        buttons.at(name).image = images[imgName];
+        buttons.at(name).image = images.at(imgName);
         if (text != "")
         {
             buttons.at(name).text = std::make_shared<IMG_wrapper>();

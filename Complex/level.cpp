@@ -27,11 +27,6 @@ void Level::preprocess()
 
 void Level::evaluate(SDL_Event &event)
 {
-    if (event.type == SDL_WINDOWEVENT && event.window.event == SDL_WINDOWEVENT_RESIZED)
-    {
-        window->sWidth = event.window.data1;
-        window->sHeight = event.window.data2;
-    }
     bScreen.screenPos = curMap.gameplayScreen;
 
     if (bScreen.evaluate(event, {0, 0, 0, 0}) == bScreen.CLICK)
@@ -58,7 +53,7 @@ void Level::plot()
     for (auto &cIt : characters)
     {
         Character *chr = &cIt.second;
-        //  chr->plot_path(*window,&screenRect);
+        chr->plot_path(*window,&screenRect);
         chr->plot_animation(*window, &screenRect, pause);
     }
     curMap.render_minimap(*window, collisionObjects);

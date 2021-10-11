@@ -1,6 +1,7 @@
 #include "screen.h"
 #include "top_down.h"
 #include "main_menu.h"
+#include "map_editor.h"
 
 #include <iostream>
 #include <sstream>
@@ -23,11 +24,18 @@ screen_ptr main_menu::user_nextScreen()
 {
     if (start_topDown)
         return make_screen<top_down_fight>(true);
-    else
-        return nullptr;
+    if (start_editor)
+        return make_screen<map_editor>(true);
+    
+    return nullptr;
 }
 
 screen_ptr top_down_fight::user_nextScreen()
+{
+    return make_screen<main_menu>(true);
+}
+
+screen_ptr map_editor::user_nextScreen()
 {
     return make_screen<main_menu>(true);
 }

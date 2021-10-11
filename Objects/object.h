@@ -23,7 +23,7 @@ public:
     };
     static const char *const dirName[4]; // = {"UP", "DOWN", "LEFT", "RIGHT"};
 
-    std::shared_ptr<std::map<int, SDL_Rect>> clips;
+    SDL_Rect clip;
 
     // global coor. vars
     SDL_Rect position;
@@ -35,13 +35,14 @@ public:
     int extVelX;
     int extVelY;
     // friction impacts extVel
-    int friction;
-    uint spriteType;
+    int frictionX;
+    int frictionY;
     SDL_Color mapColor;
 
     std::shared_ptr<IMG_wrapper> image;
     bool set_image(Window &window, std::string imagePath);
     void plot(Window &wrapper, SDL_Rect *screen = nullptr);
+    bool on_screen(SDL_Rect *screen);
 
     std::map<std::string, int> property;
     void set_health(uint value);
@@ -58,6 +59,5 @@ private:
     std::string curAnimation = "";
 };
 
-std::vector<Object> import_map(std::string mapFile, int mapSizeX, int mapSizeY);
 
 #endif // OBJECT_H
