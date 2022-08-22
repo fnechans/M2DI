@@ -137,16 +137,6 @@ public:
         if (!textHelp.load_text(*window, "There is no help. You are on your own.", {0, 0, 0, 255}, 0, base::TILESIZERENDER * 2))
             return;
     }
-    /*
-    //Load media
-
-    timer FPS;
-    FPS.start();
-    int nFrames = 0;
-    std::stringstream textFPS;
-    IMG_wrapper imgFPS;
-    bool showFPS = false;
-*/
 
     void user_evaluate()
     {
@@ -242,28 +232,6 @@ public:
 
         level->get_map().screen_position(level->screenRect, level->viewPort, *player);
     }
-    /*
-        double avgFPS;
-        if( showFPS && nFrames%60 == 0)
-        {
-            //Calculate and correct fps
-            avgFPS = nFrames / ( FPS.getTicks() / 1000.f );
-            if( avgFPS > 2000000 )
-            {
-                avgFPS = 0;
-            }
-            textFPS.str("");
-            textFPS << avgFPS;
-            if( !imgFPS.load_text(textFPS.str(), {100,255,100,255}) ) return;
-            FPS.restart();
-            nFrames=0;
-        }
-        if(showFPS)
-        {
-            SDL_wrapper::render_image(imgFPS,0,0);
-            ++nFrames;
-        }
-*/
 
     void user_plot()
     {

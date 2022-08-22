@@ -50,9 +50,8 @@ public:
         if (!isInit)
             init();
 
-        Uint32 time_step_ms = 1000 / base::TICKS_PER_SECOND;
-        std::cout << time_step_ms << std::endl;
-        std::cout << base::TICKS_PER_SECOND << std::endl;
+        // Ticks to ms conversion, round give closest integer
+        Uint32 time_step_ms = std::round(1000. / base::TICKS_PER_SECOND);
         Uint32 next_game_step = SDL_GetTicks(); // initial value
         uint nRender = 0;
         uint nEval = 0;
@@ -102,8 +101,8 @@ public:
                 nRender++;
                 if(now-fps_step > 10000)
                 {
-                    std::cout << "fps expected: " << fps << "/real: " << ((float) nRender*1000)/(now-fps_step) << std::endl;
-                    std::cout << "ticks: " << ((float) nEval*1000)/(now-fps_step) << std::endl;
+                    std::cout << "fps expected: " << fps << " / real: " << ((float) nRender*1000)/(now-fps_step) << std::endl;
+                    std::cout << "ticks expected: " << base::TICKS_PER_SECOND <<  " / real: " << ((float) nEval*1000)/(now-fps_step) << std::endl;
                     nRender = 0;
                     nEval = 0;
                     fps_step = now;

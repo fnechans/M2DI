@@ -70,7 +70,7 @@ public:
         int corY = 3;
         for(uint y = 0; y < sizeY; y++)
         {
-            for(uint x = 0; x <= width/buttonH; x++)
+            for(uint x = 0; x <= (uint) width/buttonH; x++)
             {
                 if(y*sizeX+x>1000) break;
                 std::string type = std::string(1, (char)'a'+x) + std::string(1, (char)'a'+y);
