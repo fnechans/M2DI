@@ -1,6 +1,6 @@
 #include "level.h"
 
-Level::Level(Window *_wrapper) : window(_wrapper), bScreen({0, 0, 0, 0})
+Level::Level(Window *win, Position pos, SDL_Rect bor) : Viewport(win, pos, bor), bScreen({0, 0, 0, 0})
 {
 }
 
@@ -11,26 +11,29 @@ void Level::bake()
     {
         collisionObjects.push_back(&c.second);
     }
-    for (auto &t : curMap.blocks)
+    for (auto &t : curMap->blocks)
     {
         collisionObjects.push_back(&t);
     }
 }
 void Level::preprocess()
 {
-    screenClick = false;
+    //screenClick = false;
 
-    tools::remove_dead_vector<Object>(curMap.blocks);
+    tools::remove_dead_vector<Object>(curMap->blocks);
     tools::remove_dead_map<Character>(characters);
     bake();
 }
 
 void Level::evaluate(SDL_Event &event)
 {
-    bScreen.screenPos = curMap.gameplayScreen;
+    bScreen.screenPos = viewPort;
 
-    if (bScreen.evaluate(event, {0, 0, 0, 0}) == bScreen.CLICK)
+    auto state = bScreen.evaluate(event, {0, 0, 0, 0});
+    if (state == bScreen.CLICK)
         screenClick = true;
+    else if (state == bScreen.UNCLICK)
+        screenClick = false;
 }
 
 void Level::move_chars()
@@ -47,7 +50,8 @@ void Level::move_chars()
 
 void Level::plot()
 {
-    curMap.render_map(*window, screenRect);
+    set_viewPort();
+    curMap->render_map(*window, screenRect);
     // TODO: are all collision objects needed here?
 
     for (auto &cIt : characters)
@@ -56,5 +60,5 @@ void Level::plot()
         chr->plot_path(*window,&screenRect);
         chr->plot_animation(*window, &screenRect, pause);
     }
-    curMap.render_minimap(*window, collisionObjects);
+    curMap->render_minimap(*window, collisionObjects);
 }

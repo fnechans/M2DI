@@ -49,43 +49,80 @@ public:
     {
         if (!isInit)
             init();
+
+        Uint32 time_step_ms = 1000 / base::TICKS_PER_SECOND;
+        std::cout << time_step_ms << std::endl;
+        std::cout << base::TICKS_PER_SECOND << std::endl;
+        Uint32 next_game_step = SDL_GetTicks(); // initial value
+        uint nRender = 0;
+        uint nEval = 0;
+        Uint32 fps_step = next_game_step;
+
         while (!quit)
         {
-            // TODO: naming! preprocess vs reset()!
-            for (auto &m : menus)
-                m.reset();
-            for (auto &l : levels)
-                l.preprocess();
+            Uint32 now = SDL_GetTicks();
 
-            // process inputs
-            while (SDL_PollEvent(&event) != 0)
-            {
-                if (event.type == SDL_QUIT)
-                {
-                    quit = true;
+            // Check so we don't render for no reason (unless vsync is enabled)
+            if(next_game_step <= now || vsync){
+                int computer_is_too_slow_limit = 10; // max number of advances per render, adjust this according to your minimum playable fps
+
+                // Loop until all steps are executed or computer_is_too_slow_limit is reached
+                while((next_game_step <= now) && (computer_is_too_slow_limit--)){
+                    // TODO: naming! preprocess vs reset()!
+                    nEval++;
+                    for (auto &m : menus)
+                        m.reset();
+                    for (auto &l : levels)
+                        l.preprocess();
+
+                    // process inputs
+                    while (SDL_PollEvent(&event) != 0)
+                    {
+                        if (event.type == SDL_QUIT)
+                        {
+                            quit = true;
+                        }
+                        if (event.type == SDL_WINDOWEVENT && event.window.event == SDL_WINDOWEVENT_RESIZED)
+                        {
+                            window->sWidth = event.window.data1;
+                            window->sHeight = event.window.data2;
+                        }
+                        for (auto &l : levels)
+                            l.evaluate(event);
+                        for (auto &m : menus)
+                            m.evaluate(event);
+                        user_evaluate();
+                    }
+
+                    user_update();
+
+                    next_game_step += time_step_ms; // count 1 game tick done
                 }
-                if (event.type == SDL_WINDOWEVENT && event.window.event == SDL_WINDOWEVENT_RESIZED)
+
+                nRender++;
+                if(now-fps_step > 10000)
                 {
-                    window->sWidth = event.window.data1;
-                    window->sHeight = event.window.data2;
+                    std::cout << "fps expected: " << fps << "/real: " << ((float) nRender*1000)/(now-fps_step) << std::endl;
+                    std::cout << "ticks: " << ((float) nEval*1000)/(now-fps_step) << std::endl;
+                    nRender = 0;
+                    nEval = 0;
+                    fps_step = now;
                 }
+                window->clear();
+
                 for (auto &l : levels)
-                    l.evaluate(event);
+                    l.plot();
                 for (auto &m : menus)
-                    m.evaluate(event);
-                user_evaluate();
+                    m.plot();
+
+                user_plot();
+                window->render();
+            } else {
+                // we're too fast, wait a bit.
+                if(true){ // false to burn cpu
+                    SDL_Delay(next_game_step - now);
+                }
             }
-
-            window->clear();
-            user_update();
-
-            for (auto &l : levels)
-                l.plot();
-            for (auto &m : menus)
-                m.plot();
-
-            user_plot();
-            window->render();
         }
 
         return user_nextScreen();
@@ -110,5 +147,8 @@ private:
     }
     std::vector<Menu> menus;
     std::vector<Level> levels;
+
+    uint fps = 60; // does nothing right now
+    bool vsync = true;
 };
 #endif

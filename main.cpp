@@ -14,6 +14,7 @@ int main(int argc, char *args[])
     (void)(args);
 
     std::shared_ptr<screen> currentScreen = std::make_shared<main_menu>();
+    base::TICKS_PER_SECOND = 50;
     while (currentScreen)
     {
         currentScreen = currentScreen->loop();
@@ -26,7 +27,7 @@ screen_ptr main_menu::user_nextScreen()
         return make_screen<top_down_fight>(true);
     if (start_editor)
         return make_screen<map_editor>(true);
-    
+
     return nullptr;
 }
 

@@ -3,6 +3,7 @@
 uint base::mWidth(0);
 uint base::mHeight(0);
 uint base::TILESIZERENDER(0);
+uint base::TICKS_PER_SECOND(128);
 double base::scaleRender;
 double base::scaleRenderInput;
 
@@ -46,5 +47,5 @@ namespace tools
     bool point_within_rect(int x, int y, SDL_Rect rect)
     {
         return (x>=rect.x && x<=rect.x+rect.w && y>=rect.y && y<=rect.y+rect.h);
-    }    
+    }
 }

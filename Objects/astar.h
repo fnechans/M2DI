@@ -61,7 +61,7 @@ public:
         return lowestNode;
     }
 
-    std::vector<node> find_path(node start, node goal, std::vector<node> collObjects)
+    std::vector<node> find_path(node start, node goal, std::vector<node>& collObjects)
     {
 
         std::vector<node> closeSet = {};

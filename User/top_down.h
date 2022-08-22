@@ -42,6 +42,8 @@ public:
     void user_init()
     {
         level = &add_level();
+
+        level->set_map({0, 0, 0, 0});
         level->get_map().init(40, 36);
 
         level->get_map().add_sprite_property(1, 4, {100, 100, 0, 255});
@@ -109,7 +111,7 @@ public:
         level->add_character_melee("CH3", "attack");
         //    c2.speed = base::TILESIZE/32;
 
-        menu = &add_menu();
+        menu = &add_menu(Menu::RIGHT, {0, 0, 12*base::TILESIZEINPUT, 0});
         int buttonW = base::TILESIZEINPUT * 4;
         int buttonH = base::TILESIZEINPUT * 2;
         menu->add_image("button", "data/button.bmp");
@@ -238,7 +240,7 @@ public:
             }
         }
 
-        level->get_map().screen_position(level->screenRect, *player);
+        level->get_map().screen_position(level->screenRect, level->viewPort, *player);
     }
     /*
         double avgFPS;

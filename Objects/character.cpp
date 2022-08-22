@@ -6,8 +6,8 @@ Character::Character(uint x, uint y) : Object(x, y)
     intrVelY = 0;
 
     dir = DOWN;
-    speedX = TILESIZEPHYSICS / 16;
-    speedY = TILESIZEPHYSICS / 16;
+    speedX = 4*TILESIZEPHYSICS / TICKS_PER_SECOND;
+    speedY = 4*TILESIZEPHYSICS / TICKS_PER_SECOND;
 
     moved = false;
 }
@@ -67,8 +67,6 @@ void Character::follow_path(std::vector<Object *> &collObjects)
 
     if (!path.empty())
     {
-        if (fabs(position.x - path.back()->position.x) <= TILESIZEPHYSICS && fabs(position.y - path.back()->position.y) <= TILESIZEPHYSICS && path.size() > 1)
-            path.pop_back();
         int dirX = path.back()->position.x - position.x;
         int dirY = path.back()->position.y - position.y;
 
@@ -77,6 +75,9 @@ void Character::follow_path(std::vector<Object *> &collObjects)
         else if (dirX < 0) move_left();
         if (dirY > 0) move_down();
         else if (dirY < 0) move_up(collObjects);
+
+        if (fabs(position.x - path.back()->position.x) <= TILESIZEPHYSICS && fabs(position.y - path.back()->position.y) <= TILESIZEPHYSICS && path.size() > 1)
+            path.pop_back();
     }
 }
 

@@ -1,26 +1,17 @@
 #ifndef MENU_H
 #define MENU_H
 
-#include "base.h"
+#include "viewport.h"
 #include "button.h"
 #include <map>
 #include "IMG_wrapper.h"
 #include "timer.h"
 
-class Menu : base
+class Menu : public Viewport
 {
 public:
-    enum Position
-    {
-        CENTER,
-        RIGHT,
-        LEFT,
-        TOP,
-        BOTTOM
-    };
 
     Menu(Window *_wrapper, Position pos = RIGHT, SDL_Rect border = {0, TILESIZEINPUT * 12, TILESIZEINPUT * 12, 0});
-    void set_viewPort();
     void evaluate(SDL_Event &event);
     void reset();
     void plot();
@@ -63,10 +54,6 @@ public:
     bool get_state(std::string name) { return buttonState.at(name); }
 
 private:
-    Window *window;
-    SDL_Rect viewPort;
-    Position position;
-    SDL_Rect border;
     std::map<std::string, std::shared_ptr<IMG_wrapper>> images;
     std::map<std::string, button> buttons;
     std::map<std::string, SDL_Keycode> buttonKeys;

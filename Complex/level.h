@@ -1,7 +1,7 @@
 #ifndef LEVEL_H
 #define LEVEL_H
 
-#include "window.h"
+#include "viewport.h"
 #include "tilemap.h"
 #include "melee.h"
 #include "IMG_wrapper.h"
@@ -13,10 +13,10 @@
 
 // Goal of Level is that player does not have to
 // interact with any Object unless really necessary
-class Level : base
+class Level : public Viewport
 {
 public:
-    Level(Window *_wrapper);
+    Level(Window *win, Position pos = WHOLE, SDL_Rect bor = {0, 0, 0, 0});
     Level(const Level *) = delete;
     void bake(); // called before loop!
 
@@ -26,8 +26,12 @@ public:
     void move_chars();
     void plot();
 
-    Map_wrapper &get_map() { return curMap; }
-    void set_map_image(std::string name) { curMap.image = images[name]; }
+    void set_map(SDL_Rect border = {0, 0, TILESIZEINPUT * 12, 0})
+    {
+        curMap = std::make_unique<Map_wrapper>(border);
+    }
+    Map_wrapper &get_map() { return *curMap; }
+    void set_map_image(std::string name) { curMap->image = images[name]; }
 
     // Melee
     void add_melee(std::string name, Melee melee)
@@ -114,13 +118,9 @@ public:
     bool pause = false; // is level paused?
     SDL_Rect screenRect;
 
-private:
-    Window *window;
-    // TODO: move to private
-public:
     button bScreen;
 private:
-    Map_wrapper curMap;
+    std::unique_ptr<Map_wrapper> curMap;
     std::vector<Object *> collisionObjects;
 
     std::map<std::string, Melee> melees;

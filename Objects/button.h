@@ -12,6 +12,7 @@ public:
         DEFAULT,
         HOVER,
         CLICK,
+        UNCLICK,
         COUNT
     };
     button(SDL_Rect pos, double ws = 2, double hs = 1);

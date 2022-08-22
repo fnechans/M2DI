@@ -53,6 +53,8 @@ int button::evaluate(SDL_Event &e, SDL_Rect viewPort)
             {
             case SDL_MOUSEMOTION:
                 state = HOVER;
+                clickX = x;
+                clickY = y;
                 break;
 
             case SDL_MOUSEBUTTONDOWN:
@@ -62,7 +64,7 @@ int button::evaluate(SDL_Event &e, SDL_Rect viewPort)
                 break;
 
             case SDL_MOUSEBUTTONUP:
-                state = HOVER;
+                state = UNCLICK;
                 break;
             }
         }

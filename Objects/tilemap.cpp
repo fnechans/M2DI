@@ -2,7 +2,8 @@
 #include <iostream>
 #include <fstream>
 
-Map_wrapper::Map_wrapper(SDL_Rect border) : base(), gameplayBorder(border)
+Map_wrapper::Map_wrapper(SDL_Rect border)
+    : base(), gameplayBorder(border)
 {
     image = std::make_shared<IMG_wrapper>();
 }
@@ -16,16 +17,13 @@ void Map_wrapper::init(uint xMax, uint yMax)
             std::string type = std::string(1, (char)'a'+x) + std::string(1, (char)'a'+y);
             mappingClips[type] = {x * (int) TILESIZEINPUT, y * (int) TILESIZEINPUT, (int) TILESIZEINPUT, (int) TILESIZEINPUT};
             mappingColor[type] = {0,0,0,0};
-            mappingHealth[type] = 0; 
+            mappingHealth[type] = 0;
         }
     }
 }
 
 void Map_wrapper::render_map(Window &window, SDL_Rect &mapPosition)
 {
-    gameplayScreen = {gameplayBorder.x, gameplayBorder.y, window.sWidth - gameplayBorder.w, window.sHeight - gameplayBorder.h};
-
-    window.viewPort(&gameplayScreen);
     for (auto &tile : tiles)
     {
         tile.plot(window, &mapPosition);
@@ -107,10 +105,10 @@ void Map_wrapper::add_sprite_property(std::string type, SDL_Color col, uint heal
     mappingHealth.at(type) = health;
 }
 
-void Map_wrapper::screen_position(SDL_Rect &screenRect, Object &obj)
+void Map_wrapper::screen_position(SDL_Rect &screenRect, SDL_Rect &viewPort, Object &obj)
 {
-    obj.posSX = gameplayScreen.x + gameplayScreen.w / 2 - obj.position.w/2 * scaleRender;
-    obj.posSY = gameplayScreen.y + gameplayScreen.h / 2 - obj.position.h/2 * scaleRender;
+    obj.posSX = viewPort.x + viewPort.w / 2 - obj.position.w/2 * scaleRender;
+    obj.posSY = viewPort.y + viewPort.h / 2 - obj.position.h/2 * scaleRender;
 
     screenRect.x = obj.position.x * scaleRender - obj.posSX;
     if (screenRect.x < 0)
@@ -118,10 +116,10 @@ void Map_wrapper::screen_position(SDL_Rect &screenRect, Object &obj)
         screenRect.x = 0;
         obj.posSX = obj.position.x * scaleRender;
     }
-    else if (screenRect.x + (gameplayScreen.x + gameplayScreen.w) > mWidth * scaleRender && mWidth * scaleRender > (gameplayScreen.x + gameplayScreen.w))
+    else if (screenRect.x + (viewPort.x + viewPort.w) > mWidth * scaleRender && mWidth * scaleRender > (viewPort.x + viewPort.w))
     {
-        screenRect.x = mWidth * scaleRender - (gameplayScreen.x + gameplayScreen.w);
-        obj.posSX = (gameplayScreen.x + gameplayScreen.w) - (mWidth - obj.position.x) * scaleRender;
+        screenRect.x = mWidth * scaleRender - (viewPort.x + viewPort.w);
+        obj.posSX = (viewPort.x + viewPort.w) - (mWidth - obj.position.x) * scaleRender;
     }
 
     screenRect.y = obj.position.y * scaleRender - obj.posSY;
@@ -130,14 +128,14 @@ void Map_wrapper::screen_position(SDL_Rect &screenRect, Object &obj)
         screenRect.y = 0;
         obj.posSY = obj.position.y * scaleRender;
     }
-    else if (screenRect.y + (gameplayScreen.y + gameplayScreen.h) > mHeight * scaleRender && mHeight * scaleRender > (gameplayScreen.y + gameplayScreen.h))
+    else if (screenRect.y + (viewPort.y + viewPort.h) > mHeight * scaleRender && mHeight * scaleRender > (viewPort.y + viewPort.h))
     {
-        screenRect.y = mHeight * scaleRender - (gameplayScreen.y + gameplayScreen.h);
-        obj.posSY = (gameplayScreen.y + gameplayScreen.h) - (mHeight - obj.position.y) * scaleRender;
+        screenRect.y = mHeight * scaleRender - (viewPort.y + viewPort.h);
+        obj.posSY = (viewPort.y + viewPort.h) - (mHeight - obj.position.y) * scaleRender;
     }
 
-    screenRect.w = gameplayScreen.w;
-    screenRect.h = gameplayScreen.h;
+    screenRect.w = viewPort.w;
+    screenRect.h = viewPort.h;
 }
 
 std::vector<Object> Map_wrapper::blank_map(int _mapSizeX, int _mapSizeY, bool setHealth)

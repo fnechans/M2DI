@@ -15,7 +15,9 @@ class base
 public:
     base();
 
-    static const uint TILESIZEPHYSICS = 128; // defines physical size
+    static uint TICKS_PER_SECOND;
+
+    static const uint TILESIZEPHYSICS = 1024; // defines physical size
                                             // so it is more related to
                                             // speed and such
     static const uint TILESIZEINPUT = 16;    // defines basic size of

@@ -22,6 +22,13 @@ public:
     void user_init()
     {
         level = &add_level();
+        int width = 40*base::TILESIZEINPUT;
+
+        // TODO: do this properly, also needs minimal window size
+        // (corresponding to the size of the menu = width)
+        level->border = {0, 0, width, 0};
+        level->position = Viewport::LEFT_FILL;
+        level->set_map({0, 0, width, 0});
         level->get_map().init(sizeX, sizeY);
         level->add_image("map", "data/gfx/Overworld.png");
         level->set_map_image("map");
@@ -35,7 +42,7 @@ public:
         // character to only move around
         player = level->add_character("player", 0, 0);
 
-        menu = &add_menu();
+        menu = &add_menu(Menu::RIGHT, {0, 0, width, 0});
         int buttonW = base::TILESIZEINPUT * 4;
         int buttonH = base::TILESIZEINPUT * 2;
         menu->add_image("button", "data/button.bmp");
@@ -61,20 +68,20 @@ public:
 
         int corX = 0;
         int corY = 3;
-        for(int x = 0; x < sizeX; x++)
+        for(uint y = 0; y < sizeY; y++)
         {
-            for(int y = 0; y < sizeY; y++)
+            for(uint x = 0; x <= width/buttonH; x++)
             {
-                if(y+x*sizeY>200) break;
+                if(y*sizeX+x>1000) break;
                 std::string type = std::string(1, (char)'a'+x) + std::string(1, (char)'a'+y);
                 menu->add_button(type, {corX*buttonH, corY*buttonH, buttonH, buttonH}, level->get_map().mappingClips.at(type));
                 menu->set_button_image(type, "map");
                 tileButtonNames.push_back(type);
                 corX++;
-                if(corX>5){corX=0;corY++;}
+                if(corX>width/buttonH){corX=0;corY++;}
             }
         }
-    
+
         if (!textHelp.load_text(*window, "There is no help. You are on your own.", {0, 0, 0, 255}, 0, base::TILESIZERENDER * 2))
             return;
     }
@@ -102,10 +109,10 @@ public:
             case SDLK_d: player->move_left(); break;
             }
         }
-        player->position.w = (level->get_map().gameplayScreen.w / base::scaleRender <  base::mWidth)
-            ? level->get_map().gameplayScreen.w / base::scaleRender : base::mWidth-1;
-        player->position.h = (level->get_map().gameplayScreen.h / base::scaleRender <  base::mHeight)
-            ? level->get_map().gameplayScreen.h / base::scaleRender : base::mHeight-1;
+        player->position.w = (level->viewPort.w / base::scaleRender <  base::mWidth)
+            ? level->viewPort.w / base::scaleRender : base::mWidth-1;
+        player->position.h = (level->viewPort.h / base::scaleRender <  base::mHeight)
+            ? level->viewPort.h / base::scaleRender : base::mHeight-1;
     }
 
     void user_update()
@@ -140,7 +147,7 @@ public:
             level->move_chars();
         }
 
-        level->get_map().screen_position(level->screenRect, *player);
+        level->get_map().screen_position(level->screenRect, level->viewPort, *player);
     }
 
     void user_plot()

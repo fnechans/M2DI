@@ -25,7 +25,7 @@ public:
         switch(type)
         {
             case Sidescroll:
-                moveType = Sidescroll; frictionY = 0; speedY = TILESIZEPHYSICS/4; break;
+                moveType = Sidescroll; frictionY = 0; speedY = 16*TILESIZEPHYSICS/TICKS_PER_SECOND; break;
             case TopDown:
                 moveType = TopDown; frictionY = frictionX; speedY = speedX; break;
         }

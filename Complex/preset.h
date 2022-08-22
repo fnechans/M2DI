@@ -11,25 +11,25 @@ namespace preset
     void get_animation_data()
     {
         animationData["DEFAULT_DOWN"].shiftY = -0.75;
-        animationData["DEFAULT_DOWN"].frequency = base::TILESIZEPHYSICS / 4;
+        animationData["DEFAULT_DOWN"].frequency = base::TICKS_PER_SECOND / 2;
         animationData["DEFAULT_DOWN"].clips = {
             {0, 0, 1, 2},
             {6, 0, 1, 2},
         };
         animationData["DEFAULT_RIGHT"].shiftY = -0.75;
-        animationData["DEFAULT_RIGHT"].frequency = base::TILESIZEPHYSICS / 4;
+        animationData["DEFAULT_RIGHT"].frequency = base::TICKS_PER_SECOND / 2;
         animationData["DEFAULT_RIGHT"].clips = {
             {0, 2, 1, 2},
             {6, 2, 1, 2},
         };
         animationData["DEFAULT_UP"].shiftY = -0.75;
-        animationData["DEFAULT_UP"].frequency = base::TILESIZEPHYSICS / 4;
+        animationData["DEFAULT_UP"].frequency = base::TICKS_PER_SECOND / 2;
         animationData["DEFAULT_UP"].clips = {
             {0, 4, 1, 2},
             {6, 4, 1, 2},
         };
         animationData["DEFAULT_LEFT"].shiftY = -0.75;
-        animationData["DEFAULT_LEFT"].frequency = base::TILESIZEPHYSICS / 4;
+        animationData["DEFAULT_LEFT"].frequency = base::TICKS_PER_SECOND / 2;
         animationData["DEFAULT_LEFT"].clips = {
             {0, 6, 1, 2},
             {6, 6, 1, 2},
@@ -64,7 +64,7 @@ namespace preset
         };
         animationData["ATTACK_DOWN"].shiftX = -0.5;
         animationData["ATTACK_DOWN"].shiftY = -0.75;
-        animationData["ATTACK_DOWN"].frequency = base::TILESIZEPHYSICS / 32;
+        animationData["ATTACK_DOWN"].frequency = base::TICKS_PER_SECOND / 32;
         animationData["ATTACK_DOWN"].repeat = false;
         animationData["ATTACK_DOWN"].clips = {
             {0, 8, 2, 2},
@@ -74,7 +74,7 @@ namespace preset
         };
         animationData["ATTACK_RIGHT"].shiftX = -0.5;
         animationData["ATTACK_RIGHT"].shiftY = -0.75;
-        animationData["ATTACK_RIGHT"].frequency = base::TILESIZEPHYSICS / 32;
+        animationData["ATTACK_RIGHT"].frequency = base::TICKS_PER_SECOND / 32;
         animationData["ATTACK_RIGHT"].repeat = false;
         animationData["ATTACK_RIGHT"].clips = {
             {0, 12, 2, 2},
@@ -84,7 +84,7 @@ namespace preset
         };
         animationData["ATTACK_UP"].shiftX = -0.5;
         animationData["ATTACK_UP"].shiftY = -0.75;
-        animationData["ATTACK_UP"].frequency = base::TILESIZEPHYSICS / 32;
+        animationData["ATTACK_UP"].frequency = base::TICKS_PER_SECOND / 32;
         animationData["ATTACK_UP"].repeat = false;
         animationData["ATTACK_UP"].clips = {
             {0, 10, 2, 2},
@@ -94,7 +94,7 @@ namespace preset
         };
         animationData["ATTACK_LEFT"].shiftX = -0.5;
         animationData["ATTACK_LEFT"].shiftY = -0.75;
-        animationData["ATTACK_LEFT"].frequency = base::TILESIZEPHYSICS / 32;
+        animationData["ATTACK_LEFT"].frequency = base::TICKS_PER_SECOND / 32;
         animationData["ATTACK_LEFT"].repeat = false;
         animationData["ATTACK_LEFT"].clips = {
             {0, 14, 2, 2},
