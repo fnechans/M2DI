@@ -99,10 +99,10 @@ public:
                 }
 
                 nRender++;
-                if(now-fps_step > 10000)
+                if(now-fps_step > 1000)
                 {
-                    std::cout << "fps expected: " << fps << " / real: " << ((float) nRender*1000)/(now-fps_step) << std::endl;
-                    std::cout << "ticks expected: " << base::TICKS_PER_SECOND <<  " / real: " << ((float) nEval*1000)/(now-fps_step) << std::endl;
+                    currentFPS = ((float) nRender*1000)/(now-fps_step);
+                    currentTickrate = ((float) nEval*1000)/(now-fps_step);
                     nRender = 0;
                     nEval = 0;
                     fps_step = now;
@@ -128,6 +128,8 @@ public:
     }
 
     bool quit = false;
+    uint currentFPS;
+    uint currentTickrate;
 
 private:
     bool isInit = false;
@@ -147,7 +149,7 @@ private:
     std::vector<Menu> menus;
     std::vector<Level> levels;
 
-    uint fps = 60; // does nothing right now
+    uint fps = 60; // Does nothing if vsync = true!!!
     bool vsync = true;
 };
 #endif

@@ -14,11 +14,14 @@ public:
     using screen::screen;
 
     bool help = false;
+    bool showFPS = false;
     Level *level;
     Menu *menu;
     IMG_wrapper playerHealth;
     std::stringstream textHealth;
     IMG_wrapper textHelp;
+    std::stringstream streamFPS;
+    IMG_wrapper textFPS;
     Character *player;
     int AIclick = 0; // how often is AI updated
     std::unique_ptr<AStar<Object *>> acko = nullptr;
@@ -55,6 +58,9 @@ public:
         level->set_map_image("map");
         level->get_map().load_map("data/start.map", 16, 16);
         level->get_map().load_blocks("data/startBlock2.map", 16, 16);
+
+        if (!textHelp.load_text(*window, "There is no help. You are on your own.", {255, 100, 100, 255}, 64, base::TILESIZEINPUT * 24))
+            return;
 
         init_astar();
 
@@ -134,8 +140,6 @@ public:
         menu->add_button("quit", {buttonW * 2, buttonH, buttonW, buttonH});
         menu->set_button_image("quit", "button", "EXIT");
 
-        if (!textHelp.load_text(*window, "There is no help. You are on your own.", {0, 0, 0, 255}, 0, base::TILESIZERENDER * 2))
-            return;
     }
 
     void user_evaluate()
@@ -175,7 +179,7 @@ public:
             help = !help;
         if (menu->get_state("quit"))
             quit = true;
-        //   if(menu->get_state("fps")) showFPS = !showFPS;
+        if(menu->get_state("fps")) showFPS = !showFPS;
         if (menu->get_state("+") && base::TILESIZERENDER < 6 * base::TILESIZEINPUT)
             base::set_tilerender(base::TILESIZERENDER * 2);
         if (menu->get_state("-") && base::TILESIZERENDER > base::TILESIZEINPUT)
@@ -235,14 +239,26 @@ public:
 
     void user_plot()
     {
-        if (help)
-            textHelp.render_image(*window, 0, base::TILESIZERENDER * 2);
-
+        // Render within the menu:
+        menu->set_viewPort();
         textHealth.str("");
         textHealth << "Health: " << player->property["health"];
-        if (!playerHealth.load_text(*window, textHealth.str(), {100, 255, 100, 255}, 32, base::TILESIZEINPUT * 12))
+        if (!playerHealth.load_text(*window, textHealth.str(), {255, 100, 100, 255}, 32, base::TILESIZEINPUT * 12))
             return;
         playerHealth.render_image(*window, 0, base::TILESIZEINPUT * 4);
+
+        level->set_viewPort();
+        if(showFPS)
+        {
+            streamFPS.str("");
+            streamFPS << "FPS: " << currentFPS << "\t Tickrate: " << currentTickrate;
+            if (!textFPS.load_text(*window, streamFPS.str(), {255, 100, 100, 255}, 16, base::TILESIZEINPUT * 24))
+                return;
+            textFPS.render_image(*window, 0, 0);
+        }
+
+        if (help)
+            textHelp.render_image(*window, 0, 32);
     }
 
     void custom_process(Character *object, std::string dir)
