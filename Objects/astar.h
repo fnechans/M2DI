@@ -19,7 +19,6 @@ public:
     std::map<node, double> guessScore;
     std::vector<node> curMap;
 
-    bool debug = false;
     std::vector<node> reconstruct_path(node tar, node star)
     {
         std::vector<node> result = {};
@@ -83,8 +82,6 @@ public:
 
         while (!openSet.empty())
         {
-            if (debug)
-                std::cout << openSet.size() << std::endl;
             current = bestOpen();
             if (current == goal)
             {
@@ -96,12 +93,8 @@ public:
 
             for (auto neighbor : curMap)
             {
-                if (debug)
-                    std::cout << "here2" << std::endl;
                 if (neighbor == current || cost(neighbor, current) > TILESIZEPHYSICS * 1.1)
                     continue;
-                if (debug)
-                    std::cout << "here4" << std::endl;
 
                 bool collides = false;
                 for (auto obj : collObjects)
@@ -116,19 +109,13 @@ public:
                 }
                 if (collides)
                     continue;
-                if (debug)
-                    std::cout << "here" << std::endl;
 
                 double tentScore = bestScore[current] + cost(current, neighbor);
                 if (tentScore < bestScore[neighbor])
                 {
                     comesFrom[neighbor] = current;
                     bestScore[neighbor] = tentScore;
-                    if (debug)
-                        std::cout << "here3" << std::endl;
                     guessScore[neighbor] = bestScore[neighbor] + cost(neighbor, goal);
-                    if (debug)
-                        std::cout << "here4" << std::endl;
                     if (std::find(closeSet.begin(), closeSet.end(), neighbor) == closeSet.end())
                     {
                         openSet.push_back(neighbor);
