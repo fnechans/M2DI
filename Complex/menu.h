@@ -42,13 +42,15 @@ public:
         buttonKeys.emplace(name, key);
         buttonState.emplace(name, false);
     }
-    void set_button_image(std::string name, std::string imgName, std::string text = "", uint textSize = TILESIZEINPUT * 2, SDL_Color textColor = {255, 255, 150, 255})
+    void set_button_image(std::string name, std::string imgName, std::string text = "", SDL_Color textColor = {255, 255, 150, 255})
     {
-        buttons.at(name).image = images.at(imgName);
+        auto& curButton = buttons.at(name);
+        curButton.image = images.at(imgName);
         if (text != "")
         {
-            buttons.at(name).text = std::make_shared<IMG_wrapper>();
-            buttons.at(name).text->load_text(*window, text, textColor, textSize);
+            curButton.text = std::make_shared<IMG_wrapper>();
+            // 0.9 for the last argument (width of text) to leave place for button border
+            curButton.text->load_text(*window, text, textColor, curButton.clips[0].h*scaleRenderInput, curButton.clips[0].w*scaleRenderInput*10);
         }
     }
     bool get_state(std::string name) { return buttonState.at(name); }

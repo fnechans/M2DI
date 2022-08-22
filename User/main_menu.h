@@ -18,13 +18,13 @@ public:
         menu->add_image("button", "data/button.bmp");
 
         menu->add_button("topdown", {0, buttonH, buttonW, buttonH});
-        menu->set_button_image("topdown", "button", "Top-down fighter", 8);
+        menu->set_button_image("topdown", "button", "Top-down fighter");
 
         menu->add_button("editor", {0, buttonH * 3, buttonW, buttonH});
-        menu->set_button_image("editor", "button", "Map editor", 16);
+        menu->set_button_image("editor", "button", "Map editor");
 
         menu->add_button("quit", {0, buttonH * 5, buttonW, buttonH});
-        menu->set_button_image("quit", "button", "EXIT", 16);
+        menu->set_button_image("quit", "button", "EXIT");
     }
     bool help = false;
     bool start_topDown = false;

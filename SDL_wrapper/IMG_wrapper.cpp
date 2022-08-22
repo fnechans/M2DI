@@ -35,8 +35,10 @@ bool IMGW::load_media(Window &window, const char *path)
 
 bool IMGW::load_text(Window &window, std::string text, SDL_Color color, uint textSize, uint textWidth)
 {
-    //Open the font
-    gFont = TTF_OpenFont("data/lazy.ttf", textSize);
+    // Open the font
+    // TODO: Configurable font
+    // gFont = TTF_OpenFont("data/lazy.ttf", textSize);
+    gFont = TTF_OpenFont("data/HighlandGothicFLF.ttf", textSize);
     if (gFont == nullptr)
     {
         printf("Failed to load lazy font! SDL_ttf Error: %s\n", TTF_GetError());
