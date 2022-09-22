@@ -32,11 +32,11 @@ public:
     int posSX;
     int posSY;
     // velocity based of external factors (knockback)
-    int extVelX;
-    int extVelY;
+    float extVelX;
+    float extVelY;
     // friction impacts extVel
-    int frictionX;
-    int frictionY;
+    float frictionX;
+    float frictionY;
     SDL_Color mapColor;
 
     std::shared_ptr<IMG_wrapper> image;
@@ -51,7 +51,9 @@ public:
     std::map<std::string, Animation> animations;
     void copy_animation(Object const &object);
     void plot_animation(Window &window, SDL_Rect *screen = nullptr, bool pause = false);
-    void set_animation(std::string animationName);
+    void set_animation(const std::string& animationName);
+    Animation&  get_current_animation() { return animations[curAnimation]; }
+    const std::string&  get_current_animation_name() { return curAnimation; }
 
     bool dead = false;
 

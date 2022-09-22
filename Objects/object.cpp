@@ -14,15 +14,15 @@ Object::Object(uint x, uint y)
 
     extVelX = 0;
     extVelY = 0;
-    frictionX = TILESIZEPHYSICS / 8;
-    frictionY = TILESIZEPHYSICS / 8;
+    frictionX = 16;
+    frictionY = 16;
 
     mapColor = {0, 0, 0, 0};
 }
 
 bool Object::on_screen(SDL_Rect *screen)
 {
-    return !(position.x * scaleRender < screen->x - (int) TILESIZERENDER 
+    return !(position.x * scaleRender < screen->x - (int) TILESIZERENDER
             || position.x * scaleRender > screen->x + screen->w
             || position.y * scaleRender < screen->y -  (int) TILESIZERENDER
             || position.y * scaleRender > screen->y + screen->h
@@ -33,7 +33,7 @@ void Object::plot(Window &window, SDL_Rect *screen)
 {
     if (screen)
     {
-        if(!on_screen(screen)) 
+        if(!on_screen(screen))
             return;
         posSX = position.x * scaleRender - screen->x;
         posSY = position.y * scaleRender - screen->y;
@@ -79,7 +79,7 @@ void Object::copy_animation(Object const &object)
     }
 }
 
-void Object::set_animation(std::string animationName)
+void Object::set_animation(const std::string& animationName)
 {
     if (animationName == curAnimation)
         return;

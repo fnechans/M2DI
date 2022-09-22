@@ -36,9 +36,6 @@ public:
         //level->get_map().load_map("data/start.map", 16, 16);
         //level->get_map().load_blocks("data/startBlock2.map", 16, 16);
 
-        level->add_melee("attack", Melee(5, 1));
-        level->get_melee("attack").knockback = base::TILESIZEPHYSICS/2;
-
         // character to only move around
         player = level->add_character("player", 0, 0);
 

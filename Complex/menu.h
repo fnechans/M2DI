@@ -12,7 +12,7 @@ class Menu : public Viewport
 public:
 
     Menu(Window *_wrapper, Position pos = RIGHT, SDL_Rect border = {0, TILESIZEINPUT * 12, TILESIZEINPUT * 12, 0});
-    void evaluate(SDL_Event &event);
+    bool evaluate(SDL_Event &event); // returns true if event relevant to speed up/avoid multiple evals
     void reset();
     void plot();
 

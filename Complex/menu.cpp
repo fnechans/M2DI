@@ -5,14 +5,18 @@ Menu::Menu(Window *win, Position pos, SDL_Rect bor) : Viewport(win, pos, bor)
 }
 
 
-void Menu::evaluate(SDL_Event &event)
+bool Menu::evaluate(SDL_Event &event)
 {
     set_viewPort();
     for (auto &button : buttons)
     {
         if (button.second.evaluate(event, viewPort) == button::CLICK || tools::key_down(event, buttonKeys[button.first]))
+        {
             buttonState[button.first] = true;
+            return true;
+        }
     }
+    return false;
 }
 
 void Menu::reset()

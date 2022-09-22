@@ -25,7 +25,7 @@ public:
         switch(type)
         {
             case Sidescroll:
-                moveType = Sidescroll; frictionY = 0; speedY = 16*TILESIZEPHYSICS/TICKS_PER_SECOND; break;
+                moveType = Sidescroll; frictionY = 0; speedY = 16; break;
             case TopDown:
                 moveType = TopDown; frictionY = frictionX; speedY = speedX; break;
         }
@@ -42,11 +42,11 @@ public:
     bool nextTo(SDL_Rect pos, direction dir, std::vector<Object *> &collObjects); // here copy of pos(ition) on purpose!
 
     // intrinsic speed of the character
-    int intrVelX;
-    int intrVelY;
+    float intrVelX;
+    float intrVelY;
     direction dir;
-    int speedX;
-    int speedY;
+    float speedX;
+    float speedY;
     bool moved;
     std::map<std::string, Melee_instance> melees;
 

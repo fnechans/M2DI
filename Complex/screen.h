@@ -2,6 +2,7 @@
 #define ENGINE_H
 
 #include <exception>
+#include <algorithm>
 
 #include "menu.h"
 #include "level.h"
@@ -45,87 +46,8 @@ public:
         return levels.back();
     }
 
-    screen_ptr loop()
-    {
-        if (!isInit)
-            init();
-
-        // Ticks to ms conversion, round give closest integer
-        Uint32 time_step_ms = std::round(1000. / base::TICKS_PER_SECOND);
-        Uint32 next_game_step = SDL_GetTicks(); // initial value
-        uint nRender = 0;
-        uint nEval = 0;
-        Uint32 fps_step = next_game_step;
-
-        while (!quit)
-        {
-            Uint32 now = SDL_GetTicks();
-
-            // Check so we don't render for no reason (unless vsync is enabled)
-            if(next_game_step <= now || vsync){
-                int computer_is_too_slow_limit = 10; // max number of advances per render, adjust this according to your minimum playable fps
-
-                // Loop until all steps are executed or computer_is_too_slow_limit is reached
-                while((next_game_step <= now) && (computer_is_too_slow_limit--)){
-                    // TODO: naming! preprocess vs reset()!
-                    nEval++;
-                    for (auto &m : menus)
-                        m.reset();
-                    for (auto &l : levels)
-                        l.preprocess();
-
-                    // process inputs
-                    while (SDL_PollEvent(&event) != 0)
-                    {
-                        if (event.type == SDL_QUIT)
-                        {
-                            quit = true;
-                        }
-                        if (event.type == SDL_WINDOWEVENT && event.window.event == SDL_WINDOWEVENT_RESIZED)
-                        {
-                            window->sWidth = event.window.data1;
-                            window->sHeight = event.window.data2;
-                        }
-                        for (auto &l : levels)
-                            l.evaluate(event);
-                        for (auto &m : menus)
-                            m.evaluate(event);
-                        user_evaluate();
-                    }
-
-                    user_update();
-
-                    next_game_step += time_step_ms; // count 1 game tick done
-                }
-
-                nRender++;
-                if(now-fps_step > 1000)
-                {
-                    currentFPS = ((float) nRender*1000)/(now-fps_step);
-                    currentTickrate = ((float) nEval*1000)/(now-fps_step);
-                    nRender = 0;
-                    nEval = 0;
-                    fps_step = now;
-                }
-                window->clear();
-
-                for (auto &l : levels)
-                    l.plot();
-                for (auto &m : menus)
-                    m.plot();
-
-                user_plot();
-                window->render();
-            } else {
-                // we're too fast, wait a bit.
-                if(true){ // false to burn cpu
-                    SDL_Delay(next_game_step - now);
-                }
-            }
-        }
-
-        return user_nextScreen();
-    }
+    void evaluate();
+    screen_ptr loop();
 
     bool quit = false;
     uint currentFPS;
@@ -140,7 +62,7 @@ private:
     {
         base::set_tilerender(64);
         // TODO: without else?
-        if (!window->isInit && !window->init())
+        if (!window->isInit && !window->init(base::VSYNC))
             throw std::runtime_error("Problem in init");
 
         user_init();
@@ -149,7 +71,5 @@ private:
     std::vector<Menu> menus;
     std::vector<Level> levels;
 
-    uint fps = 60; // Does nothing if vsync = true!!!
-    bool vsync = true;
 };
 #endif

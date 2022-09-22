@@ -6,8 +6,8 @@ Character::Character(uint x, uint y) : Object(x, y)
     intrVelY = 0;
 
     dir = DOWN;
-    speedX = 4*TILESIZEPHYSICS / TICKS_PER_SECOND;
-    speedY = 4*TILESIZEPHYSICS / TICKS_PER_SECOND;
+    speedX = 4;
+    speedY = 4;
 
     moved = false;
 }
@@ -98,10 +98,10 @@ void Character::move(std::vector<Object *> &collObjects)
 {
     // TODO: this whole thing needs to be done better,
     // but not sure how right now
-    tools::reduce_to_zero(extVelX, frictionX);
-    tools::reduce_to_zero(extVelY, frictionY);
-    int dX = extVelX + intrVelX;
-    int dY = extVelY + intrVelY;
+    tools::reduce_to_zero<float>(extVelX, frictionX);
+    tools::reduce_to_zero<float>(extVelY, frictionY);
+    int dX = (extVelX + intrVelX)*TILESIZEPHYSICS*DELTA_T;
+    int dY = (extVelY + intrVelY)*TILESIZEPHYSICS*DELTA_T;
 
     moved = false;
     if (intrVelX > 0)
@@ -129,12 +129,12 @@ void Character::move(std::vector<Object *> &collObjects)
             return;
         }
 
-        tools::reduce_to_zero(dX, 1);
-        tools::reduce_to_zero(dY, 1);
+        tools::reduce_to_zero<int>(dX, 1);
+        tools::reduce_to_zero<int>(dY, 1);
     }
 
-    dX = extVelX + intrVelX;
-    dY = extVelY + intrVelY;
+    dX = (extVelX + intrVelX)*TILESIZEPHYSICS*DELTA_T;
+    dY = (extVelY + intrVelY)*TILESIZEPHYSICS*DELTA_T;
 
     while (dX)
     {
@@ -149,11 +149,11 @@ void Character::move(std::vector<Object *> &collObjects)
         }
         else set_vel0_x();
 
-        tools::reduce_to_zero(dX, 1);
+        tools::reduce_to_zero<int>(dX, 1);
     }
 
-    dX = extVelX + intrVelX;
-    dY = extVelY + intrVelY;
+    dX = (extVelX + intrVelX)*TILESIZEPHYSICS*DELTA_T;
+    dY = (extVelY + intrVelY)*TILESIZEPHYSICS*DELTA_T;
 
     while (dY)
     {
@@ -168,7 +168,7 @@ void Character::move(std::vector<Object *> &collObjects)
         }
         else set_vel0_y();
 
-        tools::reduce_to_zero(dY, 1);
+        tools::reduce_to_zero<int>(dY, 1);
     }
 
 }

@@ -27,7 +27,7 @@ public:
 
     int shiftX;
     int shiftY;
-    uint frequency = TICKS_PER_SECOND/2;
+    uint frequency = FRAMES_PER_SECOND/8;
     float angle = 0;
     SDL_RendererFlip flip = SDL_FLIP_NONE;
 
@@ -45,7 +45,7 @@ public:
     animation_data() : shiftX(0), shiftY(0) {}
     float shiftX;
     float shiftY;
-    uint frequency = TICKS_PER_SECOND/8;
+    uint frequency = FRAMES_PER_SECOND/8;
     std::vector<std::vector<float>> clips;
     bool repeat = true;
     Animation get_animation()

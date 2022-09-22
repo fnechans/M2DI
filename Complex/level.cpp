@@ -16,24 +16,30 @@ void Level::bake()
         collisionObjects.push_back(&t);
     }
 }
-void Level::preprocess()
-{
-    //screenClick = false;
 
+void Level::reset()
+{
     tools::remove_dead_vector<Object>(curMap->blocks);
     tools::remove_dead_map<Character>(characters);
     bake();
 }
 
-void Level::evaluate(SDL_Event &event)
+bool Level::evaluate(SDL_Event &event)
 {
     bScreen.screenPos = viewPort;
 
     auto state = bScreen.evaluate(event, {0, 0, 0, 0});
     if (state == bScreen.CLICK)
+    {
         screenClick = true;
+        return true;
+    }
     else if (state == bScreen.UNCLICK)
+    {
         screenClick = false;
+        return true;
+    }
+    return false;
 }
 
 void Level::move_chars()

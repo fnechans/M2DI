@@ -20,8 +20,8 @@ public:
     Level(const Level *) = delete;
     void bake(); // called before loop!
 
-    void preprocess();
-    void evaluate(SDL_Event &event);
+    void reset();
+    bool evaluate(SDL_Event &event); // returns true if event relevant to speed up/avoid multiple evals
     bool screenClick = false;
     void move_chars();
     void plot();

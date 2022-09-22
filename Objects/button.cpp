@@ -68,9 +68,9 @@ int button::evaluate(SDL_Event &e, SDL_Rect viewPort)
                 break;
             }
         }
-        else
-            state = DEFAULT;
+        else state = DEFAULT;
     }
+    else state = DEFAULT;
     return state;
 }
 

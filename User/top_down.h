@@ -65,7 +65,7 @@ public:
         init_astar();
 
         level->add_melee("attack", Melee(5, 1));
-        level->get_melee("attack").knockback = base::TILESIZEPHYSICS/2;
+        level->get_melee("attack").knockback = 64;
 
         player = level->add_character("player", 9, 9);
         level->add_image("player", "data/gfx/character.png");
@@ -172,7 +172,6 @@ public:
     {
         if (player->property["health"] == 0)
             quit = true;
-
         if (menu->get_state("pause"))
             level->pause = !level->pause;
         if (menu->get_state("help"))
@@ -208,7 +207,9 @@ public:
 
             // process player
             if (level->screenClick)
+            {
                 level->set_character_property("player", "DO_ATTACK", 1);
+            }
             else
                 level->set_character_property("player", "DO_ATTACK", 0);
 
@@ -263,17 +264,17 @@ public:
 
     void custom_process(Character *object, std::string dir)
     {
-        if (object->animations["ATTACK_UP"].running ||
-            object->animations["ATTACK_DOWN"].running ||
-            object->animations["ATTACK_LEFT"].running ||
-            object->animations["ATTACK_RIGHT"].running)
+        if (object->property["DO_ATTACK"]
+            && object->melees.at("attack").evaluate(object, level->get_collisionObjects()))
         {
-        }
-        else if (object->property["DO_ATTACK"]
-                 // && level->get_melee("attack").evaluate(object, level->get_collisionObjects()) )
-                 && object->melees.at("attack").evaluate(object, level->get_collisionObjects()))
-        {
+            // stop any previous running animation
+            object->get_current_animation().stop();
             object->set_animation("ATTACK_" + dir);
+        }
+        else if (
+            tools::contains(object->get_current_animation_name(), "ATTACK")
+            && object->get_current_animation().running)
+        {
         }
         else if (object->moved)
         {

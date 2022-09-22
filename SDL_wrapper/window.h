@@ -11,7 +11,7 @@ public:
     ~Window() { close(); }
 
     //Starts up SDL and creates window
-    bool init();
+    bool init(bool vsync = false);
     //Frees media and shuts down SDL
     void close();
     // update the window ..

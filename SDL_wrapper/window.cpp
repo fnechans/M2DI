@@ -4,7 +4,7 @@
 
 typedef Window SDLW;
 
-bool SDLW::init()
+bool SDLW::init(bool vsync)
 {
     //Initialization flag
     bool success = true;
@@ -29,7 +29,10 @@ bool SDLW::init()
         else
         {
             //Create renderer for window
-            sdlRenderer = SDL_CreateRenderer(sdlWindow, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
+            if(vsync)
+                sdlRenderer = SDL_CreateRenderer(sdlWindow, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
+            else
+                sdlRenderer = SDL_CreateRenderer(sdlWindow, -1, SDL_RENDERER_ACCELERATED);
             if (sdlRenderer == NULL)
             {
                 printf("Renderer could not be created! SDL Error: %s\n", SDL_GetError());

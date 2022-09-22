@@ -16,6 +16,9 @@ public:
     base();
 
     static uint TICKS_PER_SECOND;
+    static uint FRAMES_PER_SECOND;
+    static float DELTA_T; // ms
+    static bool VSYNC;
 
     static const uint TILESIZEPHYSICS = 1024; // defines physical size
                                             // so it is more related to
@@ -38,8 +41,11 @@ namespace tools
 {
     bool key_down(SDL_Event &e, SDL_Keycode keycode);
     bool key_up(SDL_Event &e, SDL_Keycode keycode);
-    void reduce_to_zero(int &value, const int &reducer);
     bool point_within_rect(int x, int y, SDL_Rect rect);
+    inline bool contains(const std::string& str, const std::string& str2 )
+    {
+        return (str.find(str2)!=std::string::npos);
+    }
 
     // cleaup up functions, currently for "dead" chars
     // could be generalized in future if needed
@@ -80,6 +86,24 @@ namespace tools
                 ++it;
         }
     }
+
+    template <typename T>
+    void reduce_to_zero(T &value, const T &reducer)
+    {
+        if (value > 0)
+        {
+            value -= reducer;
+            if (value < 0)
+                value = 0;
+        }
+        if (value < 0)
+        {
+            value += reducer;
+            if (value > 0)
+                value = 0;
+        }
+    }
 }
+
 
 #endif
