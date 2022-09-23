@@ -61,11 +61,22 @@ void Level::plot()
     curMap->render_map(*window, screenRect);
     // TODO: are all collision objects needed here?
 
+    // First plot paths and add characters
+    // to plotable as objects printed on top of the map
+    // In future other objects will be added here as well
+    std::vector<Object *> plotable;
     for (auto &cIt : characters)
     {
         Character *chr = &cIt.second;
         chr->plot_path(*window,&screenRect);
-        chr->plot_animation(*window, &screenRect, pause);
+        plotable.push_back(chr);
     }
+
+    // plot objects from to bottom (overlap!)
+    std::sort(plotable.begin(), plotable.end(),
+              [](Object* a, Object* b){return a->position().y < b->position().y;}
+    );
+    for(auto& obj : plotable) obj->plot_animation(*window, &screenRect, pause);
+
     curMap->render_minimap(*window, collisionObjects);
 }
