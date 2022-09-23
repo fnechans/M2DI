@@ -1,9 +1,6 @@
 #ifndef ASTAR_H
 #define ASTAR_H
 
-#include "base.h"
-#include "object.h"
-
 #include <map>
 #include <cmath>
 #include <algorithm>
@@ -35,8 +32,8 @@ public:
 
     double cost(node start, node goal)
     {
-        int dX = start->position.x - goal->position.x;
-        int dY = start->position.y - goal->position.y;
+        int dX = start->position().x - goal->position().x;
+        int dY = start->position().y - goal->position().y;
         return std::sqrt(dX * dX + dY * dY);
     }
 
@@ -101,7 +98,7 @@ public:
                 {
                     if (obj == goal || obj == start)
                         continue;
-                    if (SDL_HasIntersection(&neighbor->position, &obj->position))
+                    if (SDL_HasIntersection(&neighbor->hitbox, &obj->hitbox))
                     {
                         collides = true;
                         break;
@@ -126,6 +123,20 @@ public:
         curMap.pop_back();
         return {};
     }
+};
+
+template <typename node>
+class AI
+{
+public:
+    int AIclick = 0; // how often is AI updated
+    std::unique_ptr<AStar<node>> acko = nullptr;
+    void init_astar(std::vector<node> nodes)
+    {
+        acko = std::make_unique<AStar<node>>(nodes);
+    }
+    bool tick(uint frequency) { return AIclick % frequency == 0; }
+    void increment(){AIclick++;}
 };
 
 #endif // ASTAR_H

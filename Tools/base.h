@@ -35,6 +35,22 @@ public:
     //Map dimension constants
     static uint mWidth;
     static uint mHeight;
+
+    static SDL_Rect toScreen(SDL_Rect* screen, const SDL_Rect& position)
+    {
+        SDL_Rect positionScreen;
+        positionScreen.x = position.x * scaleRender - screen->x;
+        positionScreen.y = position.y * scaleRender - screen->y;
+        return positionScreen;
+    }
+
+    static SDL_Rect fromScreen(SDL_Rect* screen, const SDL_Rect& positionScreen)
+    {
+        SDL_Rect position;
+        position.x = (positionScreen.x + screen->x) / scaleRender;
+        position.y = (positionScreen.y + screen->y) / scaleRender;
+        return position;
+    }
 };
 
 namespace tools

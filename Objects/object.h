@@ -26,11 +26,11 @@ public:
     SDL_Rect clip;
 
     // global coor. vars
-    SDL_Rect position;
+    SDL_Rect hitbox;
+    SDL_Rect position(){ return {hitbox.x+hitbox.w/2, hitbox.y+hitbox.h/2, 0, 0}; }
 
     // local coor. vard
-    int posSX;
-    int posSY;
+    SDL_Rect positionScreen;
     // velocity based of external factors (knockback)
     float extVelX;
     float extVelY;

@@ -2,9 +2,9 @@
 #define CHARACTER_H
 
 #include "object.h"
-#include "melee.h"
+#include "damage.h"
 
-class Melee_instance;
+class Dmgr_instance;
 
 class Character : public Object
 {
@@ -31,15 +31,15 @@ public:
         }
     }
 
-    void follow_path(std::vector<Object *> &collObjects);
+    void follow_path(std::vector<Object *>& collObjects);
     void plot_path(Window &wrapper, SDL_Rect *screen);
 
     std::vector<Object *> path = {};
-    Object *target;
+    Object *target{nullptr};
 
     void move(std::vector<Object *> &collObjects);
-    bool doesCollide(SDL_Rect &pos, std::vector<Object *> &collObjects);
-    bool nextTo(SDL_Rect pos, direction dir, std::vector<Object *> &collObjects); // here copy of pos(ition) on purpose!
+    bool does_collide(SDL_Rect &pos, std::vector<Object *>& collObjects);
+    bool next_to(SDL_Rect pos, direction dir, std::vector<Object *>& collObjects); // here copy of pos(ition) on purpose!
 
     // intrinsic speed of the character
     float intrVelX;
@@ -48,8 +48,9 @@ public:
     float speedX;
     float speedY;
     bool moved;
-    std::map<std::string, Melee_instance> melees;
-
+    std::map<std::string, Dmgr_instance> dmgr_insts;
+    bool evaluate_attack(const std::string& name, std::vector<Object*>& collObjects);
+    bool evaluate_attack(const std::string& name, const SDL_Rect &origin, Object::direction dir, std::vector<Object*>& collObjects);
 private:
     void set_vel0_x(){ extVelX = 0;}
     void set_vel0_y(){ extVelY = 0;}

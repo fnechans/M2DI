@@ -23,24 +23,11 @@ public:
     std::stringstream streamFPS;
     IMG_wrapper textFPS;
     Character *player;
-    int AIclick = 0; // how often is AI updated
-    std::unique_ptr<AStar<Object *>> acko = nullptr;
-    enum tiles
-    {
-        DIRT,
-        GRASS,
-        STONES,
-        WOOD,
-        WATTER
-    };
-    bool tick(uint frequency) { return AIclick % frequency == 0; }
-    void init_astar()
-    {
-        std::vector<Object *> astarTiles;
-        for (auto &t : level->get_map().tiles)
-            astarTiles.push_back(&t);
-        acko = std::make_unique<AStar<Object *>>(astarTiles);
-    }
+    AI<Object*> ai;
+    std::map<std::string, Damager> dmgrs;
+    std::map<std::string, Animation> anims;
+    std::map<std::string, SDL_Rect> animPoss;
+    std::map<std::string, Dmgr_instance> dmgr_insts;
 
     void user_init()
     {
@@ -62,10 +49,15 @@ public:
         if (!textHelp.load_text(*window, "There is no help. You are on your own.", {255, 100, 100, 255}, 64, base::TILESIZEINPUT * 24))
             return;
 
-        init_astar();
+        std::vector<Object *> astarTiles;
+        for (auto &t : level->get_map().tiles)
+            astarTiles.push_back(&t);
+        ai.init_astar(astarTiles);
 
-        level->add_melee("attack", Melee(5, 1));
-        level->get_melee("attack").knockback = 64;
+        dmgrs.emplace("sword", Damager(5, 1));
+        dmgrs.at("sword").knockback = 32;
+        dmgrs.emplace("explosion", Damager(10, 0, 3, 3));
+        dmgrs.at("explosion").knockback = 128;
 
         player = level->add_character("player", 9, 9);
         level->add_image("player", "data/gfx/character.png");
@@ -86,36 +78,22 @@ public:
         level->add_character_animation("player", "ATTACK_LEFT", preset::animationData["ATTACK_LEFT"].get_animation(), "player");
         level->add_character_animation("player", "ATTACK_UP", preset::animationData["ATTACK_UP"].get_animation(), "player");
         level->add_image("attack", "data/attack.bmp");
+        level->add_image("explosion", "data/expl/wills_pixel_explosions_sample/round_explosion/spritesheet/spritesheet.png");
         level->add_character_animation("player", "ATTACK", preset::animationData["ATTACK"].get_animation(), "attack");
-        level->set_character_property("player", "DO_ATTACK", 0);
-        player->set_health(99);
-        level->add_character_melee("player", "attack");
+        anims.emplace("explosion", preset::animationData["EXPLOSION"].get_animation());
+        anims.at("explosion").image = level->get_image("explosion");
+        player->set_health(999);
+        player->dmgr_insts.emplace("sword", Dmgr_instance(&dmgrs.at("sword")));
+        player->dmgr_insts.emplace("explosion", Dmgr_instance(&dmgrs.at("explosion")));
 
-        level->add_character("CH1", 1, 8);
+        auto chr = level->add_character("CH1", 1, 8);
         level->set_character_image("CH1", "player", {255, 0, 0, 255});
         level->copy_character_animation("player", "CH1");
-        level->set_character_target("CH1", "player");
+        //level->set_character_target("CH1", "player");
         level->set_character_property("CH1", "DO_ATTACK", 0);
         // TODO: preset for health/speed/other...
         //    c0.speed = base::TILESIZE/64;
-        level->add_character_melee("CH1", "attack");
-
-        level->add_character("CH2", 2, 8);
-        level->set_character_image("CH2", "player", {255, 155, 0, 255});
-        level->copy_character_animation("player", "CH2");
-        level->set_character_target("CH2", "player");
-        level->set_character_property("CH2", "DO_ATTACK", 0);
-        level->add_character_melee("CH2", "attack");
-        //    c1.speed = base::TILESIZE/32;
-
-        level->add_character("CH3", 7, 7);
-        level->set_character_image("CH3", "player", {0, 0, 255, 255});
-        level->copy_character_animation("player", "CH3");
-        // TODO: target character -> what on death of target?
-        level->set_character_target("CH3", "player");
-        level->set_character_property("CH3", "DO_ATTACK", 0);
-        level->add_character_melee("CH3", "attack");
-        //    c2.speed = base::TILESIZE/32;
+        chr->dmgr_insts.emplace("sword", Dmgr_instance(&dmgrs.at("sword")));
 
         menu = &add_menu(Menu::RIGHT, {0, 0, 12*base::TILESIZEINPUT, 0});
         int buttonW = base::TILESIZEINPUT * 4;
@@ -150,22 +128,45 @@ public:
         {
             switch (event.key.keysym.sym)
             {
-            case SDLK_w: player->move_up(level->get_collisionObjects()); break;
-            case SDLK_s: player->move_down(); break;
-            case SDLK_a: player->move_left(); break;
-            case SDLK_d: player->move_right(); break;
+            case SDLK_w:
+                player->move_up(level->get_collisionObjects());
+                break;
+            case SDLK_s:
+                player->move_down();
+                break;
+            case SDLK_a:
+                player->move_left();
+                break;
+            case SDLK_d:
+                player->move_right();
+                break;
+            case SDLK_q:
+                player->dmgr_insts.at("explosion").doAtack = true;
+                break;
             }
         }
         else if (event.type == SDL_KEYUP && event.key.repeat == 0)
         {
             switch (event.key.keysym.sym)
             {
-            case SDLK_w: player->move_down(); break;
-            case SDLK_s: player->move_up(level->get_collisionObjects()); break;
-            case SDLK_a: player->move_right(); break;
-            case SDLK_d: player->move_left(); break;
+            case SDLK_w:
+                player->move_down();
+                break;
+            case SDLK_s:
+                player->move_up(level->get_collisionObjects());
+                break;
+            case SDLK_a:
+                player->move_right();
+                break;
+            case SDLK_d:
+                player->move_left();
+                break;
+            case SDLK_q:
+                player->dmgr_insts.at("explosion").doAtack = false;
+                break;
             }
         }
+
     }
 
     void user_update()
@@ -187,51 +188,46 @@ public:
         // move stuff (if not paused)
         if (!level->pause)
         {
+            ai.increment();
+            // Setup path for NPCs
             for (auto &chrIt : level->get_chars())
             {
                 Character *chr = &chrIt.second;
-                if (chr == player)
+                if (chr == player || !chr->target)
                     continue;
                 // use AStar to move non-player chars
-                if (AIclick % 50 == 0)
+                if (ai.tick(50))
                 {
-                    auto tmp = acko->find_path(chr, chr->target, level->get_collisionObjects());
+                    auto tmp = ai.acko->find_path(chr, chr->target, level->get_collisionObjects());
                     if (!tmp.empty())
                         chr->path = tmp;
                 }
                 chr->follow_path(level->get_collisionObjects());
             }
-            AIclick++;
 
             level->move_chars();
 
-            // process player
-            if (level->screenClick)
-            {
-                level->set_character_property("player", "DO_ATTACK", 1);
-            }
-            else
-                level->set_character_property("player", "DO_ATTACK", 0);
+            // Process player attack decision
+            player->dmgr_insts.at("sword").doAtack = level->screenClick;
 
-            std::string dir = level->get_direction("player");
-
-            custom_process(player, dir);
-            // TODO: setting of targets
-
+            // Process NPC attack decision
             for (auto &chrIt : level->get_chars())
             {
                 Character *chr = &chrIt.second;
-                if (chr == player)
+                if (chr == player || !chr->target)
                     continue;
-                const std::string &chrName = chrIt.first;
 
-                if (tick(20) && fabs(chr->position.x - chr->target->position.x) < chr->TILESIZEPHYSICS * 2 && fabs(chr->position.y - chr->target->position.y) < chr->TILESIZEPHYSICS * 2)
-                    level->set_character_property(chrName, "DO_ATTACK", 1);
-                else
-                    level->set_character_property(chrName, "DO_ATTACK", 0);
+                chr->dmgr_insts.at("sword").doAtack = (ai.tick(20)
+                    && fabs(chr->hitbox.x - chr->target->hitbox.x) < chr->TILESIZEPHYSICS * 2
+                    && fabs(chr->hitbox.y - chr->target->hitbox.y) < chr->TILESIZEPHYSICS * 2
+                );
+            }
 
-                dir = level->get_direction(chrName);
-                custom_process(chr, dir);
+            // Process attack and animation
+            for (auto &chrIt : level->get_chars())
+            {
+                const std::string& dir = level->get_direction(chrIt.first);
+                custom_process(&chrIt.second, dir);
             }
         }
 
@@ -260,19 +256,28 @@ public:
 
         if (help)
             textHelp.render_image(*window, 0, 32);
+        if(anims.at("explosion").running)
+            anims.at("explosion").run_and_plot(*window, animPoss["explosion"]);
     }
 
     void custom_process(Character *object, std::string dir)
     {
-        if (object->property["DO_ATTACK"]
-            && object->melees.at("attack").evaluate(object, level->get_collisionObjects()))
+        if (object->evaluate_attack("sword", level->get_collisionObjects()))
         {
             // stop any previous running animation
             object->get_current_animation().stop();
             object->set_animation("ATTACK_" + dir);
         }
+        else if (object->evaluate_attack("explosion",
+                     base::fromScreen(&level->screenRect, level->mousePositionScreen),
+                     Object::direction::DOWN, level->get_collisionObjects())
+        )
+        {
+            anims.at("explosion").play();
+            animPoss["explosion"] = level->mousePositionScreen;
+        }
         else if (
-            tools::contains(object->get_current_animation_name(), "ATTACK")
+            tools::contains(object->get_current_animation_name(), "ATTACK_")
             && object->get_current_animation().running)
         {
         }

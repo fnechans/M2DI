@@ -37,8 +37,8 @@ void Map_wrapper::render_map(Window &window, SDL_Rect &mapPosition)
 
 SDL_Rect get_tile_draw_rect(Object const &obj, double& scale)
 {
-    return {(int)(obj.position.x / scale),
-            (int)(obj.position.y / scale),
+    return {(int)(obj.hitbox.x / scale),
+            (int)(obj.hitbox.y / scale),
             (int)(base::TILESIZEPHYSICS / scale),
             (int)(base::TILESIZEPHYSICS / scale)};
 }
@@ -64,8 +64,8 @@ void Map_wrapper::render_minimap(Window &window, std::vector<Object *> &objects)
 
     for (auto &obj : objects)
     {
-        SDL_Rect r = {(int)(obj->position.x / scale),
-                      (int)(obj->position.y / scale), 2, 2};
+        SDL_Rect r = {(int)(obj->hitbox.x / scale),
+                      (int)(obj->hitbox.y / scale), 2, 2};
         window.drawColorRect(&r, obj->mapColor);
     }
 }
@@ -107,31 +107,31 @@ void Map_wrapper::add_sprite_property(std::string type, SDL_Color col, uint heal
 
 void Map_wrapper::screen_position(SDL_Rect &screenRect, SDL_Rect &viewPort, Object &obj)
 {
-    obj.posSX = viewPort.x + viewPort.w / 2 - obj.position.w/2 * scaleRender;
-    obj.posSY = viewPort.y + viewPort.h / 2 - obj.position.h/2 * scaleRender;
+    obj.positionScreen.x = viewPort.x + viewPort.w / 2 - obj.hitbox.w/2 * scaleRender;
+    obj.positionScreen.y = viewPort.y + viewPort.h / 2 - obj.hitbox.h/2 * scaleRender;
 
-    screenRect.x = obj.position.x * scaleRender - obj.posSX;
+    screenRect.x = obj.hitbox.x * scaleRender - obj.positionScreen.x;
     if (screenRect.x < 0)
     {
         screenRect.x = 0;
-        obj.posSX = obj.position.x * scaleRender;
+        obj.positionScreen.x = obj.hitbox.x * scaleRender;
     }
     else if (screenRect.x + (viewPort.x + viewPort.w) > mWidth * scaleRender && mWidth * scaleRender > (viewPort.x + viewPort.w))
     {
         screenRect.x = mWidth * scaleRender - (viewPort.x + viewPort.w);
-        obj.posSX = (viewPort.x + viewPort.w) - (mWidth - obj.position.x) * scaleRender;
+        obj.positionScreen.x = (viewPort.x + viewPort.w) - (mWidth - obj.hitbox.x) * scaleRender;
     }
 
-    screenRect.y = obj.position.y * scaleRender - obj.posSY;
+    screenRect.y = obj.hitbox.y * scaleRender - obj.positionScreen.y;
     if (screenRect.y < 0)
     {
         screenRect.y = 0;
-        obj.posSY = obj.position.y * scaleRender;
+        obj.positionScreen.y = obj.hitbox.y * scaleRender;
     }
     else if (screenRect.y + (viewPort.y + viewPort.h) > mHeight * scaleRender && mHeight * scaleRender > (viewPort.y + viewPort.h))
     {
         screenRect.y = mHeight * scaleRender - (viewPort.y + viewPort.h);
-        obj.posSY = (viewPort.y + viewPort.h) - (mHeight - obj.position.y) * scaleRender;
+        obj.positionScreen.y = (viewPort.y + viewPort.h) - (mHeight - obj.hitbox.y) * scaleRender;
     }
 
     screenRect.w = viewPort.w;

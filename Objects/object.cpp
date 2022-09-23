@@ -6,27 +6,32 @@ const char *const Object::dirName[4] = {"UP", "DOWN", "LEFT", "RIGHT"};
 
 Object::Object(uint x, uint y)
 {
-    position.x = x;
-    position.y = y;
+    hitbox.x = x;
+    hitbox.y = y;
     // DEFAULT hitbox based on tilesize, can be changed
-    position.w = TILESIZEPHYSICS;
-    position.h = TILESIZEPHYSICS;
+    hitbox.w = TILESIZEPHYSICS;
+    hitbox.h = TILESIZEPHYSICS;
 
     extVelX = 0;
     extVelY = 0;
-    frictionX = 16;
-    frictionY = 16;
+    frictionX = 4;
+    frictionY = 4;
 
     mapColor = {0, 0, 0, 0};
 }
 
 bool Object::on_screen(SDL_Rect *screen)
 {
-    return !(position.x * scaleRender < screen->x - (int) TILESIZERENDER
-            || position.x * scaleRender > screen->x + screen->w
-            || position.y * scaleRender < screen->y -  (int) TILESIZERENDER
-            || position.y * scaleRender > screen->y + screen->h
-            );
+    if( !(hitbox.x * scaleRender < screen->x - (int) TILESIZERENDER
+            || hitbox.x * scaleRender > screen->x + screen->w
+            || hitbox.y * scaleRender < screen->y -  (int) TILESIZERENDER
+            || hitbox.y * scaleRender > screen->y + screen->h
+            ))
+    {
+        positionScreen = toScreen(screen, hitbox);
+        return true;
+    }
+    return false;
 }
 
 void Object::plot(Window &window, SDL_Rect *screen)
@@ -35,11 +40,9 @@ void Object::plot(Window &window, SDL_Rect *screen)
     {
         if(!on_screen(screen))
             return;
-        posSX = position.x * scaleRender - screen->x;
-        posSY = position.y * scaleRender - screen->y;
     }
 
-    SDL_Rect renderRect = {posSX, posSY, (int) TILESIZERENDER, (int) TILESIZERENDER};
+    SDL_Rect renderRect = {positionScreen.x, positionScreen.y, (int) TILESIZERENDER, (int) TILESIZERENDER};
     // image->set_color(255,0,0);
     image->render_image(window, &renderRect, &clip);
 }
@@ -60,6 +63,7 @@ void Object::set_health(uint value)
 
 void Object::modify_health(int value)
 {
+    if(property.count("health") == 0) return; // skip if object does not have health
     property["health"] += value;
     if (property["health"] > property["max_health"])
         property["health"] = property["max_health"];
@@ -95,14 +99,12 @@ void Object::set_animation(const std::string& animationName)
 
 void Object::plot_animation(Window &window, SDL_Rect *screen, bool pause)
 {
-    // whether to skip the actual plotting (but keeps the animation playing and sets up the posSX/Y)
+    // whether to skip the actual plotting (but keeps the animation playing and sets up the position_screen)
     bool skipPlot = false;
     if (screen)
     {
         if (!on_screen(screen))
             skipPlot = true;
-        posSX = position.x * scaleRender - screen->x;
-        posSY = position.y * scaleRender - screen->y;
     }
 
     if (curAnimation != "")
@@ -110,17 +112,8 @@ void Object::plot_animation(Window &window, SDL_Rect *screen, bool pause)
         auto &anim = animations[curAnimation];
         if (pause)
             anim.pause();
-        SDL_Rect spriteRect = anim.get();
+        anim.run_and_plot(window, positionScreen, skipPlot);
         if (pause)
             anim.play();
-        if (skipPlot)
-            return;
-        SDL_Rect renderRect = {
-            posSX + (int)(anim.shiftX * scaleRender),
-            posSY + (int)(anim.shiftY * scaleRender),
-            (int)(spriteRect.w * scaleRenderInput),
-            (int)(spriteRect.h * scaleRenderInput)};
-        // image->set_color(255,0,0);
-        anim.image->render_image(window, &renderRect, &spriteRect, anim.angle, anim.flip);
     }
 }

@@ -32,8 +32,8 @@ public:
     int evaluate(SDL_Event &event, SDL_Rect viewPort);
     bool set_image(Window &window, std::string imagePath, std::string title = "", SDL_Color color = {255, 255, 150, 255});
 
-    uint clickX = 0;
-    uint clickY = 0;
+    int mouseX = 0;
+    int mouseY = 0;
 };
 
 #endif //BUTTON_H

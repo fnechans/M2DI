@@ -44,23 +44,18 @@ int button::evaluate(SDL_Event &e, SDL_Rect viewPort)
     if (e.type == SDL_MOUSEMOTION || e.type == SDL_MOUSEBUTTONDOWN || e.type == SDL_MOUSEBUTTONUP)
     {
         //Get mouse position
-        int x, y;
-        SDL_GetMouseState(&x, &y);
-        if (x >= viewPort.x + screenPos.x && x <= viewPort.x + screenPos.x + screenPos.w && y >= viewPort.y + screenPos.y && y <= viewPort.y + screenPos.y + screenPos.h && e.button.button == SDL_BUTTON_LEFT)
+        SDL_GetMouseState(&mouseX, &mouseY);
+        if (mouseX >= viewPort.x + screenPos.x && mouseX <= viewPort.x + screenPos.x + screenPos.w && mouseY >= viewPort.y + screenPos.y && mouseY <= viewPort.y + screenPos.y + screenPos.h && e.button.button == SDL_BUTTON_LEFT)
         {
             //Set mouse over sprite
             switch (e.type)
             {
             case SDL_MOUSEMOTION:
                 state = HOVER;
-                clickX = x;
-                clickY = y;
                 break;
 
             case SDL_MOUSEBUTTONDOWN:
                 state = CLICK;
-                clickX = x;
-                clickY = y;
                 break;
 
             case SDL_MOUSEBUTTONUP:

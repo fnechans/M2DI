@@ -3,7 +3,7 @@
 
 #include "viewport.h"
 #include "tilemap.h"
-#include "melee.h"
+#include "damage.h"
 #include "IMG_wrapper.h"
 #include "astar.h"
 #include "button.h"
@@ -23,6 +23,7 @@ public:
     void reset();
     bool evaluate(SDL_Event &event); // returns true if event relevant to speed up/avoid multiple evals
     bool screenClick = false;
+    SDL_Rect mousePositionScreen;
     void move_chars();
     void plot();
 
@@ -33,30 +34,15 @@ public:
     Map_wrapper &get_map() { return *curMap; }
     void set_map_image(std::string name) { curMap->image = images[name]; }
 
-    // Melee
-    void add_melee(std::string name, Melee melee)
-    {
-        melees.emplace(name, melee);
-        //   melees.insert(std::make_pair<std::string,Melee>(name, melee));
-        // Melee m(melee);
-        //melees[name] = Melee(melee);
-    }
-    Melee &get_melee(std::string name)
-    {
-        return melees.at(name);
-    }
-    // TODO: proper casting! not only here
-    void eval_melee(std::string charName, std::string meleeName)
-    {
-        Character *chr = &characters.at(charName);
-        melees.at(meleeName).evaluate(chr, collisionObjects);
-    }
-
-    // Images
+     // Images
     void add_image(std::string name, std::string imagePath)
     {
         images.emplace(name, std::make_shared<IMG_wrapper>());
         images[name]->load_media(*window, imagePath.c_str());
+    }
+    std::shared_ptr<IMG_wrapper> get_image(const std::string& name)
+    {
+        return images.at(name);
     }
 
     // Characters
@@ -100,11 +86,6 @@ public:
     {
         return Object::dirName[characters.at(name).dir];
     }
-    void add_character_melee(std::string name, std::string meleeName)
-    {
-        Melee_instance mel(&melees.at(meleeName));
-        characters.at(name).melees.emplace(meleeName, mel);
-    }
     void set_character_property(std::string name, std::string property, int value)
     {
         characters[name].property[property] = value;
@@ -119,11 +100,11 @@ public:
     SDL_Rect screenRect;
 
     button bScreen;
+
 private:
     std::unique_ptr<Map_wrapper> curMap;
     std::vector<Object *> collisionObjects;
 
-    std::map<std::string, Melee> melees;
     std::map<std::string, std::shared_ptr<IMG_wrapper>> images;
 
     std::map<std::string, Character> characters;

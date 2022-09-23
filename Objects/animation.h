@@ -6,27 +6,34 @@
 
 #include <vector>
 
+struct Fl_Rect
+{
+    float x, y, w, h;
+};
+
 class Animation : public base
 {
 public:
-    Animation(int x = 0, int y = 0) : shiftX(x), shiftY(y) { frame = 0; }
+    Animation(Fl_Rect _renderMod = {0, 0, 1, 1}) : renderMod(_renderMod) { frame = 0; }
+    Animation(std::shared_ptr<IMG_wrapper> _image, Fl_Rect _renderMod = {0, 0, 1, 1}) : renderMod(_renderMod), image(_image) { frame = 0; }
     Animation(const Animation &other);
     void play() { running = true; }
     void pause() { running = false; }
     SDL_Rect get();
+    void run_and_plot(Window& window, SDL_Rect position, bool skipPlot = false);
     void stop()
     {
         running = false;
         frame = 0;
     }
+
+    Fl_Rect renderMod; // x,y shifts, w,h scales of picture when rendering
     // shared because multiple animation will share it
     std::shared_ptr<IMG_wrapper> image;
     bool set_image(Window &, std::string imagePath);
     void add_clip(SDL_Rect clip) { clips.push_back(clip); }
     void add_clip_relative(std::vector<float> clip);
 
-    int shiftX;
-    int shiftY;
     uint frequency = FRAMES_PER_SECOND/8;
     float angle = 0;
     SDL_RendererFlip flip = SDL_FLIP_NONE;
@@ -42,17 +49,24 @@ private:
 class animation_data : base
 {
 public:
-    animation_data() : shiftX(0), shiftY(0) {}
-    float shiftX;
-    float shiftY;
+    animation_data()  {}
+    Fl_Rect renderMod{0, 0, 1, 1};
     uint frequency = FRAMES_PER_SECOND/8;
-    std::vector<std::vector<float>> clips;
+    std::vector<std::vector<float>> fclips;
+    std::vector<SDL_Rect> clips;
     bool repeat = true;
+    bool relative = true;
     Animation get_animation()
     {
-        Animation a((int)(shiftX * TILESIZEPHYSICS), (int)(shiftY * TILESIZEPHYSICS));
-        for (auto clip : clips)
-            a.add_clip_relative(clip);
+        Animation a(renderMod);
+        if(relative)
+        {
+            for (auto clip : fclips) a.add_clip_relative(clip);
+        }
+        else
+        {
+            for (auto clip : clips) a.add_clip(clip);
+        }
         if (frequency == 0)
             frequency = 1;
         a.frequency = frequency;

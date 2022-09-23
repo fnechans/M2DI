@@ -29,6 +29,7 @@ bool Level::evaluate(SDL_Event &event)
     bScreen.screenPos = viewPort;
 
     auto state = bScreen.evaluate(event, {0, 0, 0, 0});
+    mousePositionScreen = {bScreen.mouseX, bScreen.mouseY, 0, 0};
     if (state == bScreen.CLICK)
     {
         screenClick = true;

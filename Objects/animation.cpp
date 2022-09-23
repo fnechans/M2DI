@@ -3,8 +3,7 @@
 
 Animation::Animation(const Animation &other)
 {
-    shiftX = other.shiftX;
-    shiftY = other.shiftY;
+    renderMod = other.renderMod;
     image = other.image;
     frame = 0;
     clips = other.clips;
@@ -44,4 +43,19 @@ void Animation::add_clip_relative(std::vector<float> clip)
     int ww = (int)(clip[2] * TILESIZEINPUT);
     int hh = (int)(clip[3] * TILESIZEINPUT);
     clips.push_back({xx, yy, ww, hh});
+}
+
+void Animation::run_and_plot(Window& window, SDL_Rect positionScreen, bool skipPlot)
+{
+    SDL_Rect spriteRect = get();
+    if (skipPlot)
+        return;
+    SDL_Rect renderRect = {
+        positionScreen.x + (int)(renderMod.x * TILESIZERENDER),
+        positionScreen.y + (int)(renderMod.y * TILESIZERENDER),
+        (int)(spriteRect.w * renderMod.w * scaleRenderInput),
+        (int)(spriteRect.h * renderMod.h * scaleRenderInput)};
+    if(!image) throw std::runtime_error("No image in animation");
+    // image->set_color(255,0,0);
+    image->render_image(window, &renderRect, &spriteRect, angle, flip);
 }

@@ -39,7 +39,7 @@ void Character::move_up(std::vector<Object *> &collObjects)
     switch(moveType)
     {
         case Sidescroll:
-            if(!nextTo(position, DOWN, collObjects)) break; //only jump if standing on ground
+            if(!next_to(hitbox, DOWN, collObjects)) break; //only jump if standing on ground
             extVelY -= speedY;
             break;
         case TopDown:
@@ -67,8 +67,8 @@ void Character::follow_path(std::vector<Object *> &collObjects)
 
     if (!path.empty())
     {
-        int dirX = path.back()->position.x - position.x;
-        int dirY = path.back()->position.y - position.y;
+        int dirX = path.back()->hitbox.x - hitbox.x;
+        int dirY = path.back()->hitbox.y - hitbox.y;
 
         // set speed
         if (dirX > 0) move_right();
@@ -76,7 +76,7 @@ void Character::follow_path(std::vector<Object *> &collObjects)
         if (dirY > 0) move_down();
         else if (dirY < 0) move_up(collObjects);
 
-        if (fabs(position.x - path.back()->position.x) <= TILESIZEPHYSICS && fabs(position.y - path.back()->position.y) <= TILESIZEPHYSICS && path.size() > 1)
+        if (fabs(hitbox.x - path.back()->hitbox.x) <= TILESIZEPHYSICS && fabs(hitbox.y - path.back()->hitbox.y) <= TILESIZEPHYSICS && path.size() > 1)
             path.pop_back();
     }
 }
@@ -115,16 +115,16 @@ void Character::move(std::vector<Object *> &collObjects)
     if (dX == 0 && dY == 0)
         return;
 
-    SDL_Rect newPosition = position;
+    SDL_Rect newPosition = hitbox;
     while (dX || dY)
     {
-        newPosition = position;
+        newPosition = hitbox;
         newPosition.x += dX;
         newPosition.y += dY;
 
-        if (!doesCollide(newPosition, collObjects))
+        if (!does_collide(newPosition, collObjects))
         {
-            position = newPosition;
+            hitbox = newPosition;
             moved = true;
             return;
         }
@@ -138,12 +138,12 @@ void Character::move(std::vector<Object *> &collObjects)
 
     while (dX)
     {
-        newPosition = position;
+        newPosition = hitbox;
         newPosition.x += dX;
 
-        if (!doesCollide(newPosition, collObjects))
+        if (!does_collide(newPosition, collObjects))
         {
-            position = newPosition;
+            hitbox = newPosition;
             moved = true;
             return;
         }
@@ -157,12 +157,12 @@ void Character::move(std::vector<Object *> &collObjects)
 
     while (dY)
     {
-        newPosition = position;
+        newPosition = hitbox;
         newPosition.y += dY;
 
-        if (!doesCollide(newPosition, collObjects))
+        if (!does_collide(newPosition, collObjects))
         {
-            position = newPosition;
+            hitbox = newPosition;
             moved = true;
             return;
         }
@@ -173,7 +173,7 @@ void Character::move(std::vector<Object *> &collObjects)
 
 }
 
-bool Character::doesCollide(SDL_Rect &pos, std::vector<Object *> &collObjects)
+bool Character::does_collide(SDL_Rect &pos, std::vector<Object *> &collObjects)
 {
     if (pos.x < 0 || pos.y < 0 || pos.x > mWidth - pos.w || pos.y > mHeight - pos.h)
         return true;
@@ -182,13 +182,13 @@ bool Character::doesCollide(SDL_Rect &pos, std::vector<Object *> &collObjects)
     {
         if (obj == this)
             continue;
-        if (SDL_HasIntersection(&obj->position, &pos))
+        if (SDL_HasIntersection(&obj->hitbox, &pos))
             return true;
     }
     return false;
 }
 
-bool Character::nextTo(SDL_Rect pos, direction dir, std::vector<Object *> &collObjects)
+bool Character::next_to(SDL_Rect pos, direction dir, std::vector<Object *> &collObjects)
 {
     switch(dir)
     {
@@ -197,5 +197,19 @@ bool Character::nextTo(SDL_Rect pos, direction dir, std::vector<Object *> &collO
         case LEFT: pos.x -= 1; break;
         case RIGHT: pos.x += 1; break;
     }
-    return doesCollide(pos, collObjects);
+    return does_collide(pos, collObjects);
 }
+
+bool Character::evaluate_attack(const std::string& name, std::vector<Object*>& collObjs)
+{
+    if(dmgr_insts.count(name) == 0) return false;
+     return dmgr_insts.at(name).doAtack
+         && dmgr_insts.at(name).evaluate(this, collObjs);
+}
+
+bool Character::evaluate_attack(const std::string& name, const SDL_Rect &origin, Object::direction dir, std::vector<Object*>& collObjs)
+ {
+    if(dmgr_insts.count(name) == 0) return false;
+     return dmgr_insts.at(name).doAtack
+         && dmgr_insts.at(name).evaluate(origin, dir, collObjs);
+ }

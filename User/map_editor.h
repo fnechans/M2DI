@@ -106,9 +106,9 @@ public:
             case SDLK_d: player->move_left(); break;
             }
         }
-        player->position.w = (level->viewPort.w / base::scaleRender <  base::mWidth)
+        player->hitbox.w = (level->viewPort.w / base::scaleRender <  base::mWidth)
             ? level->viewPort.w / base::scaleRender : base::mWidth-1;
-        player->position.h = (level->viewPort.h / base::scaleRender <  base::mHeight)
+        player->hitbox.h = (level->viewPort.h / base::scaleRender <  base::mHeight)
             ? level->viewPort.h / base::scaleRender : base::mHeight-1;
     }
 
@@ -156,7 +156,11 @@ public:
         {
             for(auto &tile : level->get_map().tiles)
             {
-                if(tile.on_screen(&level->screenRect) &&  tools::point_within_rect(level->bScreen.clickX, level->bScreen.clickY, {tile.posSX, tile.posSY, (int) base::TILESIZERENDER, (int) base::TILESIZERENDER}))
+                if(tile.on_screen(&level->screenRect)
+                    &&  tools::point_within_rect(level->bScreen.mouseX, level->bScreen.mouseY,
+                            {tile.positionScreen.x, tile.positionScreen.y, (int) base::TILESIZERENDER, (int) base::TILESIZERENDER}
+                        )
+                )
                     tile.clip = level->get_map().mappingClips.at(curTile);
             }
         }
