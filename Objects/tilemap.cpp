@@ -107,31 +107,31 @@ void Map_wrapper::add_sprite_property(std::string type, SDL_Color col, uint heal
 
 void Map_wrapper::screen_position(SDL_Rect &screenRect, SDL_Rect &viewPort, Object &obj)
 {
-    obj.positionScreen.x = viewPort.x + viewPort.w / 2 - obj.hitbox.w/2 * scaleRender;
-    obj.positionScreen.y = viewPort.y + viewPort.h / 2 - obj.hitbox.h/2 * scaleRender;
+    obj.positionScreen.x = viewPort.x + viewPort.w / 2;
+    obj.positionScreen.y = viewPort.y + viewPort.h / 2;
 
-    screenRect.x = obj.hitbox.x * scaleRender - obj.positionScreen.x;
+    screenRect.x = obj.position().x * scaleRender - obj.positionScreen.x;
     if (screenRect.x < 0)
     {
         screenRect.x = 0;
-        obj.positionScreen.x = obj.hitbox.x * scaleRender;
+        obj.positionScreen.x = obj.position().x * scaleRender;
     }
     else if (screenRect.x + (viewPort.x + viewPort.w) > mWidth * scaleRender && mWidth * scaleRender > (viewPort.x + viewPort.w))
     {
         screenRect.x = mWidth * scaleRender - (viewPort.x + viewPort.w);
-        obj.positionScreen.x = (viewPort.x + viewPort.w) - (mWidth - obj.hitbox.x) * scaleRender;
+        obj.positionScreen.x = (viewPort.x + viewPort.w) - (mWidth - obj.position().x) * scaleRender;
     }
 
-    screenRect.y = obj.hitbox.y * scaleRender - obj.positionScreen.y;
+    screenRect.y = obj.position().y * scaleRender - obj.positionScreen.y;
     if (screenRect.y < 0)
     {
         screenRect.y = 0;
-        obj.positionScreen.y = obj.hitbox.y * scaleRender;
+        obj.positionScreen.y = obj.position().y * scaleRender;
     }
     else if (screenRect.y + (viewPort.y + viewPort.h) > mHeight * scaleRender && mHeight * scaleRender > (viewPort.y + viewPort.h))
     {
         screenRect.y = mHeight * scaleRender - (viewPort.y + viewPort.h);
-        obj.positionScreen.y = (viewPort.y + viewPort.h) - (mHeight - obj.hitbox.y) * scaleRender;
+        obj.positionScreen.y = (viewPort.y + viewPort.h) - (mHeight - obj.position().y) * scaleRender;
     }
 
     screenRect.w = viewPort.w;

@@ -28,7 +28,7 @@ bool Object::on_screen(SDL_Rect *screen)
             || hitbox.y * scaleRender > screen->y + screen->h
             ))
     {
-        positionScreen = toScreen(screen, hitbox);
+        positionScreen = toScreen(screen, position());
         return true;
     }
     return false;
@@ -42,7 +42,7 @@ void Object::plot(Window &window, SDL_Rect *screen)
             return;
     }
 
-    SDL_Rect renderRect = {positionScreen.x, positionScreen.y, (int) TILESIZERENDER, (int) TILESIZERENDER};
+    SDL_Rect renderRect = {positionScreen.x - (int) TILESIZERENDER/2, positionScreen.y - (int) TILESIZERENDER/2, (int) TILESIZERENDER, (int) TILESIZERENDER};
     // image->set_color(255,0,0);
     image->render_image(window, &renderRect, &clip);
 }
@@ -52,8 +52,6 @@ bool Object::set_image(Window &window, std::string imagePath)
     image = std::make_shared<IMG_wrapper>();
     return image->load_media(window, imagePath.c_str());
 }
-
-
 
 void Object::set_health(uint value)
 {
