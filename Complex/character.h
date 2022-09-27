@@ -2,7 +2,7 @@
 #define CHARACTER_H
 
 #include "object.h"
-#include "damage.h"
+#include "dmgr_inst.h"
 
 class Dmgr_instance;
 
@@ -44,7 +44,6 @@ public:
     // intrinsic speed of the character
     float intrVelX;
     float intrVelY;
-    direction dir;
     float speedX;
     float speedY;
     bool moved;

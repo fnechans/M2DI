@@ -24,7 +24,7 @@ public:
     IMG_wrapper textFPS;
     Character *player;
     AI<Object*> ai;
-    std::map<std::string, Damager> dmgrs;
+    std::map<std::string, std::unique_ptr<Damager>> dmgrs;
     std::map<std::string, Animation> anims;
     std::map<std::string, SDL_Rect> animPoss;
     std::map<std::string, Dmgr_instance> dmgr_insts;
@@ -54,10 +54,10 @@ public:
             astarTiles.push_back(&t);
         ai.init_astar(astarTiles);
 
-        dmgrs.emplace("sword", Damager(5, 1));
-        dmgrs.at("sword").knockback = 32;
-        dmgrs.emplace("explosion", Damager(10, 0, 3, 3));
-        dmgrs.at("explosion").knockback = 128;
+        dmgrs.emplace("sword", std::make_unique<AreaDamager>(5, 1));
+        dmgrs.at("sword")->knockback = 32;
+        dmgrs.emplace("explosion", std::make_unique<AreaDamager>(10, 0, 3, 3));
+        dmgrs.at("explosion")->knockback = 128;
 
         player = level->add_character("player", 9, 9);
         level->add_image("player", "data/gfx/character.png");
@@ -83,8 +83,8 @@ public:
         anims.emplace("explosion", preset::animationData["EXPLOSION"].get_animation());
         anims.at("explosion").image = level->get_image("explosion");
         player->set_health(999);
-        player->dmgr_insts.emplace("sword", Dmgr_instance(&dmgrs.at("sword")));
-        player->dmgr_insts.emplace("explosion", Dmgr_instance(&dmgrs.at("explosion")));
+        player->dmgr_insts.emplace("sword", Dmgr_instance(dmgrs.at("sword").get()));
+        player->dmgr_insts.emplace("explosion", Dmgr_instance(dmgrs.at("explosion").get()));
 
         auto chr = level->add_character("CH1", 1, 8);
         level->set_character_image("CH1", "player", {255, 0, 0, 255});
@@ -93,7 +93,7 @@ public:
         level->set_character_property("CH1", "DO_ATTACK", 0);
         // TODO: preset for health/speed/other...
         //    c0.speed = base::TILESIZE/64;
-        chr->dmgr_insts.emplace("sword", Dmgr_instance(&dmgrs.at("sword")));
+        chr->dmgr_insts.emplace("sword", Dmgr_instance(dmgrs.at("sword").get()));
 
         menu = &add_menu(Menu::RIGHT, {0, 0, 12*base::TILESIZEINPUT, 0});
         int buttonW = base::TILESIZEINPUT * 4;

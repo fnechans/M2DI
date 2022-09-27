@@ -3,7 +3,7 @@
 
 #include "viewport.h"
 #include "tilemap.h"
-#include "damage.h"
+#include "dmgr_inst.h"
 #include "IMG_wrapper.h"
 #include "astar.h"
 #include "button.h"

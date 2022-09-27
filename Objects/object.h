@@ -57,6 +57,7 @@ public:
 
     bool dead = false;
 
+    direction dir;
 private:
     std::string curAnimation = "";
 };

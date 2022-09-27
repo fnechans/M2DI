@@ -1,6 +1,6 @@
-#include "damage.h"
+#include "area_damager.h"
 
-SDL_Rect Damager::get_targetZone(const SDL_Rect &origin, Object::direction dir)
+SDL_Rect AreaDamager::get_targetZone(const SDL_Rect &origin, Object::direction dir)
 {
     SDL_Rect targetZone;
     switch (dir)
@@ -33,27 +33,21 @@ SDL_Rect Damager::get_targetZone(const SDL_Rect &origin, Object::direction dir)
     return targetZone;
 }
 
-bool Damager::evaluate_target(SDL_Rect &targetZone, const SDL_Rect &origin, Object *target)
+bool AreaDamager::evaluate_target(SDL_Rect &targetZone, const SDL_Rect &origin, Object *target)
 {
     if (SDL_HasIntersection(&targetZone, &target->hitbox))
     {
-        ++hits;
-        target->modify_health(-damage);
+        deal_damage(target);
 
-        if (knockback)
-        {
-            double dirX = target->hitbox.x - origin.x;
-            double dirY = target->hitbox.y - origin.y;
-            target->extVelX += knockback * dirX / sqrt(dirX * dirX + dirY * dirY);
-            target->extVelY += knockback * dirY / sqrt(dirX * dirX + dirY * dirY);
-        }
+        if (knockback) knock_back(target, origin);
+
         return true;
     }
     else
         return false;
 }
 
-bool Damager::evaluate(Character *ch, std::vector<Object *>& targets)
+bool AreaDamager::evaluate(Object *ch, std::vector<Object *>& targets)
 {
     // TODO: why is there wrapper here?
     // evaluate(ch->position, ch->dir, targets, wrapper);
@@ -75,7 +69,7 @@ bool Damager::evaluate(Character *ch, std::vector<Object *>& targets)
     return true;
 }
 
-bool Damager::evaluate(const SDL_Rect &origin, Object::direction dir, std::vector<Object *>& targets)
+bool AreaDamager::evaluate(const SDL_Rect &origin, Object::direction dir, std::vector<Object *>& targets)
 {
     hits = 0;
     SDL_Rect targetZone = get_targetZone(origin, dir);

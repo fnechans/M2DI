@@ -27,7 +27,7 @@ IF(UNIX)
     SET(CMAKE_CXX_FLAGS_MINSIZEREL     "-Os -DNDEBUG ${CXX11}")
     SET(CMAKE_C_FLAGS_MINSIZEREL       "-Os -DNDEBUG ${CXX11}")
 
-    message( BOOST ${Boost_LIBRARIES} ) 
+    message( BOOST ${Boost_LIBRARIES} )
 ENDIF(UNIX)
 
 add_subdirectory(SDL_wrapper)
@@ -42,11 +42,19 @@ add_subdirectory(Objects)
 include_directories(Objects)
 link_directories(Objects)
 
+add_subdirectory(Damage)
+include_directories(Damage)
+link_directories(Damage)
+
 add_subdirectory(Complex)
 include_directories(Complex)
 link_directories(Complex)
 
+add_subdirectory(Screens)
+include_directories(Screens)
+link_directories(Screens)
+
 include_directories(User)
 
 add_executable(SDL2Test main.cpp)
-target_link_libraries(SDL2Test PUBLIC wrappers tools objects complex)
+target_link_libraries(SDL2Test PUBLIC wrappers tools objects complex dmgers screens)

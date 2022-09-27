@@ -1,0 +1,57 @@
+#ifndef DAMAGER_H
+#define DAMAGER_H
+
+#include "base.h"
+#include "object.h"
+#include "timer.h"
+
+#include <stdexcept>
+#include <sstream>
+
+// TODO: Could this be avoided?
+class Damager : public base
+{
+public:
+    Damager(uint _damage)
+        : damage(_damage)
+    {
+    }
+    Damager(const Damager &m) : damage(m.damage)
+    {
+    }
+    void deal_damage(Object* target);
+    void knock_back(Object* targer, const SDL_Rect& origin);
+
+    // attacker is character:
+    virtual bool evaluate(Object *ch, std::vector<Object *>& targets)
+    {
+        (void) (ch);
+        (void) (targets);
+        return false;
+    }
+    // attack at location:
+    virtual bool evaluate(const SDL_Rect &origin, Object::direction dir, std::vector<Object *>& targets)
+    {
+        (void) (origin);
+        (void) (dir);
+        (void) (targets);
+        return false;
+    }
+    // attack at location:
+    virtual bool evaluate(const SDL_Rect &origin, SDL_Rect dir, std::vector<Object *>& targets)
+    {
+        (void) (origin);
+        (void) (dir);
+        (void) (targets);
+        return false;
+    }
+
+    float lifesteal = 0; // character gains fraction of damage dealt as health
+    uint cooldown = 1;   //time before next attack
+    uint damage; // damage done to target
+    uint hits; //how many targets hit per attack, useful for e.g. lifesteal
+    uint knockback = 0;  // target gains velocity in direction from origin
+private:
+};
+
+#endif // MELEE_H

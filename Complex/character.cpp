@@ -175,7 +175,7 @@ void Character::move(std::vector<Object *> &collObjects)
 
 bool Character::does_collide(SDL_Rect &pos, std::vector<Object *> &collObjects)
 {
-    if (pos.x < 0 || pos.y < 0 || pos.x > mWidth - pos.w || pos.y > mHeight - pos.h)
+    if (pos.x < 0 || pos.y < 0 || pos.x > (int) mWidth - pos.w || pos.y > (int) mHeight - pos.h)
         return true;
 
     for (auto obj : collObjects)
@@ -203,13 +203,17 @@ bool Character::next_to(SDL_Rect pos, direction dir, std::vector<Object *> &coll
 bool Character::evaluate_attack(const std::string& name, std::vector<Object*>& collObjs)
 {
     if(dmgr_insts.count(name) == 0) return false;
-     return dmgr_insts.at(name).doAtack
-         && dmgr_insts.at(name).evaluate(this, collObjs);
+    auto & dmgr_inst = dmgr_insts.at(name);
+     return dmgr_inst.doAtack
+         && dmgr_inst.check_cooldown()
+         && dmgr_inst.dmgr->evaluate(this, collObjs);
 }
 
 bool Character::evaluate_attack(const std::string& name, const SDL_Rect &origin, Object::direction dir, std::vector<Object*>& collObjs)
  {
     if(dmgr_insts.count(name) == 0) return false;
-     return dmgr_insts.at(name).doAtack
-         && dmgr_insts.at(name).evaluate(origin, dir, collObjs);
+    auto & dmgr_inst = dmgr_insts.at(name);
+     return dmgr_inst.doAtack
+         && dmgr_inst.check_cooldown()
+         && dmgr_inst.dmgr->evaluate(origin, dir, collObjs);
  }
