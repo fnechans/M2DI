@@ -11,5 +11,5 @@ include_directories(../Objects)
 include_directories(../Damage)
 
 add_library( screens  ${FILES}  )
-target_link_libraries( screens objects dmgers complex ${SDL2_LIBRARIES} ${SDL2TTF_LIBRARIES} -lstdc++fs )
+target_link_libraries( screens basics dmgers complex ${SDL2_LIBRARIES} ${SDL2TTF_LIBRARIES} -lstdc++fs )
 target_include_directories( screens PUBLIC ${SDL2_INCLUDE_DIRS} ${SDL2TTF_INCLUDE_DIRS} )

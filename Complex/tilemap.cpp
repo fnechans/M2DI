@@ -8,11 +8,11 @@ Map_wrapper::Map_wrapper(SDL_Rect border)
     image = std::make_shared<IMG_wrapper>();
 }
 
-void Map_wrapper::init(uint xMax, uint yMax)
+void Map_wrapper::init(int xMax, int yMax)
 {
-    for(uint x = 0; x < xMax; x++)
+    for(int x = 0; x < xMax; x++)
     {
-        for(uint y = 0; y < yMax; y++)
+        for(int y = 0; y < yMax; y++)
         {
             std::string type = std::string(1, (char)'a'+x) + std::string(1, (char)'a'+y);
             mappingClips[type] = {x * (int) TILESIZEINPUT, y * (int) TILESIZEINPUT, (int) TILESIZEINPUT, (int) TILESIZEINPUT};
@@ -142,12 +142,12 @@ std::vector<Object> Map_wrapper::blank_map(int _mapSizeX, int _mapSizeY, bool se
 {
     mapSizeX = _mapSizeX;
     mapSizeY = _mapSizeY;
-    int x = 0;
-    int y = 0;
+    uint x = 0;
+    uint y = 0;
     std::vector<Object> output;
 
     std::string tileType = "aa";
-    for (int i = 0; i < mapSizeX * mapSizeY; ++i)
+    for (uint i = 0; i < mapSizeX * mapSizeY; ++i)
     {
         if (tileType != "00")
         {
@@ -173,8 +173,8 @@ std::vector<Object> Map_wrapper::import_map(std::string mapFile, int _mapSizeX, 
 {
     mapSizeX = _mapSizeX;
     mapSizeY = _mapSizeY;
-    int x = 0;
-    int y = 0;
+    uint x = 0;
+    uint y = 0;
     std::vector<Object> output;
 
     std::ifstream mapStream(mapFile);
@@ -183,7 +183,7 @@ std::vector<Object> Map_wrapper::import_map(std::string mapFile, int _mapSizeX, 
     else
     {
         std::string tileType = "00";
-        for (int i = 0; i < mapSizeX * mapSizeY; ++i)
+        for (uint i = 0; i < mapSizeX * mapSizeY; ++i)
         {
             mapStream >> tileType;
             if (mapStream.fail())

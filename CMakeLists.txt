@@ -38,9 +38,9 @@ add_subdirectory(Tools)
 include_directories(Tools)
 link_directories(Tools)
 
-add_subdirectory(Objects)
-include_directories(Objects)
-link_directories(Objects)
+add_subdirectory(Basics)
+include_directories(Basics)
+link_directories(Basics)
 
 add_subdirectory(Damage)
 include_directories(Damage)
@@ -57,4 +57,4 @@ link_directories(Screens)
 include_directories(User)
 
 add_executable(SDL2Test main.cpp)
-target_link_libraries(SDL2Test PUBLIC wrappers tools objects complex dmgers screens)
+target_link_libraries(SDL2Test PUBLIC wrappers tools basics complex dmgers screens)

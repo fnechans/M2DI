@@ -15,7 +15,7 @@ public:
     Map_wrapper(SDL_Rect border = {0, 0, TILESIZEINPUT * 12, 0});
     ~Map_wrapper() {}
 
-    void init(uint xMax, uint yMax);
+    void init(int xMax, int yMax);
     void render_minimap(Window &wrapper, std::vector<Object *> &objects);
     void render_map(Window &wrapper, SDL_Rect &mapPosition);
     void add_sprite_property(int posX, int posY, SDL_Color col, uint health = 0);
