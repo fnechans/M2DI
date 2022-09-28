@@ -50,6 +50,7 @@ public:
     std::map<std::string, Dmgr_instance> dmgr_insts;
     bool evaluate_attack(const std::string& name, std::vector<Object*>& collObjects);
     bool evaluate_attack(const std::string& name, const SDL_Rect &origin, Object::direction dir, std::vector<Object*>& collObjects);
+    bool evaluate_attack(const std::string& name, const SDL_Rect &origin, const SDL_Rect& dir, std::vector<Object*>& collObjects);
 private:
     void set_vel0_x(){ extVelX = 0;}
     void set_vel0_y(){ extVelY = 0;}

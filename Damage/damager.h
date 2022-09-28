@@ -22,6 +22,7 @@ public:
     void deal_damage(Object* target);
     void knock_back(Object* targer, const SDL_Rect& origin);
 
+    // evaluates for all targets, and reduces health, evaluates knockback...
     // attacker is character:
     virtual bool evaluate(Object *ch, std::vector<Object *>& targets)
     {
@@ -38,7 +39,7 @@ public:
         return false;
     }
     // attack at location:
-    virtual bool evaluate(const SDL_Rect &origin, SDL_Rect dir, std::vector<Object *>& targets)
+    virtual bool evaluate(const SDL_Rect &origin, const SDL_Rect& dir, std::vector<Object *>& targets)
     {
         (void) (origin);
         (void) (dir);
@@ -47,7 +48,7 @@ public:
     }
 
     float lifesteal = 0; // character gains fraction of damage dealt as health
-    uint cooldown = 1;   //time before next attack
+    float cooldown = 1;   //time before next attack
     uint damage; // damage done to target
     uint hits; //how many targets hit per attack, useful for e.g. lifesteal
     uint knockback = 0;  // target gains velocity in direction from origin

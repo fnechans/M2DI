@@ -27,7 +27,7 @@ public:
 
     // global coor. vars
     SDL_Rect hitbox;
-    SDL_Rect position(){ return {hitbox.x+hitbox.w/2, hitbox.y+hitbox.h/2, 0, 0}; }
+    SDL_Rect position(){ return {hitbox.x+hitbox.w/2, hitbox.y+hitbox.h/2, 1, 1}; }
 
     // local coor. vard
     SDL_Rect positionScreen;

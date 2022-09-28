@@ -17,6 +17,7 @@ public:
     AreaDamager(const AreaDamager &m) : Damager(m.damage), shift(m.shift), length(m.length), width(m.width)
     {
     }
+
     // evaluates if target was hit, returns true if yes
     bool evaluate_target(SDL_Rect &targetZone, const SDL_Rect &origin, Object *target);
     // evaluates for all targets, and reduces health, evaluates knockback...

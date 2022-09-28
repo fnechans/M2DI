@@ -20,15 +20,20 @@ public:
     Dmgr_instance(Damager *_melee) { dmgr = _melee; }
     Dmgr_instance(const Dmgr_instance &m) { dmgr = m.dmgr; }
 
-    // simply wrap around the evaluate functions from
-    // the Melee
-    bool check_cooldown()
+    bool check_cooldown(bool restart=true)
     {
         if (clock.isStarted && clock.getTicks() < dmgr->cooldown * 1000)
             return false;
-        else
+        else if(restart)
             clock.restart();
         return true;
+    }
+    // e.g. for display of cooldown
+    float get_cooldown_fraction()
+    {
+        if (clock.isStarted && clock.getTicks() < dmgr->cooldown*1000)
+            return clock.getTicks()/(dmgr->cooldown*1000);
+        return 1;
     }
 
     Damager *dmgr;

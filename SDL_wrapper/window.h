@@ -31,10 +31,15 @@ public:
     {
         SDL_RenderSetViewport(sdlRenderer, viewPort);
     }
-    void drawColorRect(SDL_Rect *rect, SDL_Color &color)
+    void drawColorRect(SDL_Rect *rect, const SDL_Color &color)
     {
         SDL_SetRenderDrawColor(sdlRenderer, color.r, color.g, color.b, color.a);
         SDL_RenderFillRect(sdlRenderer, rect);
+    }
+    void drawColorLine(const SDL_Rect& start, const SDL_Rect& end, const SDL_Color &color)
+    {
+        SDL_SetRenderDrawColor(sdlRenderer, color.r, color.g, color.b, color.a);
+        SDL_RenderDrawLine(sdlRenderer, start.x, start.y, end.x, end.y);
     }
     bool isInit = false;
 

@@ -58,6 +58,9 @@ public:
         dmgrs.at("sword")->knockback = 32;
         dmgrs.emplace("explosion", std::make_unique<AreaDamager>(10, 0, 3, 3));
         dmgrs.at("explosion")->knockback = 128;
+        dmgrs.emplace("gun", std::make_unique<HitScanDamager>(5, 5, 0.5));
+        dmgrs.at("gun")->knockback = 32;
+        dmgrs.at("gun")->cooldown = 0.15;
 
         player = level->add_character("player", 9, 9);
         level->add_image("player", "data/gfx/character.png");
@@ -85,12 +88,12 @@ public:
         player->set_health(999);
         player->dmgr_insts.emplace("sword", Dmgr_instance(dmgrs.at("sword").get()));
         player->dmgr_insts.emplace("explosion", Dmgr_instance(dmgrs.at("explosion").get()));
+        player->dmgr_insts.emplace("gun", Dmgr_instance(dmgrs.at("gun").get()));
 
         auto chr = level->add_character("CH1", 1, 8);
         level->set_character_image("CH1", "player", {255, 0, 0, 255});
         level->copy_character_animation("player", "CH1");
         //level->set_character_target("CH1", "player");
-        level->set_character_property("CH1", "DO_ATTACK", 0);
         // TODO: preset for health/speed/other...
         //    c0.speed = base::TILESIZE/64;
         chr->dmgr_insts.emplace("sword", Dmgr_instance(dmgrs.at("sword").get()));
@@ -143,6 +146,9 @@ public:
             case SDLK_q:
                 player->dmgr_insts.at("explosion").doAtack = true;
                 break;
+            case SDLK_e:
+                player->dmgr_insts.at("gun").doAtack = true;
+                break;
             }
         }
         else if (event.type == SDL_KEYUP && event.key.repeat == 0)
@@ -163,6 +169,9 @@ public:
                 break;
             case SDLK_q:
                 player->dmgr_insts.at("explosion").doAtack = false;
+                break;
+            case SDLK_e:
+                player->dmgr_insts.at("gun").doAtack = false;
                 break;
             }
         }
@@ -258,6 +267,19 @@ public:
             textHelp.render_image(*window, 0, 32);
         if(anims.at("explosion").running)
             anims.at("explosion").run_and_plot(*window, animPoss["explosion"]);
+                    // Process attack and animation
+        for (auto &chrIt : level->get_chars())
+        {
+            if(chrIt.second.dmgr_insts.count("gun")==0) continue;
+            auto& gun = chrIt.second.dmgr_insts.at("gun");
+            HitScanDamager* hs = dynamic_cast<HitScanDamager*>(gun.dmgr);
+            if(gun.get_cooldown_fraction() < 0.5)
+                window->drawColorLine(
+                    base::toScreen(&level->screenRect, hs->origin),
+                    base::toScreen(&level->screenRect, hs->endpoint),
+                    {255, 128, 0, 150}
+                );
+        }
     }
 
     void custom_process(Character *object, std::string dir)
@@ -275,6 +297,12 @@ public:
         {
             anims.at("explosion").play();
             animPoss["explosion"] = level->mousePositionScreen;
+        }
+        else if (object->evaluate_attack("gun",
+                     object->position(), base::fromScreen(&level->screenRect, level->mousePositionScreen),
+                     level->get_collisionObjects())
+        )
+        {
         }
         else if (
             tools::contains(object->get_current_animation_name(), "ATTACK_")
