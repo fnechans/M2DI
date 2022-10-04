@@ -9,6 +9,9 @@
 #include <vector>
 #include <algorithm>
 #include <map>
+#include <cmath>
+
+typedef unsigned int uint;
 
 class base
 {
@@ -58,6 +61,10 @@ namespace tools
     bool key_down(SDL_Event &e, SDL_Keycode keycode);
     bool key_up(SDL_Event &e, SDL_Keycode keycode);
     bool point_within_rect(int x, int y, SDL_Rect rect);
+    SDL_Rect get_endpoint(const SDL_Rect& origin, const SDL_Rect &direction, int range);
+    bool line_intersect(const SDL_Rect &X1, const SDL_Rect &X2,
+                        const SDL_Rect &Y1, const SDL_Rect &Y2);
+
     inline bool contains(const std::string& str, const std::string& str2 )
     {
         return (str.find(str2)!=std::string::npos);

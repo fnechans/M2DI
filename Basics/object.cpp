@@ -1,56 +1,22 @@
 #include "object.h"
 
-#include <exception>
-
 const char *const Object::dirName[4] = {"UP", "DOWN", "LEFT", "RIGHT"};
 
-Object::Object(uint x, uint y)
+Object::Object(uint x, uint y) : Block(x, y)
 {
-    hitbox.x = x;
-    hitbox.y = y;
-    // DEFAULT hitbox based on tilesize, can be changed
-    hitbox.w = TILESIZEPHYSICS;
-    hitbox.h = TILESIZEPHYSICS;
-
     extVelX = 0;
     extVelY = 0;
     frictionX = 4;
     frictionY = 4;
 
-    mapColor = {0, 0, 0, 0};
-}
+    intrVelX = 0;
+    intrVelY = 0;
 
-bool Object::on_screen(SDL_Rect *screen)
-{
-    if( !(hitbox.x * scaleRender < screen->x - (int) TILESIZERENDER
-            || hitbox.x * scaleRender > screen->x + screen->w
-            || hitbox.y * scaleRender < screen->y -  (int) TILESIZERENDER
-            || hitbox.y * scaleRender > screen->y + screen->h
-            ))
-    {
-        positionScreen = toScreen(screen, position());
-        return true;
-    }
-    return false;
-}
+    dir = DOWN;
+    speedX = 4;
+    speedY = 4;
 
-void Object::plot(Window &window, SDL_Rect *screen)
-{
-    if (screen)
-    {
-        if(!on_screen(screen))
-            return;
-    }
-
-    SDL_Rect renderRect = {positionScreen.x - (int) TILESIZERENDER/2, positionScreen.y - (int) TILESIZERENDER/2, (int) TILESIZERENDER, (int) TILESIZERENDER};
-    // image->set_color(255,0,0);
-    image->render_image(window, &renderRect, &clip);
-}
-
-bool Object::set_image(Window &window, std::string imagePath)
-{
-    image = std::make_shared<IMG_wrapper>();
-    return image->load_media(window, imagePath.c_str());
+    moved = false;
 }
 
 void Object::set_health(uint value)
@@ -71,47 +37,190 @@ void Object::modify_health(int value)
         dead = true;
 }
 
-void Object::copy_animation(Object const &object)
+void Object::move_left()
 {
-    for (auto &iter : object.animations)
+    switch(moveType)
     {
-        if (animations.find(iter.first) != animations.end())
-            std::cout << "Warning: Animation " << iter.first << " already exists!\n";
-        animations[iter.first] = Animation(iter.second);
+        case TopDown:
+        case Sidescroll:
+            intrVelX -= speedX;
+            break;
     }
 }
 
-void Object::set_animation(const std::string& animationName)
+void Object::move_right()
 {
-    if (animationName == curAnimation)
+    switch(moveType)
+    {
+        case TopDown:
+        case Sidescroll:
+            intrVelX += speedX;
+            break;
+    }
+}
+
+void Object::move_up(std::vector<Block *> &collObjects)
+{
+    switch(moveType)
+    {
+        case Sidescroll:
+            if(!next_to(hitbox, DOWN, collObjects)) break; //only jump if standing on ground
+            extVelY -= speedY;
+            break;
+        case TopDown:
+            intrVelY -= speedY;
+            break;
+    }
+}
+
+void Object::move_down()
+{
+    switch(moveType)
+    {
+        case Sidescroll:
+            break;
+        case TopDown:
+            intrVelY += speedY;
+            break;
+    }
+}
+
+void Object::follow_path(std::vector<Block *> &collObjects)
+{
+    intrVelX = 0;
+    intrVelY = 0;
+
+    if (!path.empty())
+    {
+        int dirX = path.back()->hitbox.x - hitbox.x;
+        int dirY = path.back()->hitbox.y - hitbox.y;
+
+        // set speed
+        if (dirX > 0) move_right();
+        else if (dirX < 0) move_left();
+        if (dirY > 0) move_down();
+        else if (dirY < 0) move_up(collObjects);
+
+        if (std::abs(hitbox.x - path.back()->hitbox.x) <= TILESIZEPHYSICS && std::abs(hitbox.y - path.back()->hitbox.y) <= TILESIZEPHYSICS && path.size() > 1)
+            path.pop_back();
+    }
+}
+
+void Object::plot_path(Window &wrapper, SDL_Rect *screen)
+{
+    if (!path.empty())
+    {
+        for (auto t : path)
+        {
+            t->image->set_color(mapColor.r, mapColor.g, mapColor.b);
+            t->plot(wrapper, screen);
+            t->image->set_color(255, 255, 255);
+        }
+    }
+}
+
+void Object::move(std::vector<Block *> &collObjects)
+{
+    // TODO: this whole thing needs to be done better,
+    // but not sure how right now
+    tools::reduce_to_zero<float>(extVelX, frictionX);
+    tools::reduce_to_zero<float>(extVelY, frictionY);
+    int dX = (extVelX + intrVelX)*TILESIZEPHYSICS*DELTA_T;
+    int dY = (extVelY + intrVelY)*TILESIZEPHYSICS*DELTA_T;
+
+    moved = false;
+    if (intrVelX > 0)
+        dir = RIGHT;
+    else if (intrVelX < 0)
+        dir = LEFT;
+    else if (intrVelY > 0)
+        dir = DOWN;
+    else if (intrVelY < 0)
+        dir = UP;
+    if (dX == 0 && dY == 0)
         return;
 
-    if (curAnimation != "")
-        animations[curAnimation].stop();
-    if (animations.find(animationName) == animations.end())
-        throw std::runtime_error("Animation with " + animationName + " does not exist!");
+    SDL_Rect newPosition = hitbox;
+    while (dX || dY)
+    {
+        newPosition = hitbox;
+        newPosition.x += dX;
+        newPosition.y += dY;
 
-    animations[animationName].play();
-    curAnimation = animationName;
+        if (!does_collide(newPosition, collObjects))
+        {
+            hitbox = newPosition;
+            moved = true;
+            return;
+        }
+
+        tools::reduce_to_zero<int>(dX, 1);
+        tools::reduce_to_zero<int>(dY, 1);
+    }
+
+    dX = (extVelX + intrVelX)*TILESIZEPHYSICS*DELTA_T;
+    dY = (extVelY + intrVelY)*TILESIZEPHYSICS*DELTA_T;
+
+    while (dX)
+    {
+        newPosition = hitbox;
+        newPosition.x += dX;
+
+        if (!does_collide(newPosition, collObjects))
+        {
+            hitbox = newPosition;
+            moved = true;
+            return;
+        }
+        else set_vel0_x();
+
+        tools::reduce_to_zero<int>(dX, 1);
+    }
+
+    dX = (extVelX + intrVelX)*TILESIZEPHYSICS*DELTA_T;
+    dY = (extVelY + intrVelY)*TILESIZEPHYSICS*DELTA_T;
+
+    while (dY)
+    {
+        newPosition = hitbox;
+        newPosition.y += dY;
+
+        if (!does_collide(newPosition, collObjects))
+        {
+            hitbox = newPosition;
+            moved = true;
+            return;
+        }
+        else set_vel0_y();
+
+        tools::reduce_to_zero<int>(dY, 1);
+    }
+
 }
 
-void Object::plot_animation(Window &window, SDL_Rect *screen, bool pause)
+bool Object::does_collide(SDL_Rect &pos, std::vector<Block *> &collObjects)
 {
-    // whether to skip the actual plotting (but keeps the animation playing and sets up the position_screen)
-    bool skipPlot = false;
-    if (screen)
-    {
-        if (!on_screen(screen))
-            skipPlot = true;
-    }
+    if (pos.x < 0 || pos.y < 0 || pos.x > (int) mWidth - pos.w || pos.y > (int) mHeight - pos.h)
+        return true;
 
-    if (curAnimation != "")
+    for (auto obj : collObjects)
     {
-        auto &anim = animations[curAnimation];
-        if (pause)
-            anim.pause();
-        anim.run_and_plot(window, positionScreen, skipPlot);
-        if (pause)
-            anim.play();
+        if (obj == this)
+            continue;
+        if (SDL_HasIntersection(&obj->hitbox, &pos))
+            return true;
     }
+    return false;
+}
+
+bool Object::next_to(SDL_Rect pos, direction dir, std::vector<Block *> &collObjects)
+{
+    switch(dir)
+    {
+        case UP: pos.y -= 1; break;
+        case DOWN: pos.y += 1; break;
+        case LEFT: pos.x -= 1; break;
+        case RIGHT: pos.x += 1; break;
+    }
+    return does_collide(pos, collObjects);
 }

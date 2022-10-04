@@ -1,5 +1,5 @@
-#ifndef SDL_H
-#define SDL_H
+#ifndef SDLWINDOW_H
+#define SDLWINDOW_H
 
 #include "base.h"
 

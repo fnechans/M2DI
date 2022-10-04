@@ -22,6 +22,7 @@ int main(int argc, char *args[])
     {
         currentScreen = currentScreen->loop();
     }
+    return 0;
 }
 
 screen_ptr main_menu::user_nextScreen()

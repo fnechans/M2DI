@@ -1,18 +1,20 @@
 #ifndef OBJECT_H
 #define OBJECT_H
 
-#include "base.h"
-#include "IMG_wrapper.h"
-#include "animation.h"
+#include "block.h"
 
-#include <vector>
-#include <map>
-
-class Object : public base
+class Object : public Block
 {
 public:
     Object(uint x = mWidth / 2, uint y = mHeight / 2);
-    ~Object() {}
+
+    void set_health(uint value);
+    void modify_health(int value);
+    bool dead = false;
+
+    /////////////
+    // MOVEMENT//
+    /////////////
 
     enum direction
     {
@@ -23,44 +25,56 @@ public:
     };
     static const char *const dirName[4]; // = {"UP", "DOWN", "LEFT", "RIGHT"};
 
-    SDL_Rect clip;
+    // Type of movement
+    // TopDown - WSAD like, moves in any direction
+    // Side - WS+jump
+    enum MoveType {TopDown, Sidescroll};
+    MoveType moveType = TopDown;
+    void move_left();
+    void move_right();
+    void move_up(std::vector<Block *> &collObjects);
+    void move_down();
 
-    // global coor. vars
-    SDL_Rect hitbox;
-    SDL_Rect position(){ return {hitbox.x+hitbox.w/2, hitbox.y+hitbox.h/2, 1, 1}; }
+    void kick(float dax, float day){ extVelX += dax; extVelY += day; }
 
-    // local coor. vard
-    SDL_Rect positionScreen;
+    void set_movetype(MoveType type)
+    {
+        switch(type)
+        {
+            case Sidescroll:
+                moveType = Sidescroll; frictionY = 0; speedY = 16; break;
+            case TopDown:
+                moveType = TopDown; frictionY = frictionX; speedY = speedX; break;
+        }
+    }
+
+    void follow_path(std::vector<Block *>& collObjects);
+    void plot_path(Window &wrapper, SDL_Rect *screen);
+
+    std::vector<Block *> path = {};
+    Object *target{nullptr};
+
+    void move(std::vector<Block *> &collObjects);
+    bool does_collide(SDL_Rect &pos, std::vector<Block *>& collObjects);
+    bool next_to(SDL_Rect pos, direction dir, std::vector<Block *>& collObjects); // here copy of pos(ition) on purpose!
+
+    // intrinsic speed of the character
+    float intrVelX;
+    float intrVelY;
+    float speedX;
+    float speedY;
+    bool moved;
     // velocity based of external factors (knockback)
     float extVelX;
     float extVelY;
     // friction impacts extVel
     float frictionX;
     float frictionY;
-    SDL_Color mapColor;
-
-    std::shared_ptr<IMG_wrapper> image;
-    bool set_image(Window &window, std::string imagePath);
-    void plot(Window &wrapper, SDL_Rect *screen = nullptr);
-    bool on_screen(SDL_Rect *screen);
-
-    std::map<std::string, int> property;
-    void set_health(uint value);
-    void modify_health(int value);
-
-    std::map<std::string, Animation> animations;
-    void copy_animation(Object const &object);
-    void plot_animation(Window &window, SDL_Rect *screen = nullptr, bool pause = false);
-    void set_animation(const std::string& animationName);
-    Animation&  get_current_animation() { return animations[curAnimation]; }
-    const std::string&  get_current_animation_name() { return curAnimation; }
-
-    bool dead = false;
-
     direction dir;
+
 private:
-    std::string curAnimation = "";
+    void set_vel0_x(){ extVelX = 0;}
+    void set_vel0_y(){ extVelY = 0;}
 };
 
-
-#endif // OBJECT_H
+#endif // CHARACTER_H

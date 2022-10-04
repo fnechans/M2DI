@@ -1,6 +1,8 @@
 #ifndef TOPDOWN_H
 #define TOPDOWN_H
 
+#include <algorithm>
+
 #include "screen.h"
 #include "preset.h"
 
@@ -23,7 +25,7 @@ public:
     std::stringstream streamFPS;
     IMG_wrapper textFPS;
     Character *player;
-    AI<Object*> ai;
+    AI<Block*> ai;
     std::map<std::string, std::unique_ptr<Damager>> dmgrs;
     std::map<std::string, Animation> anims;
     std::map<std::string, SDL_Rect> animPoss;
@@ -39,7 +41,7 @@ public:
         level->get_map().add_sprite_property(1, 4, {100, 100, 0, 255});
         level->get_map().add_sprite_property(0, 0, {0, 150, 0, 255});
         level->get_map().add_sprite_property(12, 13, {100, 100, 100, 255});
-        level->get_map().add_sprite_property(4, 5, {150, 100, 50, 255}, 10);
+        level->get_map().add_sprite_property(4, 5, {150, 100, 50, 255});
         level->get_map().add_sprite_property(0, 1, {0, 0, 150, 255});
         level->add_image("map", "data/gfx/Overworld.png");
         level->set_map_image("map");
@@ -49,7 +51,7 @@ public:
         if (!textHelp.load_text(*window, "There is no help. You are on your own.", {255, 100, 100, 255}, 64, base::TILESIZEINPUT * 24))
             return;
 
-        std::vector<Object *> astarTiles;
+        std::vector<Block *> astarTiles;
         for (auto &t : level->get_map().tiles)
             astarTiles.push_back(&t);
         ai.init_astar(astarTiles);
@@ -267,24 +269,31 @@ public:
             textHelp.render_image(*window, 0, 32);
         if(anims.at("explosion").running)
             anims.at("explosion").run_and_plot(*window, animPoss["explosion"]);
-                    // Process attack and animation
+
+        // Tracers
         for (auto &chrIt : level->get_chars())
         {
             if(chrIt.second.dmgr_insts.count("gun")==0) continue;
             auto& gun = chrIt.second.dmgr_insts.at("gun");
             HitScanDamager* hs = dynamic_cast<HitScanDamager*>(gun.dmgr);
-            if(gun.get_cooldown_fraction() < 0.5)
+            float cd = gun.get_cooldown_fraction();
+            if(cd < 0.5)
+            {
+                float shift = std::max(0., cd/0.5-0.05);
+                auto start = tools::get_endpoint(hs->origin, hs->endpoint, hs->range*base::TILESIZEPHYSICS*shift);
+                auto end = tools::get_endpoint(start, hs->endpoint, hs->range*base::TILESIZEPHYSICS*(0.1));
                 window->drawColorLine(
-                    base::toScreen(&level->screenRect, hs->origin),
-                    base::toScreen(&level->screenRect, hs->endpoint),
-                    {255, 128, 0, 150}
+                    base::toScreen(&level->screenRect, start),
+                    base::toScreen(&level->screenRect, end),
+                    {255, 255, 255, 150}
                 );
+            }
         }
     }
 
     void custom_process(Character *object, std::string dir)
     {
-        if (object->evaluate_attack("sword", level->get_collisionObjects()))
+        if (object->evaluate_attack("sword", level->get_damagableObjects()))
         {
             // stop any previous running animation
             object->get_current_animation().stop();
@@ -292,7 +301,7 @@ public:
         }
         else if (object->evaluate_attack("explosion",
                      base::fromScreen(&level->screenRect, level->mousePositionScreen),
-                     Object::direction::DOWN, level->get_collisionObjects())
+                     Object::direction::DOWN, level->get_damagableObjects())
         )
         {
             anims.at("explosion").play();
@@ -300,7 +309,7 @@ public:
         }
         else if (object->evaluate_attack("gun",
                      object->position(), base::fromScreen(&level->screenRect, level->mousePositionScreen),
-                     level->get_collisionObjects())
+                     level->get_damagableObjects())
         )
         {
         }

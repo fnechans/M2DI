@@ -94,7 +94,8 @@ public:
     // object-collection getter:
     std::map<std::string, Character> &get_chars() { return characters; }
     Character &get_char(std::string name) { return characters.at(name); }
-    std::vector<Object *> &get_collisionObjects() { return collisionObjects; }
+    std::vector<Block *> &get_collisionObjects() { return collisionObjects; }
+    std::vector<Object *> &get_damagableObjects() { return damagableObjects; }
 
     bool pause = false; // is level paused?
     SDL_Rect screenRect;
@@ -103,7 +104,8 @@ public:
 
 private:
     std::unique_ptr<Map_wrapper> curMap;
-    std::vector<Object *> collisionObjects;
+    std::vector<Block *> collisionObjects;
+    std::vector<Object *> damagableObjects;
 
     std::map<std::string, std::shared_ptr<IMG_wrapper>> images;
 

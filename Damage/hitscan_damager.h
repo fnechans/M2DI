@@ -23,12 +23,12 @@ public:
     // attack at location:
     virtual bool evaluate(const SDL_Rect &_origin, const SDL_Rect& direction, std::vector<Object *>& targets) override;
 
-    SDL_Rect origin;
-    SDL_Rect endpoint;
-private:
     // properties
     float range;   // shift of target rect in direction of attack
     float shift;   // shift of target rect in direction of attack
+    SDL_Rect origin;
+    SDL_Rect endpoint;
+private:
 };
 
 #endif

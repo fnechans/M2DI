@@ -7,9 +7,11 @@ Level::Level(Window *win, Position pos, SDL_Rect bor) : Viewport(win, pos, bor),
 void Level::bake()
 {
     collisionObjects.clear();
+    damagableObjects.clear();
     for (auto &c : characters)
     {
         collisionObjects.push_back(&c.second);
+        damagableObjects.push_back(&c.second);
     }
     for (auto &t : curMap->blocks)
     {
@@ -19,7 +21,6 @@ void Level::bake()
 
 void Level::reset()
 {
-    tools::remove_dead_vector<Object>(curMap->blocks);
     tools::remove_dead_map<Character>(characters);
     bake();
 }

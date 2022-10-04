@@ -17,7 +17,6 @@ void Map_wrapper::init(int xMax, int yMax)
             std::string type = std::string(1, (char)'a'+x) + std::string(1, (char)'a'+y);
             mappingClips[type] = {x * (int) TILESIZEINPUT, y * (int) TILESIZEINPUT, (int) TILESIZEINPUT, (int) TILESIZEINPUT};
             mappingColor[type] = {0,0,0,0};
-            mappingHealth[type] = 0;
         }
     }
 }
@@ -35,7 +34,7 @@ void Map_wrapper::render_map(Window &window, SDL_Rect &mapPosition)
     }
 }
 
-SDL_Rect get_tile_draw_rect(Object const &obj, double& scale)
+SDL_Rect get_tile_draw_rect(Block const &obj, double& scale)
 {
     return {(int)(obj.hitbox.x / scale),
             (int)(obj.hitbox.y / scale),
@@ -43,7 +42,7 @@ SDL_Rect get_tile_draw_rect(Object const &obj, double& scale)
             (int)(base::TILESIZEPHYSICS / scale)};
 }
 
-void Map_wrapper::render_minimap(Window &window, std::vector<Object *> &objects)
+void Map_wrapper::render_minimap(Window &window, std::vector<Block *> &objects)
 {
     // TODO: custom setting in future:
     minimapViewPort = {window.sWidth - gameplayBorder.w, 0, gameplayBorder.w, gameplayBorder.w};
@@ -86,26 +85,25 @@ bool Map_wrapper::load_map(std::string mapFile, int mapSizeX, int mapSizeY)
 
 bool Map_wrapper::load_blocks(std::string mapFile, int mapSizeX, int mapSizeY)
 {
-    blocks = import_map(mapFile, mapSizeX, mapSizeY, true);
+    blocks = import_map(mapFile, mapSizeX, mapSizeY);
     if (blocks.empty())
         return false;
     return true;
 }
 
-void Map_wrapper::add_sprite_property(int posX, int posY, SDL_Color col, uint health)
+void Map_wrapper::add_sprite_property(int posX, int posY, SDL_Color col)
 {
     std::string type = std::string(1, (char)'a'+posX) + std::string(1, (char)'a'+posY);
-    add_sprite_property(type, col, health);
+    add_sprite_property(type, col);
 }
 
-void Map_wrapper::add_sprite_property(std::string type, SDL_Color col, uint health)
+void Map_wrapper::add_sprite_property(std::string type, SDL_Color col)
 {
     if(type.size()!=2) throw std::runtime_error("type of sprite has to be string length 2!");
     mappingColor.at(type) = col;
-    mappingHealth.at(type) = health;
 }
 
-void Map_wrapper::screen_position(SDL_Rect &screenRect, SDL_Rect &viewPort, Object &obj)
+void Map_wrapper::screen_position(SDL_Rect &screenRect, SDL_Rect &viewPort, Block &obj)
 {
     obj.positionScreen.x = viewPort.x + viewPort.w / 2;
     obj.positionScreen.y = viewPort.y + viewPort.h / 2;
@@ -138,25 +136,23 @@ void Map_wrapper::screen_position(SDL_Rect &screenRect, SDL_Rect &viewPort, Obje
     screenRect.h = viewPort.h;
 }
 
-std::vector<Object> Map_wrapper::blank_map(int _mapSizeX, int _mapSizeY, bool setHealth)
+std::vector<Block> Map_wrapper::blank_map(int _mapSizeX, int _mapSizeY)
 {
     mapSizeX = _mapSizeX;
     mapSizeY = _mapSizeY;
     uint x = 0;
     uint y = 0;
-    std::vector<Object> output;
+    std::vector<Block> output;
 
     std::string tileType = "aa";
     for (uint i = 0; i < mapSizeX * mapSizeY; ++i)
     {
         if (tileType != "00")
         {
-            output.push_back(Object(x, y));
+            output.push_back(Block(x, y));
             output.back().clip = mappingClips.at(tileType);
             output.back().mapColor = mappingColor.at(tileType);
             output.back().image = image;
-            if (setHealth && mappingHealth.at(tileType) != 0)
-                output.back().set_health(mappingHealth.at(tileType));
         }
 
         x += base::TILESIZEPHYSICS;
@@ -169,13 +165,13 @@ std::vector<Object> Map_wrapper::blank_map(int _mapSizeX, int _mapSizeY, bool se
     return output;
 }
 
-std::vector<Object> Map_wrapper::import_map(std::string mapFile, int _mapSizeX, int _mapSizeY, bool setHealth)
+std::vector<Block> Map_wrapper::import_map(std::string mapFile, int _mapSizeX, int _mapSizeY)
 {
     mapSizeX = _mapSizeX;
     mapSizeY = _mapSizeY;
     uint x = 0;
     uint y = 0;
-    std::vector<Object> output;
+    std::vector<Block> output;
 
     std::ifstream mapStream(mapFile);
     if (mapStream.fail())
@@ -194,12 +190,10 @@ std::vector<Object> Map_wrapper::import_map(std::string mapFile, int _mapSizeX, 
 
             if (tileType != "00")
             {
-                output.push_back(Object(x, y));
+                output.push_back(Block(x, y));
                 output.back().clip = mappingClips.at(tileType);
                 output.back().mapColor = mappingColor.at(tileType);
                 output.back().image = image;
-                if(setHealth && mappingHealth.at(tileType)!=0)
-                    output.back().set_health(mappingHealth.at(tileType));
             }
 
             x += base::TILESIZEPHYSICS;
