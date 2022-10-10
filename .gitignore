@@ -1,0 +1,7 @@
+SDL/**
+data/**
+*.sh
+.vscode/**
+build/**
+test/**
+*.zip
