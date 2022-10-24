@@ -8,6 +8,7 @@
 #include "astar.h"
 #include "button.h"
 #include "character.h"
+#include "object_manager.h"
 
 #include <utility>
 
@@ -45,55 +46,13 @@ public:
         return images.at(name);
     }
 
-    // Characters
-    Character *add_character(std::string name, int x, int y)
+    void add_object_animation(Object* obj, std::string aniName, Animation animation, std::string imgName)
     {
-        characters.emplace(name, Character(x * TILESIZEPHYSICS, y * TILESIZEPHYSICS));
-        // TMP
-        characters[name].set_health(10);
-        return &characters[name];
-    }
-    void add_character_animation(std::string name, std::string aniName, Animation animation, std::string imgName)
-    {
-        characters[name].animations[aniName] = std::move(animation);
-        characters[name].animations[aniName].image = images[imgName];
-    }
-    void copy_character_animation(std::string fromName, std::string targetName)
-    {
-        if (fromName == targetName)
-        {
-            throw std::runtime_error("fromName and targetName are the same!");
-        }
-        auto &tarChar = characters.at(targetName);
-        tarChar.copy_animation(characters.at(fromName));
-    }
-    void set_character_target(std::string name, std::string targetName)
-    {
-        if (name == targetName)
-        {
-            throw std::runtime_error("name and targetName are the same!");
-        }
-        auto &ch = characters.at(name);
-        ch.target = &characters.at(targetName);
-    }
-    void set_character_image(std::string name, std::string imgName, SDL_Color color)
-    {
-        characters[name].image = images[imgName];
-        characters[name].mapColor = color;
-    }
-
-    std::string get_direction(std::string name)
-    {
-        return Object::dirName[characters.at(name).dir];
-    }
-    void set_character_property(std::string name, std::string property, int value)
-    {
-        characters[name].property[property] = value;
+        obj->animations[aniName] = std::move(animation);
+        obj->animations[aniName].image = images[imgName];
     }
 
     // object-collection getter:
-    std::map<std::string, Character> &get_chars() { return characters; }
-    Character &get_char(std::string name) { return characters.at(name); }
     std::vector<Block *> &get_collisionObjects() { return collisionObjects; }
     std::vector<Object *> &get_damagableObjects() { return damagableObjects; }
 
@@ -102,6 +61,8 @@ public:
 
     button bScreen;
 
+    Object_manager<Character> characters;
+    Object_manager<Character> grenades;
 private:
     std::unique_ptr<Map_wrapper> curMap;
     std::vector<Block *> collisionObjects;
@@ -109,7 +70,6 @@ private:
 
     std::map<std::string, std::shared_ptr<IMG_wrapper>> images;
 
-    std::map<std::string, Character> characters;
 };
 
 #endif

@@ -61,6 +61,7 @@ if (STATIC_BUILD)
         set(CMAKE_EXE_LINKER_FLAGS "-static")
         set(CMAKE_FIND_LIBRARY_SUFFIXES ".a" CONFIG)
         set(BUILD_SHARED_LIBS OFF)
+        message(STATUS "making static build")
 endif()
 
 message(platform ${PLT})
@@ -68,7 +69,8 @@ find_package(PkgConfig REQUIRED)
 set( ENV{PKG_CONFIG_PATH} "${CMAKE_SOURCE_DIR}/SDL/${PLT}/SDL2/lib/pkgconfig" )
 set( ENV{PKG_CONFIG_PATH} "$ENV{PKG_CONFIG_PATH}:${CMAKE_SOURCE_DIR}/SDL/${PLT}/SDL2_image/lib/pkgconfig" )
 set( ENV{PKG_CONFIG_PATH} "$ENV{PKG_CONFIG_PATH}:${CMAKE_SOURCE_DIR}/SDL/${PLT}/SDL2_ttf/lib/pkgconfig" )
-pkg_check_modules(SDL2 REQUIRED IMPORTED_TARGET sdl2 SDL2_ttf SDL2_image)
+set( ENV{PKG_CONFIG_PATH} "$ENV{PKG_CONFIG_PATH}:${CMAKE_SOURCE_DIR}/SDL/${PLT}/SDL2_gfx/lib/pkgconfig" )
+pkg_check_modules(SDL2 REQUIRED IMPORTED_TARGET sdl2 SDL2_ttf SDL2_image SDL2_gfx)
 
 
 include(CMakePrintHelpers)

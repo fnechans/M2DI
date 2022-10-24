@@ -17,35 +17,42 @@
 class Dmgr_instance
 {
 public:
-    Dmgr_instance(Damager *_melee) { dmgr = _melee; }
-    Dmgr_instance(const Dmgr_instance &m) { dmgr = m.dmgr; }
+    Dmgr_instance(Damager *_melee)
+    {
+        dmgr = _melee;
+        if(dmgr->delay) delay_clock.start();
+    }
+    Dmgr_instance(const Dmgr_instance &m)
+    {
+        dmgr = m.dmgr;
+        if(dmgr->delay) delay_clock.start();
+    }
 
     bool check_cooldown(bool restart=true)
     {
-        if (clock.isStarted && clock.getTicks() < dmgr->cooldown * 1000)
+        if (delay_clock.isStarted && delay_clock.getTicks() < dmgr->delay * 1000)
+            return false;
+        delay_clock.stop();
+        if (cd_clock.isStarted && cd_clock.getTicks() < dmgr->cooldown * 1000)
             return false;
         else if(restart)
-            clock.restart();
+            cd_clock.restart();
         return true;
     }
     // e.g. for display of cooldown
     float get_cooldown_fraction()
     {
-        if (clock.isStarted && clock.getTicks() < dmgr->cooldown*1000)
-            return clock.getTicks()/(dmgr->cooldown*1000);
+        if (cd_clock.isStarted && cd_clock.getTicks() < dmgr->cooldown*1000)
+            return cd_clock.getTicks()/(dmgr->cooldown*1000);
         return 1;
     }
 
     Damager *dmgr;
     bool doAtack = false;
 protected:
-    timer clock;
+    Timer cd_clock;
+    Timer delay_clock;
 };
 
-//class  : public Dmgr_instance
-//{
-//public:
-//    Melee(Damager *_melee) : Dmgr_instance(_melee) {}
-//    Melee(const Dmgr_instance &m) : Dmgr_instance(m) {}
-//};
+
 #endif // MELEE_H

@@ -10,6 +10,7 @@
 #include <algorithm>
 #include <map>
 #include <cmath>
+#include <SDL2_gfxPrimitives.h>
 
 typedef unsigned int uint;
 
@@ -90,12 +91,29 @@ namespace tools
                       objects.end());
     }
 
+
+    // For now <string,T>, generalize? Not needed right now...
+    template <typename T>
+    void remove_dead_map(std::map<std::string, T*> &objects)
+    {
+        erase_if(objects, [](auto &item)
+                 { return item.second->dead; });
+    }
+
     // For now <string,T>, generalize? Not needed right now...
     template <typename T>
     void remove_dead_map(std::map<std::string, T> &objects)
     {
         erase_if(objects, [](auto &item)
                  { return item.second.dead; });
+    }
+
+    // For now <string,T>, generalize? Not needed right now...
+    template <typename T>
+    void remove_dead_map_ptr(std::map<std::string, T> &objects)
+    {
+        erase_if(objects, [](auto &item)
+                 { return item.second->dead; });
     }
 
     template <typename ContainerT, typename PredicateT>

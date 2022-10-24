@@ -36,10 +36,11 @@ public:
         SDL_SetRenderDrawColor(sdlRenderer, color.r, color.g, color.b, color.a);
         SDL_RenderFillRect(sdlRenderer, rect);
     }
-    void drawColorLine(const SDL_Rect& start, const SDL_Rect& end, const SDL_Color &color)
+    void drawColorLine(const SDL_Rect& start, const SDL_Rect& end, const SDL_Color &color, uint width=1)
     {
         SDL_SetRenderDrawColor(sdlRenderer, color.r, color.g, color.b, color.a);
-        SDL_RenderDrawLine(sdlRenderer, start.x, start.y, end.x, end.y);
+        //SDL_RenderDrawLine(sdlRenderer, start.x, start.y, end.x, end.y);
+        thickLineRGBA(sdlRenderer, start.x, start.y, end.x, end.y, width, color.r, color.g, color.b, color.a);
     }
     bool isInit = false;
 

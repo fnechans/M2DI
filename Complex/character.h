@@ -9,9 +9,11 @@ class Dmgr_instance;
 class Character : public Object
 {
 public:
-    Character(uint x = mWidth / 2, uint y = mHeight / 2);
-
-
+    using Object::Object;
+    Character(const Character& other) : Object(other)
+    {
+        dmgr_insts = other.dmgr_insts;
+    }
     ////////////
     // DAMAGE //
     ////////////

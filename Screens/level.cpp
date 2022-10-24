@@ -8,11 +8,12 @@ void Level::bake()
 {
     collisionObjects.clear();
     damagableObjects.clear();
-    for (auto &c : characters)
+    for (auto obj : characters)
     {
-        collisionObjects.push_back(&c.second);
-        damagableObjects.push_back(&c.second);
+        collisionObjects.push_back(obj);
+        damagableObjects.push_back(obj);
     }
+
     for (auto &t : curMap->blocks)
     {
         collisionObjects.push_back(&t);
@@ -21,7 +22,8 @@ void Level::bake()
 
 void Level::reset()
 {
-    tools::remove_dead_map<Character>(characters);
+    characters.clean();
+    grenades.clean();
     bake();
 }
 
@@ -48,11 +50,13 @@ void Level::move_chars()
 {
     if (pause)
         return;
-
-    for (auto &cIt : characters)
+    for(auto obj : characters)
     {
-        Character *chr = &cIt.second;
-        chr->move(collisionObjects);
+        obj->move(collisionObjects);
+    }
+    for(auto obj : grenades)
+    {
+        obj->move(collisionObjects);
     }
 }
 
@@ -66,18 +70,25 @@ void Level::plot()
     // to plotable as objects printed on top of the map
     // In future other objects will be added here as well
     std::vector<Object *> plotable;
-    for (auto &cIt : characters)
+    for (auto obj : characters)
     {
-        Character *chr = &cIt.second;
-        chr->plot_path(*window,&screenRect);
-        plotable.push_back(chr);
+        if (obj->doPlotPath)
+            obj->plot_path(*window, &screenRect);
     }
+    plotable.insert(plotable.end(), characters.get_obj().begin(), characters.get_obj().end());
+    plotable.insert(plotable.end(), grenades.get_obj().begin(), grenades.get_obj().end());
 
     // plot objects from to bottom (overlap!)
+    // TODO: is this the best way? feels slow - maybe check for nearby?
     std::sort(plotable.begin(), plotable.end(),
-              [](Object* a, Object* b){return a->position().y < b->position().y;}
+              [](Object* a, Object* b){
+        return a->position().y < b->position().y;}
     );
-    for(auto& obj : plotable) obj->plot_animation(*window, &screenRect, pause);
+    for(auto& obj : plotable)
+    {
+        if(obj->get_current_animation_name()!="") obj->plot_animation(*window, &screenRect, pause);
+        else obj->plot(*window, &screenRect);
+    }
 
     curMap->render_minimap(*window, collisionObjects);
 }

@@ -49,9 +49,10 @@ public:
 
     float lifesteal = 0; // character gains fraction of damage dealt as health
     float cooldown = 1;   //time before next attack
+    float delay = 0;   //time before next attack
     uint damage; // damage done to target
     uint hits; //how many targets hit per attack, useful for e.g. lifesteal
-    uint knockback = 0;  // target gains velocity in direction from origin
+    float knockback = 0;  // target gains velocity in direction from origin
 private:
 };
 

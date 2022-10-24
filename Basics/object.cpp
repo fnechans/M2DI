@@ -2,21 +2,14 @@
 
 const char *const Object::dirName[4] = {"UP", "DOWN", "LEFT", "RIGHT"};
 
-Object::Object(uint x, uint y) : Block(x, y)
+Object::Object(const Object& other) : Block(other)
 {
-    extVelX = 0;
-    extVelY = 0;
-    frictionX = 4;
-    frictionY = 4;
-
-    intrVelX = 0;
-    intrVelY = 0;
-
-    dir = DOWN;
-    speedX = 4;
-    speedY = 4;
-
-    moved = false;
+    moveType = other.moveType;
+    speedX = other.speedX;
+    speedY = other.speedY;
+    bounceFactor = other.bounceFactor;
+    doPlotPath = other.doPlotPath;
+    target = other.target;
 }
 
 void Object::set_health(uint value)
@@ -27,14 +20,20 @@ void Object::set_health(uint value)
 
 void Object::modify_health(int value)
 {
-    if(property.count("health") == 0) return; // skip if object does not have health
+    if(property.count("health") == 0)
+    {
+        std::cout << "Attemping to modify health but non health propery\n";
+        return; // skip if object does not have health
+    }
     property["health"] += value;
     if (property["health"] > property["max_health"])
         property["health"] = property["max_health"];
     if (property["health"] < 0)
         property["health"] = 0;
     if (property["health"] == 0)
+    {
         dead = true;
+    }
 }
 
 void Object::move_left()
@@ -101,7 +100,7 @@ void Object::follow_path(std::vector<Block *> &collObjects)
         if (dirY > 0) move_down();
         else if (dirY < 0) move_up(collObjects);
 
-        if (std::abs(hitbox.x - path.back()->hitbox.x) <= TILESIZEPHYSICS && std::abs(hitbox.y - path.back()->hitbox.y) <= TILESIZEPHYSICS && path.size() > 1)
+        if ((uint) std::abs(hitbox.x - path.back()->hitbox.x) <= TILESIZEPHYSICS && (uint) std::abs(hitbox.y - path.back()->hitbox.y) <= TILESIZEPHYSICS && path.size() > 1)
             path.pop_back();
     }
 }
@@ -123,12 +122,13 @@ void Object::move(std::vector<Block *> &collObjects)
 {
     // TODO: this whole thing needs to be done better,
     // but not sure how right now
-    tools::reduce_to_zero<float>(extVelX, frictionX);
-    tools::reduce_to_zero<float>(extVelY, frictionY);
-    int dX = (extVelX + intrVelX)*TILESIZEPHYSICS*DELTA_T;
-    int dY = (extVelY + intrVelY)*TILESIZEPHYSICS*DELTA_T;
+    tools::reduce_to_zero<float>(extVelX, frictionX/TICKS_PER_SECOND);
+    tools::reduce_to_zero<float>(extVelY, frictionY/TICKS_PER_SECOND);
+    int dX0 = (extVelX + intrVelX)*TILESIZEPHYSICS*DELTA_T;
+    int dY0 = (extVelY + intrVelY)*TILESIZEPHYSICS*DELTA_T;
 
     moved = false;
+    bounced = false;
     if (intrVelX > 0)
         dir = RIGHT;
     else if (intrVelX < 0)
@@ -137,70 +137,104 @@ void Object::move(std::vector<Block *> &collObjects)
         dir = DOWN;
     else if (intrVelY < 0)
         dir = UP;
-    if (dX == 0 && dY == 0)
-        return;
 
-    SDL_Rect newPosition = hitbox;
+    int dX = dX0;
+    int dY = dY0;
     while (dX || dY)
     {
-        newPosition = hitbox;
+        // First check if we can move full distance
+        SDL_Rect newPosition = hitbox;
         newPosition.x += dX;
         newPosition.y += dY;
-
         if (!does_collide(newPosition, collObjects))
         {
             hitbox = newPosition;
-            moved = true;
+            moved = intrVelX || intrVelY;
             return;
         }
 
-        tools::reduce_to_zero<int>(dX, 1);
-        tools::reduce_to_zero<int>(dY, 1);
-    }
-
-    dX = (extVelX + intrVelX)*TILESIZEPHYSICS*DELTA_T;
-    dY = (extVelY + intrVelY)*TILESIZEPHYSICS*DELTA_T;
-
-    while (dX)
-    {
-        newPosition = hitbox;
-        newPosition.x += dX;
-
-        if (!does_collide(newPosition, collObjects))
+        // Can we move by reducing distance in one direction?
+        int dX2 = dX;
+        int dY2 = dY;
+        bool successX = false;
+        bool successY = false;
+        while (dX2)
         {
-            hitbox = newPosition;
-            moved = true;
-            return;
+            tools::reduce_to_zero<int>(dX2, 1);
+            newPosition = hitbox;
+            newPosition.x += dX2;
+            newPosition.y += dY;
+
+            if (!does_collide(newPosition, collObjects))
+            {
+                successX = true;
+                break;
+            }
         }
-        else set_vel0_x();
 
-        tools::reduce_to_zero<int>(dX, 1);
-    }
-
-    dX = (extVelX + intrVelX)*TILESIZEPHYSICS*DELTA_T;
-    dY = (extVelY + intrVelY)*TILESIZEPHYSICS*DELTA_T;
-
-    while (dY)
-    {
-        newPosition = hitbox;
-        newPosition.y += dY;
-
-        if (!does_collide(newPosition, collObjects))
+        while (dY2)
         {
-            hitbox = newPosition;
-            moved = true;
+            tools::reduce_to_zero<int>(dY2, 1);
+            newPosition = hitbox;
+            newPosition.x += dX;
+            newPosition.y += dY2;
+
+            if (!does_collide(newPosition, collObjects))
+            {
+                successY = true;
+                break;
+            }
+        }
+        // If neither succeeded, reduce both original coor. by one
+        // and repeat
+        if(!successX && !successY)
+        {
+            tools::reduce_to_zero<int>(dX, 1);
+            tools::reduce_to_zero<int>(dY, 1);
+        }
+
+        // Choose version which changes the movement the least
+        // or the one that succeeded
+        // and perform bounce in the direction of the reduction
+        // (bounce of an obstacle)
+        if (successY && (!successX || std::abs(dY2 - dY) < std::abs(dX2 - dX)))
+        {
+            hitbox.x += dX;
+            hitbox.y += dY2;
+            moved = intrVelX || intrVelY;
+            bounced = true;
+            extVelX = bounceFactor * extVelX;
+            extVelY = -bounceFactor * extVelY;
             return;
         }
-        else set_vel0_y();
-
-        tools::reduce_to_zero<int>(dY, 1);
+        if (successX && (!successY || std::abs(dY2 - dY) >= std::abs(dX2 - dX)))
+        {
+            hitbox.x += dX2;
+            hitbox.y += dY;
+            moved = intrVelX || intrVelY;
+            bounced = true;
+            extVelX = -bounceFactor * extVelX;
+            extVelY = bounceFactor * extVelY;
+            return;
+        }
     }
 
+    // If nothing succeeded, it probably means object is stuck
+    // in another object. This can happen in interaction between
+    // two moving objects where one does not collide with the other
+    // (e.g. grenade with char, where we dont want granades to
+    // obstruct chars but want them to bounce of chars)
+    // For now, kill their velocity, but in future might be better
+    // to kick them away? Would be complicated but doesCollide
+    // could in theory return pointer, then one could just
+    // move away from CMS with appropriate extVel?
+    extVelX = 0;
+    extVelY = 0;
 }
 
 bool Object::does_collide(SDL_Rect &pos, std::vector<Block *> &collObjects)
 {
-    if (pos.x < 0 || pos.y < 0 || pos.x > (int) mWidth - pos.w || pos.y > (int) mHeight - pos.h)
+    if (pos.x < 0 || pos.y < 0 || pos.x > (int)mWidth - pos.w || pos.y > (int)mHeight - pos.h)
         return true;
 
     for (auto obj : collObjects)
@@ -215,12 +249,28 @@ bool Object::does_collide(SDL_Rect &pos, std::vector<Block *> &collObjects)
 
 bool Object::next_to(SDL_Rect pos, direction dir, std::vector<Block *> &collObjects)
 {
-    switch(dir)
+    switch (dir)
     {
-        case UP: pos.y -= 1; break;
-        case DOWN: pos.y += 1; break;
-        case LEFT: pos.x -= 1; break;
-        case RIGHT: pos.x += 1; break;
+    case UP:
+        pos.y -= 1;
+        break;
+    case DOWN:
+        pos.y += 1;
+        break;
+    case LEFT:
+        pos.x -= 1;
+        break;
+    case RIGHT:
+        pos.x += 1;
+        break;
     }
     return does_collide(pos, collObjects);
+}
+
+void Object::kick(const SDL_Rect &origin, float multiplier)
+{
+    double dirX = position().x - origin.x;
+    double dirY = position().y - origin.y;
+    extVelX += multiplier * dirX / sqrt(dirX * dirX + dirY * dirY);
+    extVelY += multiplier * dirY / sqrt(dirX * dirX + dirY * dirY);
 }

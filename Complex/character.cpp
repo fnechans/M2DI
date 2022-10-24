@@ -1,8 +1,5 @@
 #include "character.h"
 
-Character::Character(uint x, uint y) : Object(x, y)
-{
-}
 
 bool Character::evaluate_attack(const std::string& name, std::vector<Object*>& targets)
 {

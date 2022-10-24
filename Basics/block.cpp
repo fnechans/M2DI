@@ -14,6 +14,23 @@ Block::Block(uint x, uint y)
     mapColor = {0, 0, 0, 0};
 }
 
+Block::Block(const Block& other)
+{
+    hitbox.x = other.hitbox.x;
+    hitbox.y = other.hitbox.y;
+    // DEFAULT hitbox based on tilesize, can be changed
+    hitbox.w = other.hitbox.w;
+    hitbox.h = other.hitbox.h;
+
+    mapColor = other.mapColor;
+
+    clip = other.clip;
+    image = other.image;
+    copy_animation(other);
+    curAnimation = other.curAnimation;
+
+}
+
 bool Block::on_screen(SDL_Rect *screen)
 {
     if( !(hitbox.x * scaleRender < screen->x - (int) TILESIZERENDER
@@ -36,7 +53,9 @@ void Block::plot(Window &window, SDL_Rect *screen)
             return;
     }
 
-    SDL_Rect renderRect = {positionScreen.x - (int) TILESIZERENDER/2, positionScreen.y - (int) TILESIZERENDER/2, (int) TILESIZERENDER, (int) TILESIZERENDER};
+    int width = hitbox.w*base::scaleRender;
+    int height = hitbox.h*base::scaleRender;
+    SDL_Rect renderRect = {positionScreen.x - (int) width/2, positionScreen.y - (int) height/2, (int) width, (int) height};
     // image->set_color(255,0,0);
     image->render_image(window, &renderRect, &clip);
 }

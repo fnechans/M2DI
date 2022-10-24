@@ -37,7 +37,7 @@ public:
         //level->get_map().load_blocks("data/startBlock2.map", 16, 16);
 
         // character to only move around
-        player = level->add_character("player", 0, 0);
+        player = level->characters.add("player", 0., 0.);
 
         menu = &add_menu(Menu::RIGHT, {0, 0, width, 0});
         int buttonW = base::TILESIZEINPUT * 4;
@@ -85,7 +85,6 @@ public:
 
     void user_evaluate()
     {
-        player = &level->get_char("player");
         if (event.type == SDL_KEYDOWN && event.key.repeat == 0)
         {
             switch (event.key.keysym.sym)

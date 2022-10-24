@@ -1,6 +1,6 @@
 #include "timer.h"
 
-timer::timer()
+Timer::Timer()
 {
     startTicks = 0;
     pauseTicks = 0;
@@ -9,7 +9,7 @@ timer::timer()
     isPaused = false;
 }
 
-void timer::start()
+void Timer::start()
 {
     startTicks = SDL_GetTicks();
     pauseTicks = 0;
@@ -18,7 +18,7 @@ void timer::start()
     isPaused = false;
 }
 
-void timer::stop()
+void Timer::stop()
 {
     startTicks = 0;
     pauseTicks = 0;
@@ -27,7 +27,7 @@ void timer::stop()
     isPaused = false;
 }
 
-void timer::pause()
+void Timer::pause()
 {
     if (isStarted && !isPaused)
     {
@@ -37,7 +37,7 @@ void timer::pause()
     }
 }
 
-void timer::unpause()
+void Timer::unpause()
 {
     if (isStarted && isPaused)
     {
@@ -47,7 +47,7 @@ void timer::unpause()
     }
 }
 
-Uint32 timer::getTicks()
+Uint32 Timer::getTicks()
 {
     Uint32 time = 0;
 

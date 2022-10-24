@@ -12,6 +12,9 @@ class Block : public base
 {
 public:
     Block(uint x = mWidth / 2, uint y = mHeight / 2);
+    Block(Block& other);
+    Block(const Block& other);
+    Block(Block&&) = default;
     ~Block() {}
 
     SDL_Color mapColor;

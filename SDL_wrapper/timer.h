@@ -3,10 +3,10 @@
 
 #include "base.h"
 
-class timer : public base
+class Timer : public base
 {
 public:
-    timer();
+    Timer();
 
     void start();
     void stop();
