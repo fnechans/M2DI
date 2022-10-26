@@ -9,6 +9,7 @@
 #include "button.h"
 #include "character.h"
 #include "object_manager.h"
+#include "vision_cone.h"
 
 #include <utility>
 

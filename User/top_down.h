@@ -32,7 +32,6 @@ public:
     std::map<std::string, SDL_Rect> animPoss;
     std::map<std::string, Dmgr_instance> dmgr_insts;
 
-
     void user_init()
     {
         level = &add_level();
@@ -278,6 +277,7 @@ public:
             }
         }
 
+
         level->get_map().screen_position(level->screenRect, level->viewPort, *player);
     }
 
@@ -325,6 +325,19 @@ public:
                 );
             }
         }
+
+        VisionCone cone(
+            {level->screenRect.x/base::scaleRender, level->screenRect.y/base::scaleRender,
+             level->screenRect.w/base::scaleRender, level->screenRect.h/base::scaleRender}
+        );
+        cone.set_cone(player->position(), base::fromScreen(&level->screenRect, level->mousePositionScreen), 30);
+        auto points = cone.get_points(player, level->get_collisionObjects());
+        for(auto& point : points)
+                window->drawColorLine(
+                    player->positionScreen,
+                    base::toScreen(&level->screenRect, point),
+                    {0,150, 150, 150}, 10
+                );
     }
 
     void custom_process(Character *object, std::string dir, bool isRealChar = true)

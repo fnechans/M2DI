@@ -29,6 +29,7 @@ void Level::reset()
 
 bool Level::evaluate(SDL_Event &event)
 {
+    set_viewPort();
     bScreen.screenPos = viewPort;
 
     auto state = bScreen.evaluate(event, {0, 0, 0, 0});

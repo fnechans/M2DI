@@ -4,11 +4,18 @@
 bool HitScanDamager::evaluate_target(Object *target)
 {
     const SDL_Rect& hb = target->hitbox;
-    bool hasIntersect =
-        tools::line_intersect(origin, endpoint, {hb.x, hb.y, 0,0}, {hb.x+hb.w, hb.y, 0,0})
-        || tools::line_intersect(origin, endpoint, {hb.x, hb.y, 0,0}, {hb.x, hb.y+hb.h, 0,0})
-        || tools::line_intersect(origin, endpoint, {hb.x+hb.w, hb.y+hb.h, 0,0}, {hb.x+hb.w, hb.y, 0,0})
-        || tools::line_intersect(origin, endpoint, {hb.x+hb.w, hb.y+hb.h, 0,0}, {hb.x, hb.y+hb.h, 0,0});
+    auto targetLines = tools::get_lines(hb);
+    MLine bullet{origin, endpoint};
+
+    bool hasIntersect = false;
+    for(auto& line : targetLines)
+    {
+        if(bullet.intersects(line))
+        {
+            hasIntersect = true;
+            break;
+        }
+    }
 
     if(hasIntersect)
     {

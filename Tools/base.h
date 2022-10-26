@@ -12,6 +12,8 @@
 #include <cmath>
 #include <SDL2_gfxPrimitives.h>
 
+#include "tools.h"
+
 typedef unsigned int uint;
 
 class base
@@ -56,95 +58,5 @@ public:
         return position;
     }
 };
-
-namespace tools
-{
-    bool key_down(SDL_Event &e, SDL_Keycode keycode);
-    bool key_up(SDL_Event &e, SDL_Keycode keycode);
-    bool point_within_rect(int x, int y, SDL_Rect rect);
-    SDL_Rect get_endpoint(const SDL_Rect& origin, const SDL_Rect &direction, int range);
-    bool line_intersect(const SDL_Rect &X1, const SDL_Rect &X2,
-                        const SDL_Rect &Y1, const SDL_Rect &Y2);
-
-    inline bool contains(const std::string& str, const std::string& str2 )
-    {
-        return (str.find(str2)!=std::string::npos);
-    }
-
-    // cleaup up functions, currently for "dead" chars
-    // could be generalized in future if needed
-    template <typename T>
-    void remove_dead_vector(std::vector<T *> &objects)
-    {
-        objects.erase(std::remove_if(objects.begin(), objects.end(),
-                                     [](T *&o)
-                                     { return o->dead; }),
-                      objects.end());
-    }
-
-    template <typename T>
-    void remove_dead_vector(std::vector<T> &objects)
-    {
-        objects.erase(std::remove_if(objects.begin(), objects.end(),
-                                     [](T &o)
-                                     { return o.dead; }),
-                      objects.end());
-    }
-
-
-    // For now <string,T>, generalize? Not needed right now...
-    template <typename T>
-    void remove_dead_map(std::map<std::string, T*> &objects)
-    {
-        erase_if(objects, [](auto &item)
-                 { return item.second->dead; });
-    }
-
-    // For now <string,T>, generalize? Not needed right now...
-    template <typename T>
-    void remove_dead_map(std::map<std::string, T> &objects)
-    {
-        erase_if(objects, [](auto &item)
-                 { return item.second.dead; });
-    }
-
-    // For now <string,T>, generalize? Not needed right now...
-    template <typename T>
-    void remove_dead_map_ptr(std::map<std::string, T> &objects)
-    {
-        erase_if(objects, [](auto &item)
-                 { return item.second->dead; });
-    }
-
-    template <typename ContainerT, typename PredicateT>
-    void erase_if(ContainerT &items, const PredicateT &predicate)
-    {
-        for (auto it = items.begin(); it != items.end();)
-        {
-            if (predicate(*it))
-                it = items.erase(it);
-            else
-                ++it;
-        }
-    }
-
-    template <typename T>
-    void reduce_to_zero(T &value, const T &reducer)
-    {
-        if (value > 0)
-        {
-            value -= reducer;
-            if (value < 0)
-                value = 0;
-        }
-        if (value < 0)
-        {
-            value += reducer;
-            if (value > 0)
-                value = 0;
-        }
-    }
-}
-
 
 #endif
