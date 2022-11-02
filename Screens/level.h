@@ -27,6 +27,7 @@ public:
     bool screenClick = false;
     SDL_Rect mousePositionScreen;
     void move_chars();
+    void plot_map();
     void plot();
 
     void set_map(SDL_Rect border = {0, 0, TILESIZEINPUT * 12, 0})

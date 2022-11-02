@@ -27,6 +27,7 @@ public:
     // local coor. vard
     SDL_Rect positionScreen;
 
+    bool doPlot{true};
     std::shared_ptr<IMG_wrapper> image;
     bool set_image(Window &window, std::string imagePath);
     void plot(Window &wrapper, SDL_Rect *screen = nullptr);
@@ -43,6 +44,7 @@ public:
 
 private:
     std::string curAnimation = "";
+
 };
 
 

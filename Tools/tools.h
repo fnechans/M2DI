@@ -30,6 +30,10 @@ public:
 
 namespace tools
 {
+    inline void print_rect(const SDL_Rect& rect){ std::cout << rect.x << ", " << rect.y << ", " << rect.w << ", " << rect.h << "\n"; }
+
+    inline bool point_equal(const SDL_Rect& rect, const SDL_Rect& rect2){return rect.x==rect2.x && rect.y==rect2.y;}
+
     bool key_down(SDL_Event &e, SDL_Keycode keycode);
     bool key_up(SDL_Event &e, SDL_Keycode keycode);
     bool point_within_rect(int x, int y, SDL_Rect rect);
@@ -39,6 +43,12 @@ namespace tools
     inline float distance2(const SDL_Rect& rect, const SDL_Rect& rect2)
     { return (rect.x-rect2.x)*(rect.x-rect2.x) + (rect.y-rect2.y)*(rect.y-rect2.y);}
     bool line_intersect(const MLine& l1, const MLine& l2, SDL_Rect* intersection = nullptr);
+
+    template <typename T>
+    inline bool contains(std::vector<T> vec, T val)
+    {
+        return std::find(vec.begin(), vec.end(), val) != vec.end();
+    }
 
     inline bool contains(const std::string& str, const std::string& str2 )
     {

@@ -28,6 +28,8 @@ screen_ptr screen::loop()
     if (!isInit)
         init();
 
+    std::cout << "Starting new loop\n";
+
     // Ticks to ms conversion, round give closest integer
     Uint32 game_step_ms = std::round(1000. / base::TICKS_PER_SECOND);
     Uint32 render_step_ms = std::round(1000. / base::FRAMES_PER_SECOND);
@@ -36,6 +38,9 @@ screen_ptr screen::loop()
     uint nRender = 0;
     uint nEval = 0;
     Uint32 fps_step = next_game_step;
+
+    //tmp
+    bool firstEvent = true; // force evaluate on first event
 
     while (!quit)
     {
@@ -47,7 +52,7 @@ screen_ptr screen::loop()
             int computer_is_too_slow_limit = 100; // max number of advances per render, adjust this according to your minimum playable fps
 
             // Loop until all steps are executed or computer_is_too_slow_limit is reached
-            while ((next_game_step <= now) && (computer_is_too_slow_limit--))
+            while (firstEvent || ((next_game_step <= now) && (computer_is_too_slow_limit--)))
             {
 
                 nEval++;
@@ -65,6 +70,8 @@ screen_ptr screen::loop()
                 user_update();
 
                 next_game_step += game_step_ms; // count 1 game tick done
+
+                firstEvent = false;
             }
 
             next_render_step += render_step_ms; // count 1 render frame done
@@ -83,12 +90,17 @@ screen_ptr screen::loop()
             window->clear();
 
             for (auto &l : levels)
-                l.plot();
-            for (auto &m : menus)
-                m.plot();
+                l.plot_map();
 
             user_plot();
+
+            for (auto &l : levels)
+                 l.plot();
+            for (auto &m : menus)
+                m.plot();
             window->render();
+
+            user_finish();
         }
         else
         {
@@ -99,6 +111,7 @@ screen_ptr screen::loop()
             }
         }
     }
+
 
     return user_nextScreen();
 }

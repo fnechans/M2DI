@@ -61,10 +61,15 @@ void Level::move_chars()
     }
 }
 
-void Level::plot()
+void Level::plot_map()
 {
     set_viewPort();
     curMap->render_map(*window, screenRect);
+}
+
+void Level::plot()
+{
+    set_viewPort();
     // TODO: are all collision objects needed here?
 
     // First plot paths and add characters
@@ -87,6 +92,8 @@ void Level::plot()
     );
     for(auto& obj : plotable)
     {
+        if(!obj->doPlot) continue;
+
         if(obj->get_current_animation_name()!="") obj->plot_animation(*window, &screenRect, pause);
         else obj->plot(*window, &screenRect);
     }

@@ -25,6 +25,7 @@ public:
     virtual void user_evaluate() {}
     virtual void user_update() {}
     virtual void user_plot() {}
+    virtual void user_finish() {}
     virtual screen_ptr user_nextScreen() { return nullptr; }
 
     template <typename T>

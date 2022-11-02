@@ -31,9 +31,13 @@ public:
     std::map<std::string, Animation> anims;
     std::map<std::string, SDL_Rect> animPoss;
     std::map<std::string, Dmgr_instance> dmgr_insts;
+    SDL_Texture* light, *shadow;
 
     void user_init()
     {
+        light = SDL_CreateTexture(window->sdlRenderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_TARGET, window->sWidth, window->sHeight);
+        shadow = SDL_CreateTexture(window->sdlRenderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_TARGET, window->sWidth, window->sHeight);
+
         level = &add_level();
 
         level->set_map({0, 0, 0, 0});
@@ -261,6 +265,14 @@ public:
             // Process attack and animation
             for (auto chr : level->characters)
             {
+                if(chr==player)
+                {
+                    if(player->position().x< base::fromScreen(&level->screenRect, level->mousePositionScreen).x)
+                        player->dir = player->RIGHT;
+                    else
+                        player->dir = player->LEFT;
+                }
+
                 const std::string& dir = chr->dir_name();
                 custom_process(chr, dir);
             }
@@ -277,19 +289,12 @@ public:
             }
         }
 
-
+        level->set_viewPort();
         level->get_map().screen_position(level->screenRect, level->viewPort, *player);
     }
 
     void user_plot()
     {
-        // Render within the menu:
-        menu->set_viewPort();
-        textHealth.str("");
-        textHealth << "Health: " << player->property["health"];
-        if (!playerHealth.load_text(*window, textHealth.str(), {255, 100, 100, 255}, 32, base::TILESIZEINPUT * 12))
-            return;
-        playerHealth.render_image(*window, 0, base::TILESIZEINPUT * 4);
 
         level->set_viewPort();
         if(showFPS)
@@ -326,18 +331,70 @@ public:
             }
         }
 
-        VisionCone cone(
-            {level->screenRect.x/base::scaleRender, level->screenRect.y/base::scaleRender,
-             level->screenRect.w/base::scaleRender, level->screenRect.h/base::scaleRender}
+        VisionCone full(
+            {(int) (level->screenRect.x/base::scaleRender), (int) (level->screenRect.y/base::scaleRender),
+             (int) (level->screenRect.w/base::scaleRender), (int) (level->screenRect.h/base::scaleRender)}
         );
+
+        auto pointsFull = full.get_points(player, level->get_collisionObjects());
+
+        VisionCone cone(
+            {(int) (level->screenRect.x/base::scaleRender), (int) (level->screenRect.y/base::scaleRender),
+             (int) (level->screenRect.w/base::scaleRender), (int) (level->screenRect.h/base::scaleRender)}
+        );
+
         cone.set_cone(player->position(), base::fromScreen(&level->screenRect, level->mousePositionScreen), 30);
-        auto points = cone.get_points(player, level->get_collisionObjects());
-        for(auto& point : points)
-                window->drawColorLine(
-                    player->positionScreen,
-                    base::toScreen(&level->screenRect, point),
-                    {0,150, 150, 150}, 10
-                );
+        auto pointsCone = cone.get_points(player, level->get_collisionObjects());
+
+        light = SDL_CreateTexture(window->sdlRenderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_TARGET, window->sWidth, window->sHeight);
+        shadow = SDL_CreateTexture(window->sdlRenderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_TARGET, window->sWidth, window->sHeight);
+        SDL_SetRenderTarget(window->sdlRenderer, light);
+        SDL_RenderClear(window->sdlRenderer);
+        //SDL_SetRenderDrawColor(window->sdlRenderer, 0, 0, 0, 255);
+        //SDL_RenderFillRect(window->sdlRenderer, nullptr);
+        SDL_SetTextureBlendMode(light, SDL_BLENDMODE_ADD);
+        for(uint it = 0; it+1< pointsFull.size(); it++)
+        {
+            auto p1 = base::toScreen(&level->screenRect, pointsFull[it]);
+            auto p2 = base::toScreen(&level->screenRect, pointsFull[it+1]);
+            window->drawColorTriangle(
+                player->positionScreen, p1, p2,
+                {20, 20, 20, 255}
+            );
+        }
+        for(uint it = 0; it+1< pointsCone.size(); it++)
+        {
+            auto p1 = base::toScreen(&level->screenRect, pointsCone[it]);
+            auto p2 = base::toScreen(&level->screenRect, pointsCone[it+1]);
+            window->drawColorTriangle(
+                player->positionScreen, p1, p2,
+                {255, 255, 255, 255}
+            );
+
+            if(tools::distance2(p1, p2) < 17) continue;
+            window->drawColorLine(p1, p2,
+                {100, 100, 100, 255}, 2
+            );
+        }
+
+        SDL_SetRenderTarget(window->sdlRenderer, shadow);
+        SDL_RenderClear(window->sdlRenderer);
+        SDL_SetRenderDrawColor(window->sdlRenderer, 0, 0, 0, 255);
+        SDL_RenderFillRect(window->sdlRenderer, nullptr);
+        SDL_RenderCopy(window->sdlRenderer, light, nullptr, nullptr);
+        SDL_SetRenderTarget(window->sdlRenderer, nullptr);
+        SDL_SetTextureBlendMode(shadow, SDL_BLENDMODE_MOD);
+        SDL_RenderCopy(window->sdlRenderer, shadow, nullptr, &level->viewPort);
+
+        SDL_SetRenderTarget(window->sdlRenderer, nullptr);
+
+        // Render within the menu:
+        menu->set_viewPort();
+        textHealth.str("");
+        textHealth << "Health: " << player->property["health"];
+        if (!playerHealth.load_text(*window, textHealth.str(), {255, 100, 100, 255}, 32, base::TILESIZEINPUT * 12))
+            return;
+        playerHealth.render_image(*window, 0, base::TILESIZEINPUT * 4);
     }
 
     void custom_process(Character *object, std::string dir, bool isRealChar = true)
@@ -379,6 +436,12 @@ public:
         {
             if(isRealChar) object->set_animation("DEFAULT_" + dir);
         }
+    }
+
+    void user_finish()
+    {
+        SDL_DestroyTexture(light);
+        SDL_DestroyTexture(shadow);
     }
 
     virtual screen_ptr user_nextScreen();
