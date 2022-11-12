@@ -8,7 +8,7 @@
 #include "astar.h"
 #include "button.h"
 #include "character.h"
-#include "object_manager.h"
+#include "object_manager.hpp"
 #include "vision_cone.h"
 
 #include <utility>

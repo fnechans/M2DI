@@ -264,6 +264,7 @@ bool Object::next_to(SDL_Rect pos, direction dir, std::vector<Block *> &collObje
         pos.x += 1;
         break;
     }
+
     return does_collide(pos, collObjects);
 }
 

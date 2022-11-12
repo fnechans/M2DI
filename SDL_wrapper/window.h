@@ -1,7 +1,7 @@
 #ifndef SDLWINDOW_H
 #define SDLWINDOW_H
 
-#include "base.h"
+#include "../Tools/base.h"
 
 // TODO: move from class to functions and static variables
 class Window

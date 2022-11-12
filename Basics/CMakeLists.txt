@@ -1,4 +1,5 @@
 file(GLOB FILES *.cpp )
 
 add_library( basics  ${FILES}  )
-target_include_directories(basics PUBLIC ../Tools ../SDL_wrapper)
+target_link_libraries(basics PUBLIC tools wrappers)
+target_include_directories(basics PUBLIC ${CMAKE_CURRENT_LIST_DIR})

@@ -1,4 +1,5 @@
 file(GLOB FILES *.cpp )
 
 add_library( dmgers  ${FILES}  )
-target_include_directories(dmgers PUBLIC ../Tools ../Complex ../SDL_wrapper ../Basics)
+target_link_libraries(dmgers PUBLIC tools wrappers basics)
+target_include_directories(dmgers PUBLIC ${CMAKE_CURRENT_LIST_DIR})

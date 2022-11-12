@@ -1,4 +1,4 @@
-cmake_minimum_required (VERSION 2.8)
+cmake_minimum_required (VERSION 3.7)
 project (SDL_gfx)
 set (SDL_gfx_VERSION_MAJOR 3)
 set (SDL_gfx_VERSION_MINOR 0)
@@ -14,6 +14,10 @@ file(GLOB SOURCE_FILES *.c)
 file(GLOB INCLUDE_FILES *.h)
 
 add_library (SDL_gfx SHARED
+	${SOURCE_FILES}
+	${INCLUDE_FILES}
+	)
+add_library (SDL_gfx-static STATIC
 	${SOURCE_FILES}
 	${INCLUDE_FILES}
 	)

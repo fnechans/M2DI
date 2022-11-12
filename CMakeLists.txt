@@ -24,12 +24,6 @@ IF(UNIX)
 
 ENDIF(UNIX)
 
-# STATIC stuff (Windows)
-if (${CMAKE_SYSTEM_NAME} MATCHES "Windows")
-        set(BUILD_FOR_WIN TRUE)
-        SET(PLT win)
-endif()
-option(STATIC_BUILD "Build a static binary." ${BUILD_FOR_WIN})
 if (WIN32)
     MESSAGE( STATUS "Found UNIX System (including OS X and CygWin)" )
 
@@ -47,12 +41,8 @@ if (WIN32)
     SET(CMAKE_CXX_FLAGS_MINSIZEREL     "-Os -DNDEBUG ${CXX11}")
 endif()
 
-if (STATIC_BUILD)
-        set(CMAKE_EXE_LINKER_FLAGS "-static")
-        set(CMAKE_FIND_LIBRARY_SUFFIXES ".a" CONFIG)
-        set(BUILD_SHARED_LIBS OFF)
-        message(STATUS "making static build")
-endif()
+
+set(sdllibs SDL2::SDL2 SDL2_image::SDL2_image SDL2_ttf::SDL2_ttf SDL_gfx)
 
 add_subdirectory(external/SDL EXCLUDE_FROM_ALL)
 add_subdirectory(external/SDL_image EXCLUDE_FROM_ALL)
@@ -60,15 +50,18 @@ add_subdirectory(external/SDL_ttf EXCLUDE_FROM_ALL)
 add_subdirectory(external/SDL_gfx)# EXCLUDE_FROM_ALL)
 include_directories(external/SDL_gfx)
 
-add_subdirectory(SDL_wrapper)
 
 add_subdirectory(Tools)
+
+add_subdirectory(SDL_wrapper)
 
 add_subdirectory(Basics)
 
 add_subdirectory(Damage)
 
 add_subdirectory(Complex)
+
+add_subdirectory(Managers)
 
 add_subdirectory(Screens)
 include_directories(Screens)
@@ -85,11 +78,7 @@ if(TARGET SDL2::SDL2main)
 endif()
 
 target_link_libraries(SDL2Test
-    PUBLIC  wrappers tools basics complex dmgers screens
-                    SDL2::SDL2
-                    SDL2_image::SDL2_image
-                    SDL2_ttf::SDL2_ttf
-                    SDL_gfx
+    PUBLIC  screens
+                    ${sdllibs}
                     -lstdc++fs
 )
-target_compile_options(SDL2Test PUBLIC ${SDL2_CFLAGS_OTHER})
