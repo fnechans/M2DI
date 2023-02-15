@@ -11,7 +11,7 @@ class Menu : public Viewport
 {
 public:
 
-    Menu(Window *_wrapper, Position pos = RIGHT, SDL_Rect border = {0, TILESIZEINPUT * 12, TILESIZEINPUT * 12, 0});
+    Menu(Window *_wrapper, Position pos = RIGHT, SDL_Rect border = {0, base::TILESIZEINPUT * 12, base::TILESIZEINPUT * 12, 0});
     bool evaluate(SDL_Event &event); // returns true if event relevant to speed up/avoid multiple evals
     void reset();
     void plot();
@@ -50,7 +50,9 @@ public:
         {
             curButton.text = std::make_shared<IMG_wrapper>();
             // 0.9 for the last argument (width of text) to leave place for button border
-            curButton.text->load_text(*window, text, textColor, curButton.clips[0].h*scaleRenderInput, curButton.clips[0].w*scaleRenderInput*10);
+            curButton.text->load_text(*window, text, textColor, 
+                curButton.clips[0].h*base::scaleRenderInput(),
+                curButton.clips[0].w*base::scaleRenderInput()*10);
         }
     }
     bool get_state(std::string name) { return buttonState.at(name); }

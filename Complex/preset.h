@@ -10,37 +10,40 @@ namespace preset
     std::map<std::string, animation_data> animationData;
     void get_animation_data()
     {
+        // TMP! How to best propagate?
+        uint tmp_FRAMES_PER_SECOND = 60;
+
         animationData["DEFAULT_DOWN"].renderMod.x = -0.5;
         animationData["DEFAULT_DOWN"].renderMod.y = -1.25;
-        animationData["DEFAULT_DOWN"].frequency = base::FRAMES_PER_SECOND / 2;
+        animationData["DEFAULT_DOWN"].frequency = tmp_FRAMES_PER_SECOND / 2;
         animationData["DEFAULT_DOWN"].fclips = {
             {0, 0, 1, 2},
             {6, 0, 1, 2},
         };
         animationData["DEFAULT_RIGHT"].renderMod.x = -0.5;
         animationData["DEFAULT_RIGHT"].renderMod.y = -1.25;
-        animationData["DEFAULT_RIGHT"].frequency = base::FRAMES_PER_SECOND / 2;
+        animationData["DEFAULT_RIGHT"].frequency = tmp_FRAMES_PER_SECOND / 2;
         animationData["DEFAULT_RIGHT"].fclips = {
             {0, 2, 1, 2},
             {6, 2, 1, 2},
         };
         animationData["DEFAULT_UP"].renderMod.x = -0.5;
         animationData["DEFAULT_UP"].renderMod.y = -1.25;
-        animationData["DEFAULT_UP"].frequency = base::FRAMES_PER_SECOND / 2;
+        animationData["DEFAULT_UP"].frequency = tmp_FRAMES_PER_SECOND / 2;
         animationData["DEFAULT_UP"].fclips = {
             {0, 4, 1, 2},
             {6, 4, 1, 2},
         };
         animationData["DEFAULT_LEFT"].renderMod.x = -0.5;
         animationData["DEFAULT_LEFT"].renderMod.y = -1.25;
-        animationData["DEFAULT_LEFT"].frequency = base::FRAMES_PER_SECOND / 2;
+        animationData["DEFAULT_LEFT"].frequency = tmp_FRAMES_PER_SECOND / 2;
         animationData["DEFAULT_LEFT"].fclips = {
             {0, 6, 1, 2},
             {6, 6, 1, 2},
         };
         animationData["WALK_DOWN"].renderMod.x = -0.5;
         animationData["WALK_DOWN"].renderMod.y = -1.25;
-        animationData["WALK_DOWN"].frequency = base::FRAMES_PER_SECOND / 8;
+        animationData["WALK_DOWN"].frequency = tmp_FRAMES_PER_SECOND / 8;
         animationData["WALK_DOWN"].fclips = {
             {0, 0, 1, 2},
             {1, 0, 1, 2},
@@ -49,7 +52,7 @@ namespace preset
         };
         animationData["WALK_RIGHT"].renderMod.x = -0.5;
         animationData["WALK_RIGHT"].renderMod.y = -1.25;
-        animationData["WALK_RIGHT"].frequency = base::FRAMES_PER_SECOND / 8;
+        animationData["WALK_RIGHT"].frequency = tmp_FRAMES_PER_SECOND / 8;
         animationData["WALK_RIGHT"].fclips = {
             {0, 2, 1, 2},
             {1, 2, 1, 2},
@@ -58,7 +61,7 @@ namespace preset
         };
         animationData["WALK_UP"].renderMod.x = -0.5;
         animationData["WALK_UP"].renderMod.y = -1.25;
-        animationData["WALK_UP"].frequency = base::FRAMES_PER_SECOND / 8;
+        animationData["WALK_UP"].frequency = tmp_FRAMES_PER_SECOND / 8;
         animationData["WALK_UP"].fclips = {
             {0, 4, 1, 2},
             {1, 4, 1, 2},
@@ -67,7 +70,7 @@ namespace preset
         };
         animationData["WALK_LEFT"].renderMod.x = -0.5;
         animationData["WALK_LEFT"].renderMod.y = -1.25;
-        animationData["WALK_LEFT"].frequency = base::FRAMES_PER_SECOND / 8;
+        animationData["WALK_LEFT"].frequency = tmp_FRAMES_PER_SECOND / 8;
         animationData["WALK_LEFT"].fclips = {
             {0, 6, 1, 2},
             {1, 6, 1, 2},
@@ -76,7 +79,7 @@ namespace preset
         };
         animationData["ATTACK_DOWN"].renderMod.x = -1;
         animationData["ATTACK_DOWN"].renderMod.y = -1.25;
-        animationData["ATTACK_DOWN"].frequency = base::FRAMES_PER_SECOND / 8;
+        animationData["ATTACK_DOWN"].frequency = tmp_FRAMES_PER_SECOND / 8;
         animationData["ATTACK_DOWN"].repeat = false;
         animationData["ATTACK_DOWN"].fclips = {
             {0, 8, 2, 2},
@@ -86,7 +89,7 @@ namespace preset
         };
         animationData["ATTACK_RIGHT"].renderMod.x = -1;
         animationData["ATTACK_RIGHT"].renderMod.y = -1.25;
-        animationData["ATTACK_RIGHT"].frequency = base::FRAMES_PER_SECOND / 8;
+        animationData["ATTACK_RIGHT"].frequency = tmp_FRAMES_PER_SECOND / 8;
         animationData["ATTACK_RIGHT"].repeat = false;
         animationData["ATTACK_RIGHT"].fclips = {
             {0, 12, 2, 2},
@@ -96,7 +99,7 @@ namespace preset
         };
         animationData["ATTACK_UP"].renderMod.x = -1;
         animationData["ATTACK_UP"].renderMod.y = -1.25;
-        animationData["ATTACK_UP"].frequency = base::FRAMES_PER_SECOND / 8;
+        animationData["ATTACK_UP"].frequency = tmp_FRAMES_PER_SECOND / 8;
         animationData["ATTACK_UP"].repeat = false;
         animationData["ATTACK_UP"].fclips = {
             {0, 10, 2, 2},
@@ -106,7 +109,7 @@ namespace preset
         };
         animationData["ATTACK_LEFT"].renderMod.x = -1;
         animationData["ATTACK_LEFT"].renderMod.y = -1.25;
-        animationData["ATTACK_LEFT"].frequency = base::FRAMES_PER_SECOND / 8;
+        animationData["ATTACK_LEFT"].frequency = tmp_FRAMES_PER_SECOND / 8;
         animationData["ATTACK_LEFT"].repeat = false;
         animationData["ATTACK_LEFT"].fclips = {
             {0, 14, 2, 2},

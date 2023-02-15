@@ -1,10 +1,10 @@
 #include "window.h"
 
-#include <SDL2/SDL_ttf.h>
+#include <SDL_ttf.h>
 
 typedef Window SDLW;
 
-bool SDLW::init(bool vsync)
+bool SDLW::init()
 {
     //Initialization flag
     bool success = true;
@@ -29,7 +29,7 @@ bool SDLW::init(bool vsync)
         else
         {
             //Create renderer for window
-            if(vsync)
+            if(VSYNC)
                 sdlRenderer = SDL_CreateRenderer(sdlWindow, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
             else
                 sdlRenderer = SDL_CreateRenderer(sdlWindow, -1, SDL_RENDERER_ACCELERATED);

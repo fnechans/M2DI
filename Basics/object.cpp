@@ -1,6 +1,5 @@
 #include "object.h"
 
-const char *const Object::dirName[4] = {"UP", "DOWN", "LEFT", "RIGHT"};
 
 Object::Object(const Object& other) : Block(other)
 {
@@ -100,7 +99,8 @@ void Object::follow_path(std::vector<Block *> &collObjects)
         if (dirY > 0) move_down();
         else if (dirY < 0) move_up(collObjects);
 
-        if ((uint) std::abs(hitbox.x - path.back()->hitbox.x) <= TILESIZEPHYSICS && (uint) std::abs(hitbox.y - path.back()->hitbox.y) <= TILESIZEPHYSICS && path.size() > 1)
+        if ((uint) std::abs(hitbox.x - path.back()->hitbox.x) <= base::TILESIZEPHYSICS &&
+            (uint) std::abs(hitbox.y - path.back()->hitbox.y) <= base::TILESIZEPHYSICS && path.size() > 1)
             path.pop_back();
     }
 }
@@ -118,14 +118,14 @@ void Object::plot_path(Window &wrapper, SDL_Rect *screen)
     }
 }
 
-void Object::move(std::vector<Block *> &collObjects)
+void Object::move(std::vector<Block *> &collObjects, double DELTA_T)
 {
     // TODO: this whole thing needs to be done better,
     // but not sure how right now
-    tools::reduce_to_zero<float>(extVelX, frictionX/TICKS_PER_SECOND);
-    tools::reduce_to_zero<float>(extVelY, frictionY/TICKS_PER_SECOND);
-    int dX0 = (extVelX + intrVelX)*TILESIZEPHYSICS*DELTA_T;
-    int dY0 = (extVelY + intrVelY)*TILESIZEPHYSICS*DELTA_T;
+    tools::reduce_to_zero<float>(extVelX, frictionX*DELTA_T);
+    tools::reduce_to_zero<float>(extVelY, frictionY*DELTA_T);
+    int dX0 = (extVelX + intrVelX)*base::TILESIZEPHYSICS*DELTA_T;
+    int dY0 = (extVelY + intrVelY)*base::TILESIZEPHYSICS*DELTA_T;
 
     moved = false;
     bounced = false;
@@ -234,8 +234,6 @@ void Object::move(std::vector<Block *> &collObjects)
 
 bool Object::does_collide(SDL_Rect &pos, std::vector<Block *> &collObjects)
 {
-    if (pos.x < 0 || pos.y < 0 || pos.x > (int)mWidth - pos.w || pos.y > (int)mHeight - pos.h)
-        return true;
 
     for (auto obj : collObjects)
     {

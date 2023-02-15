@@ -3,7 +3,7 @@
 
 #include "base.h"
 
-class Timer : public base
+class Timer
 {
 public:
     Timer();

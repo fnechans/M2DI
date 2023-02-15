@@ -4,7 +4,7 @@
 #include "base.h"
 #include "IMG_wrapper.h"
 
-class button : public base
+class button
 {
 public:
     enum clipType

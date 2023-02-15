@@ -8,11 +8,11 @@
 #include <vector>
 #include <map>
 
-class Block : public base
+class Block
 {
 public:
-    Block(uint x = mWidth / 2, uint y = mHeight / 2);
-    Block(Block& other);
+    Block(uint x = 0, uint y = 0);
+  //  Block(Block& other) = default;
     Block(const Block& other);
     Block(Block&&) = default;
     ~Block() {}

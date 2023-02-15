@@ -4,7 +4,7 @@
 #include "base.h"
 #include "window.h"
 
-class Viewport : public base
+class Viewport
 {
 public:
     enum Position

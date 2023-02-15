@@ -221,10 +221,10 @@ public:
         if (menu->get_state("quit"))
             quit = true;
         if(menu->get_state("fps")) showFPS = !showFPS;
-        if (menu->get_state("+") && base::TILESIZERENDER < 6 * base::TILESIZEINPUT)
-            base::set_tilerender(base::TILESIZERENDER * 2);
-        if (menu->get_state("-") && base::TILESIZERENDER > base::TILESIZEINPUT)
-            base::set_tilerender(base::TILESIZERENDER / 2);
+        if (menu->get_state("+") && base::TILESIZERENDER() < 6 * base::TILESIZEINPUT)
+            base::set_tilerender(base::TILESIZERENDER() * 2);
+        if (menu->get_state("-") && base::TILESIZERENDER() > base::TILESIZEINPUT)
+            base::set_tilerender(base::TILESIZERENDER() / 2);
 
         // move stuff (if not paused)
         if (!level->pause)
@@ -245,7 +245,7 @@ public:
                 chr->follow_path(level->get_collisionObjects());
             }
 
-            level->move_chars();
+            level->move_chars(DELTA_T);
 
             // Process player attack decision
             player->dmgr_insts.at("sword").doAtack = level->screenClick;
@@ -257,8 +257,8 @@ public:
                     continue;
 
                 chr->dmgr_insts.at("sword").doAtack = (ai.tick(20)
-                    && fabs(chr->hitbox.x - chr->target->hitbox.x) < chr->TILESIZEPHYSICS * 2
-                    && fabs(chr->hitbox.y - chr->target->hitbox.y) < chr->TILESIZEPHYSICS * 2
+                    && fabs(chr->hitbox.x - chr->target->hitbox.x) < base::TILESIZEPHYSICS * 2
+                    && fabs(chr->hitbox.y - chr->target->hitbox.y) < base::TILESIZEPHYSICS * 2
                 );
             }
 
@@ -297,17 +297,6 @@ public:
     {
 
         level->set_viewPort();
-        if(showFPS)
-        {
-            streamFPS.str("");
-            streamFPS << "FPS: " << currentFPS << "\t Tickrate: " << currentTickrate;
-            if (!textFPS.load_text(*window, streamFPS.str(), {255, 100, 100, 255}, 16, base::TILESIZEINPUT * 24))
-                return;
-            textFPS.render_image(*window, 0, 0);
-        }
-
-        if (help)
-            textHelp.render_image(*window, 0, 32);
         if(anims.at("explosion").running)
             anims.at("explosion").run_and_plot(*window, base::toScreen(&level->screenRect, animPoss["explosion"]));
 
@@ -332,15 +321,15 @@ public:
         }
 
         VisionCone full(
-            {(int) (level->screenRect.x/base::scaleRender), (int) (level->screenRect.y/base::scaleRender),
-             (int) (level->screenRect.w/base::scaleRender), (int) (level->screenRect.h/base::scaleRender)}
+            {(int) (level->screenRect.x/base::scaleRender()), (int) (level->screenRect.y/base::scaleRender()),
+             (int) (level->screenRect.w/base::scaleRender()), (int) (level->screenRect.h/base::scaleRender())}
         );
 
         auto pointsFull = full.get_points(player, level->get_collisionObjects());
 
         VisionCone cone(
-            {(int) (level->screenRect.x/base::scaleRender), (int) (level->screenRect.y/base::scaleRender),
-             (int) (level->screenRect.w/base::scaleRender), (int) (level->screenRect.h/base::scaleRender)}
+            {(int) (level->screenRect.x/base::scaleRender()), (int) (level->screenRect.y/base::scaleRender()),
+             (int) (level->screenRect.w/base::scaleRender()), (int) (level->screenRect.h/base::scaleRender())}
         );
 
         cone.set_cone(player->position(), base::fromScreen(&level->screenRect, level->mousePositionScreen), 30);
@@ -386,6 +375,17 @@ public:
         SDL_SetTextureBlendMode(shadow, SDL_BLENDMODE_MOD);
         SDL_RenderCopy(window->sdlRenderer, shadow, nullptr, &level->viewPort);
 
+        if(showFPS)
+        {
+            streamFPS.str("");
+            streamFPS << "FPS: " << currentFPS << "\t Tickrate: " << currentTickrate;
+            if (!textFPS.load_text(*window, streamFPS.str(), {255, 100, 100, 255}, 16, base::TILESIZEINPUT * 24))
+                return;
+            textFPS.render_image(*window, 0, 0);
+        }
+
+        if (help)
+            textHelp.render_image(*window, 0, 32);
         SDL_SetRenderTarget(window->sdlRenderer, nullptr);
 
         // Render within the menu:

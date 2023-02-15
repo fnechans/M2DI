@@ -1,4 +1,4 @@
-file(GLOB FILES *.cpp *.h)
+file(GLOB FILES *.cpp)
 
 
 add_library( wrappers   ${FILES}  )

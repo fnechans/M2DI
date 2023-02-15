@@ -79,7 +79,7 @@ public:
             }
         }
 
-        if (!textHelp.load_text(*window, "There is no help. You are on your own.", {0, 0, 0, 255}, 0, base::TILESIZERENDER * 2))
+        if (!textHelp.load_text(*window, "There is no help. You are on your own.", {0, 0, 0, 255}, 0, base::TILESIZERENDER() * 2))
             return;
     }
 
@@ -105,10 +105,10 @@ public:
             case SDLK_d: player->move_left(); break;
             }
         }
-        player->hitbox.w = (level->viewPort.w / base::scaleRender <  base::mWidth)
-            ? level->viewPort.w / base::scaleRender : base::mWidth-1;
-        player->hitbox.h = (level->viewPort.h / base::scaleRender <  base::mHeight)
-            ? level->viewPort.h / base::scaleRender : base::mHeight-1;
+        player->hitbox.w = (level->viewPort.w / base::scaleRender() <  level->get_map().width())
+            ? level->viewPort.w / base::scaleRender() : level->get_map().width()-1;
+        player->hitbox.h = (level->viewPort.h / base::scaleRender() <  level->get_map().height())
+            ? level->viewPort.h / base::scaleRender() : level->get_map().height()-1;
     }
 
     void user_update()
@@ -123,24 +123,24 @@ public:
             for(auto& t : level->get_map().tiles)
             {
                 std::cout << std::string(1, (char)'a'+t.clip.x/base::TILESIZEINPUT) + std::string(1, (char)'a'+t.clip.y/base::TILESIZEINPUT) << " ";
-                if(++nTile%level->get_map().mapSizeX==0) std::cout << "\n";
+                if(++nTile%level->get_map().nTileX==0) std::cout << "\n";
             }
             std::cout << std::endl;
         }
         if (menu->get_state("quit"))
             quit = true;
         //   if(menu->get_state("fps")) showFPS = !showFPS;
-        if (menu->get_state("+") && base::TILESIZERENDER < 6 * base::TILESIZEINPUT)
-            base::set_tilerender(base::TILESIZERENDER * 2);
-        if (menu->get_state("-") && base::TILESIZERENDER > base::TILESIZEINPUT)
-            base::set_tilerender(base::TILESIZERENDER / 2);
+        if (menu->get_state("+") && base::TILESIZERENDER() < 6 * base::TILESIZEINPUT)
+            base::set_tilerender(base::TILESIZERENDER() * 2);
+        if (menu->get_state("-") && base::TILESIZERENDER() > base::TILESIZEINPUT)
+            base::set_tilerender(base::TILESIZERENDER() / 2);
         for(auto name : tileButtonNames)
             if (menu->get_state(name)) curTile = name;
 
         // move stuff (if not paused)
         if (!level->pause)
         {
-            level->move_chars();
+            level->move_chars(DELTA_T);
         }
 
         level->get_map().screen_position(level->screenRect, level->viewPort, *player);
@@ -149,7 +149,7 @@ public:
     void user_plot()
     {
         if (help)
-            textHelp.render_image(*window, 0, base::TILESIZERENDER * 2);
+            textHelp.render_image(*window, 0, base::TILESIZERENDER() * 2);
 
         if (level->screenClick)
         {

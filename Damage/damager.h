@@ -9,7 +9,7 @@
 #include <sstream>
 
 // TODO: Could this be avoided?
-class Damager : public base
+class Damager
 {
 public:
     Damager(uint _damage)
