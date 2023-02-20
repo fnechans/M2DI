@@ -40,7 +40,7 @@ public:
     uint width(){return mWidth;}
     uint height(){return mHeight;}
 
-    std::vector<Block*> Map_wrapper::map_border_colision();
+    std::vector<Block*> map_border_colision();
 private:
     SDL_Rect gameplayBorder;
     SDL_Rect minimapBorder;

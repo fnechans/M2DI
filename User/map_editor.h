@@ -157,7 +157,7 @@ public:
             {
                 if(tile.on_screen(&level->screenRect)
                     &&  tools::point_within_rect(level->bScreen.mouseX, level->bScreen.mouseY,
-                            {tile.positionScreen.x, tile.positionScreen.y, (int) base::TILESIZERENDER, (int) base::TILESIZERENDER}
+                            {tile.positionScreen.x, tile.positionScreen.y, (int) base::TILESIZERENDER(), (int) base::TILESIZERENDER()}
                         )
                 )
                     tile.clip = level->get_map().mappingClips.at(curTile);

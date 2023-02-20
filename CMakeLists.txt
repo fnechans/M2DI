@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.7)
 
 project(SDL2Test)
 SET(CMAKE_BUILD_TYPE Debug)
-
+SET(CMAKE_INSTALL_PREFIX ${CMAKE_CURRENT_LIST_DIR}/install)
 
 SET(WLEVEL     " -Wall -Wextra")
 SET(CXX11 "-std=c++11 -std=c++14 -std=c++17 ${WLEVEL} ")
@@ -80,4 +80,8 @@ target_link_libraries(SDL2Test
 )
 
 # TODO: proper install!
-install(TARGETS SDL2Test DESTINATION ${CMAKE_CURRENT_LIST_DIR}/install)
+#install(TARGETS SDL2Test DESTINATION bin)
+install(TARGETS SDL2Test 
+LIBRARY DESTINATION "${CMAKE_INSTALL_LIBDIR}"
+ARCHIVE DESTINATION "${CMAKE_INSTALL_LIBDIR}"
+RUNTIME DESTINATION "${CMAKE_INSTALL_BINDIR}")
