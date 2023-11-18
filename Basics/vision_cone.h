@@ -278,6 +278,10 @@ public:
         // tan comparison
         auto tan_comp = [&origin](SDL_Rect & p1, SDL_Rect & p2, bool pos = true)
         {
+            // TODO: if points equal return false!
+            // this should solve ambiguity
+            // move unique after sort
+            
             bool returnValue = !pos; // switches based on hemisphere!
 
             float dx1 = (origin->position().x - p1.x);
