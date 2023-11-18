@@ -18,8 +18,8 @@ public:
     void init(int xMax, int yMax);
     void render_minimap(Window &wrapper, std::vector<Block *> &block);
     void render_map(Window &wrapper, SDL_Rect &mapPosition);
-    void add_sprite_property(int posX, int posY, SDL_Color col);
-    void add_sprite_property(std::string, SDL_Color col);
+    void add_sprite_property(int posX, int posY, SDL_Color col, bool obscures=true);
+    void add_sprite_property(std::string, SDL_Color col, bool obscures=true);
     bool load_map(std::string mapFile, int mapSizeX, int mapSizeY);
     bool load_blocks(std::string mapFile, int mapSizeX, int mapSizeY);
     void screen_position(SDL_Rect &screenRect, SDL_Rect &viewPort, Block &block);
@@ -27,7 +27,6 @@ public:
     std::vector<Block> blank_map(int mapSizeX, int mapSizeY);
     SDL_Rect screen;
     double scale;
-    std::map<std::string, SDL_Color> mappingColor;
     std::map<std::string, SDL_Rect> mappingClips;
     std::vector<Block> tiles;
     std::vector<Block> blocks;
@@ -51,6 +50,9 @@ private:
     uint mHeight;
     // Borders to restrict movement
     Block borderLeft, borderRight, borderTop, borderBottom;
+    
+    std::map<std::string, SDL_Color> mappingColor;
+    std::map<std::string, bool> mappingObscure;
 };
 
 SDL_Rect get_tile_draw_rect(Block const &block, double& scale);

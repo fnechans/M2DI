@@ -89,7 +89,7 @@ public:
         {
             switch (event.key.keysym.sym)
             {
-            case SDLK_w: player->move_up(level->get_collisionObjects()); break;
+            case SDLK_w: player->move_up(level->get_collision_objects()); break;
             case SDLK_s: player->move_down(); break;
             case SDLK_a: player->move_left(); break;
             case SDLK_d: player->move_right(); break;
@@ -100,7 +100,7 @@ public:
             switch (event.key.keysym.sym)
             {
             case SDLK_w: player->move_down(); break;
-            case SDLK_s: player->move_up(level->get_collisionObjects()); break;
+            case SDLK_s: player->move_up(level->get_collision_objects()); break;
             case SDLK_a: player->move_right(); break;
             case SDLK_d: player->move_left(); break;
             }

@@ -13,7 +13,7 @@ class VisionCone
 public:
     VisionCone(SDL_Rect b) : border(b) {}
 
-    int lengthFactor = 100;
+    int lengthFactor = 10000;
 
     bool set_cone(const SDL_Rect &origin, const SDL_Rect &dir, float _angle)
     {
@@ -33,7 +33,7 @@ public:
         perpPoint.y = direction.y - dx;
 
         // Define distance from direction necesarry for such point to be at angle wrt origin to endpoint line
-        float perpLength = tan(angle * 3.14 / 180.0) * lengthFactor; // close enough
+        float perpLength = tan(angle * 3.14 / 180.0) * (float) lengthFactor; // close enough
 
         // Find points at correct angle from origin
         auto dir1 = tools::get_endpoint(direction, perpPoint, perpLength);
@@ -246,8 +246,6 @@ public:
         }
 
         // Add corners of screen
-
-        // Add borders of cone if applicable
         for(auto& point : tools::get_points(border))
         {
             BorderPair bdrPair(point);
@@ -266,7 +264,8 @@ public:
                     cornersNeg.push_back(bdrPair);
             }
         }
-        // Make sure all points are nique
+
+        // Make sure all points are unique
         auto it = std::unique(cornersPos.begin(), cornersPos.end(), [](BorderPair &a, BorderPair &b)
                               { return tools::point_equal(a.point, b.point); });
         cornersPos.resize(std::distance(cornersPos.begin(), it));
@@ -278,9 +277,7 @@ public:
         // tan comparison
         auto tan_comp = [&origin](SDL_Rect & p1, SDL_Rect & p2, bool pos = true)
         {
-            // TODO: if points equal return false!
-            // this should solve ambiguity
-            // move unique after sort
+            if( tools::point_equal(p1, p2) ) return false;
             
             bool returnValue = !pos; // switches based on hemisphere!
 
@@ -300,7 +297,6 @@ public:
             if (dy2 == 0 && dx2 < 0) // negative inf
                 return returnValue;
 
-            // not necessary anymore? if(dx1/dy1==dx2/dy2) return tools::distance2(origin->position(), p1) > tools::distance2(origin->position(), p2);
             return dx1 / dy1 > dx2 / dy2;
         };
 
@@ -318,7 +314,6 @@ public:
         std::vector<BorderPair> corners;
         if (doCone) // for cone order is important
         {
-
             // since we restrict to cone < 90 degr. to each side we can check
             // for which  origin(x +-lengthFactor) is one of the cone lines closest,
             // if positive thne positive goes first
@@ -389,6 +384,11 @@ public:
                 finalPoints.push_back(current.point);
             }*/
         }
+        
+        // remove duplicates again
+        auto it2 = std::unique(finalPoints.begin(), finalPoints.end(), [](SDL_Rect &a, SDL_Rect &b)
+                         { return tools::point_equal(a, b); });
+        finalPoints.resize(std::distance(finalPoints.begin(), it2));
         // For non-cone, complete the loop
         if(!doCone) finalPoints.push_back(finalPoints[0]);
 

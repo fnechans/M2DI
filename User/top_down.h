@@ -35,19 +35,16 @@ public:
 
     void user_init()
     {
-        light = SDL_CreateTexture(window->sdlRenderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_TARGET, window->sWidth, window->sHeight);
-        shadow = SDL_CreateTexture(window->sdlRenderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_TARGET, window->sWidth, window->sHeight);
-
         level = &add_level();
 
         level->set_map({0, 0, 0, 0});
         level->get_map().init(40, 36);
 
         level->get_map().add_sprite_property(1, 4, {100, 100, 0, 255});
-        level->get_map().add_sprite_property(0, 0, {0, 150, 0, 255});
+        level->get_map().add_sprite_property(0, 0, {0, 150, 0, 255});  // Grass
         level->get_map().add_sprite_property(12, 13, {100, 100, 100, 255});
         level->get_map().add_sprite_property(4, 5, {150, 100, 50, 255});
-        level->get_map().add_sprite_property(0, 1, {0, 0, 150, 255});
+        level->get_map().add_sprite_property(0, 1, {0, 0, 150, 255}, false);  // Water, does not obscure vission!
         level->add_image("map", "data/gfx/Overworld.png");
         level->set_map_image("map");
         level->get_map().load_map("data/start.map", 16, 16);
@@ -166,7 +163,7 @@ public:
             switch (event.key.keysym.sym)
             {
             case SDLK_w:
-                player->move_up(level->get_collisionObjects());
+                player->move_up(level->get_collision_objects());
                 break;
             case SDLK_s:
                 player->move_down();
@@ -194,7 +191,7 @@ public:
                 player->move_down();
                 break;
             case SDLK_s:
-                player->move_up(level->get_collisionObjects());
+                player->move_up(level->get_collision_objects());
                 break;
             case SDLK_a:
                 player->move_right();
@@ -223,6 +220,8 @@ public:
         if(menu->get_state("fps")) showFPS = !showFPS;
         if (menu->get_state("+") && base::TILESIZERENDER() < 6 * base::TILESIZEINPUT)
             base::set_tilerender(base::TILESIZERENDER() * 2);
+
+        // TODO: fix crash here when unzooming too much?
         if (menu->get_state("-") && base::TILESIZERENDER() > base::TILESIZEINPUT)
             base::set_tilerender(base::TILESIZERENDER() / 2);
 
@@ -238,11 +237,11 @@ public:
                 // use AStar to move non-player chars
                 if (ai.tick(50))
                 {
-                    auto tmp = ai.acko->find_path(chr, chr->target, level->get_collisionObjects());
+                    auto tmp = ai.acko->find_path(chr, chr->target, level->get_collision_objects());
                     if (!tmp.empty())
                         chr->path = tmp;
                 }
-                chr->follow_path(level->get_collisionObjects());
+                chr->follow_path(level->get_collision_objects());
             }
 
             level->move_chars(DELTA_T);
@@ -325,7 +324,7 @@ public:
              (int) (level->screenRect.w/base::scaleRender()), (int) (level->screenRect.h/base::scaleRender())}
         );
 
-        auto pointsFull = full.get_points(player, level->get_collisionObjects());
+        auto pointsFull = full.get_points(player, level->get_obscuring_objects());
 
         VisionCone cone(
             {(int) (level->screenRect.x/base::scaleRender()), (int) (level->screenRect.y/base::scaleRender()),
@@ -333,10 +332,9 @@ public:
         );
 
         cone.set_cone(player->position(), base::fromScreen(&level->screenRect, level->mousePositionScreen), 30);
-        auto pointsCone = cone.get_points(player, level->get_collisionObjects());
+        auto pointsCone = cone.get_points(player, level->get_obscuring_objects());
 
         light = SDL_CreateTexture(window->sdlRenderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_TARGET, window->sWidth, window->sHeight);
-        shadow = SDL_CreateTexture(window->sdlRenderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_TARGET, window->sWidth, window->sHeight);
         SDL_SetRenderTarget(window->sdlRenderer, light);
         SDL_RenderClear(window->sdlRenderer);
         //SDL_SetRenderDrawColor(window->sdlRenderer, 0, 0, 0, 255);
@@ -348,7 +346,7 @@ public:
             auto p2 = base::toScreen(&level->screenRect, pointsFull[it+1]);
             window->drawColorTriangle(
                 player->positionScreen, p1, p2,
-                {20, 20, 20, 255}
+                {40, 40, 40, 255}
             );
         }
         for(uint it = 0; it+1< pointsCone.size(); it++)
@@ -360,15 +358,17 @@ public:
                 {255, 255, 255, 255}
             );
 
+            // TODO: Where does the 17 come from, TILE+1?
             if(tools::distance2(p1, p2) < 17) continue;
             window->drawColorLine(p1, p2,
                 {100, 100, 100, 255}, 2
             );
         }
 
+        shadow = SDL_CreateTexture(window->sdlRenderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_TARGET, window->sWidth, window->sHeight);
         SDL_SetRenderTarget(window->sdlRenderer, shadow);
         SDL_RenderClear(window->sdlRenderer);
-        SDL_SetRenderDrawColor(window->sdlRenderer, 0, 0, 0, 255);
+        SDL_SetRenderDrawColor(window->sdlRenderer, 20, 20, 20, 255); // Color defines base visibility
         SDL_RenderFillRect(window->sdlRenderer, nullptr);
         SDL_RenderCopy(window->sdlRenderer, light, nullptr, nullptr);
         SDL_SetRenderTarget(window->sdlRenderer, nullptr);
@@ -399,7 +399,7 @@ public:
 
     void custom_process(Character *object, std::string dir, bool isRealChar = true)
     {
-        if (object->evaluate_attack("sword", level->get_damagableObjects()))
+        if (object->evaluate_attack("sword", level->get_damagable_objects()))
         {
             // stop any previous running animation
             object->get_current_animation().stop();
@@ -407,7 +407,7 @@ public:
         }
         else if (object->evaluate_attack("explosion",
                      object->position(),
-                     Object::direction::DOWN, level->get_damagableObjects())
+                     Object::direction::DOWN, level->get_damagable_objects())
         )
         {
             anims.at("explosion").play();
@@ -419,7 +419,7 @@ public:
         }
         else if (object->evaluate_attack("gun",
                      object->position(), base::fromScreen(&level->screenRect, level->mousePositionScreen),
-                     level->get_damagableObjects())
+                     level->get_damagable_objects())
         )
         {
         }

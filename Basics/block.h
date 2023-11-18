@@ -27,13 +27,20 @@ public:
     // local coor. vard
     SDL_Rect positionScreen;
 
+    // switches
     bool doPlot{true};
+    bool hasCollision{true};
+    bool obscuresVision{true};
+
+    // TODO: Following should probably be refactored out?
+
+    // custom properties 
+    std::map<std::string, int> property;
+
     std::shared_ptr<IMG_wrapper> image;
     bool set_image(Window &window, std::string imagePath);
     void plot(Window &wrapper, SDL_Rect *screen = nullptr);
     bool on_screen(SDL_Rect *screen);
-
-    std::map<std::string, int> property;
 
     std::map<std::string, Animation> animations;
     void copy_animation(Block const &object);

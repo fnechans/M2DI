@@ -42,7 +42,7 @@ void Animation::add_clip_relative(std::vector<float> clip)
     int yy = (int)(clip[1] * base::TILESIZEINPUT);
     int ww = (int)(clip[2] * base::TILESIZEINPUT);
     int hh = (int)(clip[3] * base::TILESIZEINPUT);
-    clips.push_back({xx, yy, ww, hh});
+    clips.emplace_back(xx, yy, ww, hh);
 }
 
 void Animation::run_and_plot(Window& window, SDL_Rect positionScreen, bool skipPlot)
