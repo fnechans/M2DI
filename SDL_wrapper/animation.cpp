@@ -38,10 +38,10 @@ void Animation::add_clip_relative(std::vector<float> clip)
 {
     if (clip.size() != 4)
         throw std::runtime_error("Add_clip_relative size not 4!");
-    int xx = (int)(clip[0] * TILESIZEINPUT);
-    int yy = (int)(clip[1] * TILESIZEINPUT);
-    int ww = (int)(clip[2] * TILESIZEINPUT);
-    int hh = (int)(clip[3] * TILESIZEINPUT);
+    int xx = (int)(clip[0] * base::TILESIZEINPUT);
+    int yy = (int)(clip[1] * base::TILESIZEINPUT);
+    int ww = (int)(clip[2] * base::TILESIZEINPUT);
+    int hh = (int)(clip[3] * base::TILESIZEINPUT);
     clips.push_back({xx, yy, ww, hh});
 }
 
@@ -51,10 +51,10 @@ void Animation::run_and_plot(Window& window, SDL_Rect positionScreen, bool skipP
     if (skipPlot)
         return;
     SDL_Rect renderRect = {
-        positionScreen.x + (int)(renderMod.x * TILESIZERENDER),
-        positionScreen.y + (int)(renderMod.y * TILESIZERENDER),
-        (int)(spriteRect.w * renderMod.w * scaleRenderInput),
-        (int)(spriteRect.h * renderMod.h * scaleRenderInput)};
+        positionScreen.x + (int)(renderMod.x * base::TILESIZERENDER()),
+        positionScreen.y + (int)(renderMod.y * base::TILESIZERENDER()),
+        (int)(spriteRect.w * renderMod.w * base::scaleRenderInput()),
+        (int)(spriteRect.h * renderMod.h * base::scaleRenderInput())};
     if(!image) throw std::runtime_error("No image in animation");
     // image->set_color(255,0,0);
     image->render_image(window, &renderRect, &spriteRect, angle, flip);

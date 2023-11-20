@@ -7,11 +7,11 @@
 class Window
 {
 public:
-    Window() {}
+    Window(bool vsync = false) : VSYNC(vsync) {}
     ~Window() { close(); }
 
     //Starts up SDL and creates window
-    bool init(bool vsync = false);
+    bool init();
     //Frees media and shuts down SDL
     void close();
     // update the window ..
@@ -56,9 +56,11 @@ public:
     int sHeight;
     SDL_Renderer *sdlRenderer = nullptr;
 
+    bool vsync() { return VSYNC; }
 private:
     //The window we'll be rendering to
     SDL_Window *sdlWindow = nullptr;
+    bool VSYNC;
 };
 
 #endif

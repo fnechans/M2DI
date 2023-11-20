@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.7)
 
 project(SDL2Test)
 SET(CMAKE_BUILD_TYPE Debug)
-
+SET(CMAKE_INSTALL_PREFIX ${CMAKE_CURRENT_LIST_DIR}/install)
 
 SET(WLEVEL     " -Wall -Wextra")
 SET(CXX11 "-std=c++11 -std=c++14 -std=c++17 ${WLEVEL} ")
@@ -24,32 +24,28 @@ IF(UNIX)
 
 ENDIF(UNIX)
 
-if (WIN32)
-    MESSAGE( STATUS "Found UNIX System (including OS X and CygWin)" )
+if (MVSC OR WINDOWS OR CYGWIN OR WIN32)
+    SET(CXX11 "-std:c++17")
+    MESSAGE( STATUS "Found Windows System" )
 
-    SET(PLT win)
-
-    SET(CMAKE_CXX_FLAGS     "-g ${CXX11} ${Boost_FLAGS}")
-    SET(CMAKE_Fortran_FLAGS "-m64" )
-
-    SET(CMAKE_CXX_FLAGS_DEBUG          "-g -O0 ${CXX11} ${Boost_FLAGS} -Wno-deprecated-register ")
-
-    SET(CMAKE_CXX_FLAGS_RELWITHDEBINFO "-g -O2 ${CXX11}")
-
-    SET(CMAKE_CXX_FLAGS_RELEASE        "-O4 -DNDEBUG ${CXX11}")
-
-    SET(CMAKE_CXX_FLAGS_MINSIZEREL     "-Os -DNDEBUG ${CXX11}")
+    SET(CMAKE_CXX_FLAGS     "${CXX11}")
 endif()
 
-
-set(sdllibs SDL2::SDL2 SDL2_image::SDL2_image SDL2_ttf::SDL2_ttf SDL_gfx)
+set(sdllibs SDL2::SDL2 SDL2_image::SDL2_image SDL2_ttf::SDL2_ttf SDL_gfx-static)
 
 add_subdirectory(external/SDL EXCLUDE_FROM_ALL)
+include_directories(external/SDL/include)
 add_subdirectory(external/SDL_image EXCLUDE_FROM_ALL)
+include_directories(external/SDL_image)
 add_subdirectory(external/SDL_ttf EXCLUDE_FROM_ALL)
+include_directories(external/SDL_ttf)
 add_subdirectory(external/SDL_gfx)# EXCLUDE_FROM_ALL)
 include_directories(external/SDL_gfx)
 
+if(MVSC OR WINDOWS OR CYGWIN OR WIN32)
+    set(CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS TRUE)
+    set(BUILD_SHARED_LIBS TRUE)
+endif()
 
 add_subdirectory(Tools)
 
@@ -82,3 +78,10 @@ target_link_libraries(SDL2Test
                     ${sdllibs}
                     -lstdc++fs
 )
+
+# TODO: proper install!
+#install(TARGETS SDL2Test DESTINATION bin)
+install(TARGETS SDL2Test 
+LIBRARY DESTINATION "${CMAKE_INSTALL_LIBDIR}"
+ARCHIVE DESTINATION "${CMAKE_INSTALL_LIBDIR}"
+RUNTIME DESTINATION "${CMAKE_INSTALL_BINDIR}")

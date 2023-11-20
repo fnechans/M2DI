@@ -11,7 +11,7 @@ struct Fl_Rect
     float x, y, w, h;
 };
 
-class Animation : public base
+class Animation
 {
 public:
     Animation(Fl_Rect _renderMod = {0, 0, 1, 1}) : renderMod(_renderMod) { frame = 0; }
@@ -34,7 +34,8 @@ public:
     void add_clip(SDL_Rect clip) { clips.push_back(clip); }
     void add_clip_relative(std::vector<float> clip);
 
-    uint frequency = FRAMES_PER_SECOND/8;
+    // TMP
+    uint frequency = 60/8;
     float angle = 0;
     SDL_RendererFlip flip = SDL_FLIP_NONE;
 
@@ -46,12 +47,13 @@ private:
     uint frame;
 };
 
-class animation_data : base
+class animation_data
 {
 public:
     animation_data()  {}
     Fl_Rect renderMod{0, 0, 1, 1};
-    uint frequency = FRAMES_PER_SECOND/8;
+    // TMP: figure out how to best propagate ticks/frames per sec?
+    uint frequency = 60/8;
     std::vector<std::vector<float>> fclips;
     std::vector<SDL_Rect> clips;
     bool repeat = true;

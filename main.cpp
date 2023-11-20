@@ -8,16 +8,18 @@
 #include <cmath>
 #include <algorithm>
 
+
 int main(int argc, char *args[])
 {
     (void)(argc);
     (void)(args);
 
-    base::TICKS_PER_SECOND = 200;
-    base::FRAMES_PER_SECOND = 60;
-    base::DELTA_T = 1./ base::TICKS_PER_SECOND;
-    base::VSYNC = false;
-    std::shared_ptr<screen> currentScreen = std::make_shared<main_menu>();
+    // Set window (also respondible for rendering)
+    bool VSYNC = false;
+    auto window = std::make_shared<Window>(VSYNC);
+
+    // Set first screen and static settings
+    std::shared_ptr<screen> currentScreen = std::make_shared<main_menu>(window);
     while (currentScreen)
     {
         currentScreen = currentScreen->loop();

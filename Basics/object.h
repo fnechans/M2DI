@@ -25,7 +25,8 @@ public:
         LEFT,
         RIGHT
     };
-    static const char *const dirName[4]; // = {"UP", "DOWN", "LEFT", "RIGHT"};
+    static inline const char *const dirName[4]{"UP", "DOWN", "LEFT", "RIGHT"};
+
 
     // Type of movement
     // TopDown - WSAD like, moves in any direction
@@ -55,7 +56,7 @@ public:
     std::vector<Block *> path = {};
     Object *target{nullptr};
 
-    void move(std::vector<Block *> &collObjects);
+    void move(std::vector<Block *> &collObjects, double DELTA_T);
     bool does_collide(SDL_Rect &pos, std::vector<Block *>& collObjects);
     bool next_to(SDL_Rect pos, direction dir, std::vector<Block *>& collObjects); // here copy of pos(ition) on purpose!
 

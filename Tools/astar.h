@@ -6,7 +6,7 @@
 #include <algorithm>
 
 template <typename node>
-class AStar : public base
+class AStar
 {
 public:
     AStar(std::vector<node> &_curMap) : curMap(_curMap) {}
@@ -90,7 +90,7 @@ public:
 
             for (auto neighbor : curMap)
             {
-                if (neighbor == current || cost(neighbor, current) > TILESIZEPHYSICS * 1.1)
+                if (neighbor == current || cost(neighbor, current) > base::TILESIZEPHYSICS * 1.1)
                     continue;
 
                 bool collides = false;

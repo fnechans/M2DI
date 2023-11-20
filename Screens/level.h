@@ -26,11 +26,11 @@ public:
     bool evaluate(SDL_Event &event); // returns true if event relevant to speed up/avoid multiple evals
     bool screenClick = false;
     SDL_Rect mousePositionScreen;
-    void move_chars();
+    void move_chars(double DELTA_T);
     void plot_map();
     void plot();
 
-    void set_map(SDL_Rect border = {0, 0, TILESIZEINPUT * 12, 0})
+    void set_map(SDL_Rect border = {0, 0, base::TILESIZEINPUT * 12, 0})
     {
         curMap = std::make_unique<Map_wrapper>(border);
     }

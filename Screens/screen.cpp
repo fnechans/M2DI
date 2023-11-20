@@ -31,8 +31,8 @@ screen_ptr screen::loop()
     std::cout << "Starting new loop\n";
 
     // Ticks to ms conversion, round give closest integer
-    Uint32 game_step_ms = std::round(1000. / base::TICKS_PER_SECOND);
-    Uint32 render_step_ms = std::round(1000. / base::FRAMES_PER_SECOND);
+    Uint32 game_step_ms = std::round(1000. / TICKS_PER_SECOND);
+    Uint32 render_step_ms = std::round(1000. / FRAMES_PER_SECOND);
     Uint32 next_game_step = SDL_GetTicks(); // initial value
     Uint32 next_render_step = next_game_step;
     uint nRender = 0;
@@ -47,7 +47,7 @@ screen_ptr screen::loop()
         Uint32 now = SDL_GetTicks();
 
         // Check so we don't render for no reason (unless vsync is enabled)
-        if (next_render_step <= now || base::VSYNC)
+        if (next_render_step <= now || window->vsync())
         {
             int computer_is_too_slow_limit = 100; // max number of advances per render, adjust this according to your minimum playable fps
 
@@ -82,7 +82,7 @@ screen_ptr screen::loop()
                 currentFPS = ((float)nRender * 1000) / (now - fps_step);
                 currentTickrate = ((float)nEval * 1000) / (now - fps_step);
                 // update DELTA_T to reflect the actual tick-rate
-                base::DELTA_T = 1. / currentTickrate;
+                DELTA_T = 1. / currentTickrate;
                 nRender = 0;
                 nEval = 0;
                 fps_step = now;

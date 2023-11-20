@@ -8,8 +8,8 @@ Block::Block(uint x, uint y)
     hitbox.x = x;
     hitbox.y = y;
     // DEFAULT hitbox based on tilesize, can be changed
-    hitbox.w = TILESIZEPHYSICS;
-    hitbox.h = TILESIZEPHYSICS;
+    hitbox.w = base::TILESIZEPHYSICS;
+    hitbox.h = base::TILESIZEPHYSICS;
 
     mapColor = {0, 0, 0, 0};
 }
@@ -33,13 +33,13 @@ Block::Block(const Block& other)
 
 bool Block::on_screen(SDL_Rect *screen)
 {
-    if( !(hitbox.x * scaleRender < screen->x - (int) TILESIZERENDER
-            || hitbox.x * scaleRender > screen->x + screen->w
-            || hitbox.y * scaleRender < screen->y -  (int) TILESIZERENDER
-            || hitbox.y * scaleRender > screen->y + screen->h
+    if( !(hitbox.x * base::scaleRender() < screen->x - (int) base::TILESIZERENDER()
+            || hitbox.x * base::scaleRender() > screen->x + screen->w
+            || hitbox.y * base::scaleRender() < screen->y -  (int) base::TILESIZERENDER()
+            || hitbox.y * base::scaleRender() > screen->y + screen->h
             ))
     {
-        positionScreen = toScreen(screen, position());
+        positionScreen = base::toScreen(screen, position());
         return true;
     }
     return false;
@@ -53,8 +53,8 @@ void Block::plot(Window &window, SDL_Rect *screen)
             return;
     }
 
-    int width = hitbox.w*base::scaleRender;
-    int height = hitbox.h*base::scaleRender;
+    int width = hitbox.w*base::scaleRender();
+    int height = hitbox.h*base::scaleRender();
     SDL_Rect renderRect = {positionScreen.x - (int) width/2, positionScreen.y - (int) height/2, (int) width, (int) height};
     // image->set_color(255,0,0);
     image->render_image(window, &renderRect, &clip);

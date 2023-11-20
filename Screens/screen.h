@@ -54,6 +54,9 @@ public:
     uint currentFPS;
     uint currentTickrate;
 
+    static inline uint TICKS_PER_SECOND{200};
+    static inline uint FRAMES_PER_SECOND{60};
+    double DELTA_T{1./60}; 
 private:
     bool isInit = false;
 
@@ -63,7 +66,7 @@ private:
     {
         base::set_tilerender(64);
         // TODO: without else?
-        if (!window->isInit && !window->init(base::VSYNC))
+        if (!window->isInit && !window->init())
             throw std::runtime_error("Problem in init");
 
         user_init();

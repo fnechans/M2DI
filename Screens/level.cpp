@@ -18,6 +18,11 @@ void Level::bake()
     {
         collisionObjects.push_back(&t);
     }
+    
+    for (auto t : curMap->map_border_colision())
+    {
+        collisionObjects.push_back(t);
+    }
 }
 
 void Level::reset()
@@ -47,17 +52,17 @@ bool Level::evaluate(SDL_Event &event)
     return false;
 }
 
-void Level::move_chars()
+void Level::move_chars(double DELTA_T)
 {
     if (pause)
         return;
     for(auto obj : characters)
     {
-        obj->move(collisionObjects);
+        obj->move(collisionObjects, DELTA_T);
     }
     for(auto obj : grenades)
     {
-        obj->move(collisionObjects);
+        obj->move(collisionObjects, DELTA_T);
     }
 }
 

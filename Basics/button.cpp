@@ -6,7 +6,10 @@ button::button(SDL_Rect pos, double ws, double hs)
 
     for (int c = DEFAULT; c < COUNT; ++c)
     {
-        clips[c] = {(int)(c * TILESIZEINPUT * ws), 0, (int)(TILESIZEINPUT * ws), (int)(TILESIZEINPUT * hs)};
+        clips[c] = {(int)(c * base::TILESIZEINPUT * ws),
+                     0,
+                     (int)(base::TILESIZEINPUT * ws),
+                     (int)(base::TILESIZEINPUT * hs)};
     }
 
     // initial state

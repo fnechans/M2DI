@@ -9,10 +9,10 @@
 #include <cstring>
 
 
-class Map_wrapper : public base
+class Map_wrapper
 {
 public:
-    Map_wrapper(SDL_Rect border = {0, 0, TILESIZEINPUT * 12, 0});
+    Map_wrapper(SDL_Rect border = {0, 0, base::TILESIZEINPUT * 12, 0});
     ~Map_wrapper() {}
 
     void init(int xMax, int yMax);
@@ -34,13 +34,23 @@ public:
     std::shared_ptr<IMG_wrapper> image;
 
     // TODO: General problem, most stuff public!
-    uint mapSizeX;
-    uint mapSizeY;
+    uint nTileX;
+    uint nTileY;
 
+    uint width(){return mWidth;}
+    uint height(){return mHeight;}
+
+    std::vector<Block*> map_border_colision();
 private:
     SDL_Rect gameplayBorder;
     SDL_Rect minimapBorder;
     SDL_Rect minimapViewPort;
+
+    // Map dimension constants
+    uint mWidth;
+    uint mHeight;
+    // Borders to restrict movement
+    Block borderLeft, borderRight, borderTop, borderBottom;
 };
 
 SDL_Rect get_tile_draw_rect(Block const &block, double& scale);
