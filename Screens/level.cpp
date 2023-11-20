@@ -7,21 +7,24 @@ Level::Level(Window *win, Position pos, SDL_Rect bor) : Viewport(win, pos, bor),
 void Level::bake()
 {
     collisionObjects.clear();
+    obscuringObjects.clear();
     damagableObjects.clear();
     for (auto obj : characters)
     {
-        collisionObjects.push_back(obj);
-        damagableObjects.push_back(obj);
+        if(obj->hasCollision) collisionObjects.push_back(obj);
+        if(obj->obscuresVision) obscuringObjects.push_back(obj);
+        damagableObjects.push_back(obj); // TODO: simply return characters?
     }
 
     for (auto &t : curMap->blocks)
     {
-        collisionObjects.push_back(&t);
+        if(t.hasCollision) collisionObjects.push_back(&t);
+        if(t.obscuresVision) obscuringObjects.push_back(&t);
     }
     
     for (auto t : curMap->map_border_colision())
     {
-        collisionObjects.push_back(t);
+        if(t->hasCollision) collisionObjects.push_back(t);
     }
 }
 
@@ -36,6 +39,8 @@ bool Level::evaluate(SDL_Event &event)
 {
     set_viewPort();
     bScreen.screenPos = viewPort;
+
+    if(pause) return false;
 
     auto state = bScreen.evaluate(event, {0, 0, 0, 0});
     mousePositionScreen = {bScreen.mouseX, bScreen.mouseY, 0, 0};

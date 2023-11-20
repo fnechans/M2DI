@@ -42,6 +42,7 @@ void Animation::add_clip_relative(std::vector<float> clip)
     int yy = (int)(clip[1] * base::TILESIZEINPUT);
     int ww = (int)(clip[2] * base::TILESIZEINPUT);
     int hh = (int)(clip[3] * base::TILESIZEINPUT);
+    // TODO: This did not work with emplace on linux
     clips.push_back({xx, yy, ww, hh});
 }
 

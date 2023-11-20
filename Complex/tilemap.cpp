@@ -18,6 +18,7 @@ void Map_wrapper::init(int xMax, int yMax)
             mappingClips[type] = {x * (int) base::TILESIZEINPUT, y * (int) base::TILESIZEINPUT,
                                   (int) base::TILESIZEINPUT, (int) base::TILESIZEINPUT};
             mappingColor[type] = {0,0,0,0};
+            mappingObscure[type] = true;
         }
     }
 }
@@ -96,20 +97,23 @@ bool Map_wrapper::load_blocks(std::string mapFile, int mapSizeX, int mapSizeY)
     return true;
 }
 
-void Map_wrapper::add_sprite_property(int posX, int posY, SDL_Color col)
+void Map_wrapper::add_sprite_property(int posX, int posY, SDL_Color col, bool obscures)
 {
     std::string type = std::string(1, (char)'a'+posX) + std::string(1, (char)'a'+posY);
-    add_sprite_property(type, col);
+    add_sprite_property(type, col, obscures);
 }
 
-void Map_wrapper::add_sprite_property(std::string type, SDL_Color col)
+void Map_wrapper::add_sprite_property(std::string type, SDL_Color col, bool obscures)
 {
     if(type.size()!=2) throw std::runtime_error("type of sprite has to be string length 2!");
     mappingColor.at(type) = col;
+    mappingObscure.at(type) = obscures;
 }
 
 std::vector<Block*> Map_wrapper::map_border_colision()
 {
+    // TODO: define vector directly! No reason to have these
+    // as individual variables
     return {&borderLeft, &borderRight, &borderTop, &borderBottom};
 }
 
@@ -160,9 +164,10 @@ std::vector<Block> Map_wrapper::blank_map(int _mapSizeX, int _mapSizeY)
     {
         if (tileType != "00")
         {
-            output.push_back(Block(x, y));
+            output.emplace_back(x, y);
             output.back().clip = mappingClips.at(tileType);
             output.back().mapColor = mappingColor.at(tileType);
+            output.back().obscuresVision = mappingObscure.at(tileType);
             output.back().image = image;
         }
 
@@ -201,9 +206,10 @@ std::vector<Block> Map_wrapper::import_map(std::string mapFile, int _mapSizeX, i
 
             if (tileType != "00")
             {
-                output.push_back(Block(x, y));
+                output.emplace_back(x, y);
                 output.back().clip = mappingClips.at(tileType);
                 output.back().mapColor = mappingColor.at(tileType);
+                output.back().obscuresVision = mappingObscure.at(tileType);
                 output.back().image = image;
             }
 

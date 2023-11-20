@@ -55,8 +55,9 @@ public:
     }
 
     // object-collection getter:
-    std::vector<Block *> &get_collisionObjects() { return collisionObjects; }
-    std::vector<Object *> &get_damagableObjects() { return damagableObjects; }
+    std::vector<Block *> &get_collision_objects() { return collisionObjects; }
+    std::vector<Block *> &get_obscuring_objects() { return obscuringObjects; }
+    std::vector<Object *> &get_damagable_objects() { return damagableObjects; }
 
     bool pause = false; // is level paused?
     SDL_Rect screenRect;
@@ -67,7 +68,11 @@ public:
     Object_manager<Character> grenades;
 private:
     std::unique_ptr<Map_wrapper> curMap;
+    // TODO: might be better to have single vector
+    // and make functions which use them check
+    // flags defined in the Block?
     std::vector<Block *> collisionObjects;
+    std::vector<Block *> obscuringObjects;
     std::vector<Object *> damagableObjects;
 
     std::map<std::string, std::shared_ptr<IMG_wrapper>> images;

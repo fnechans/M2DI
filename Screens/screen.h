@@ -56,7 +56,7 @@ public:
 
     static inline uint TICKS_PER_SECOND{200};
     static inline uint FRAMES_PER_SECOND{60};
-    double DELTA_T{1./60}; 
+    double DELTA_T{1./TICKS_PER_SECOND}; 
 private:
     bool isInit = false;
 

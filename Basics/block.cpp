@@ -16,19 +16,19 @@ Block::Block(uint x, uint y)
 
 Block::Block(const Block& other)
 {
-    hitbox.x = other.hitbox.x;
-    hitbox.y = other.hitbox.y;
-    // DEFAULT hitbox based on tilesize, can be changed
-    hitbox.w = other.hitbox.w;
-    hitbox.h = other.hitbox.h;
+    // TODO: this can be default copy constructor
+    // once we remove animation
+    hitbox = other.hitbox;
 
     mapColor = other.mapColor;
-
     clip = other.clip;
     image = other.image;
     copy_animation(other);
     curAnimation = other.curAnimation;
 
+    doPlot = other.doPlot;
+    hasCollision = other.hasCollision;
+    obscuresVision = other.obscuresVision;
 }
 
 bool Block::on_screen(SDL_Rect *screen)

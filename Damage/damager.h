@@ -8,7 +8,6 @@
 #include <stdexcept>
 #include <sstream>
 
-// TODO: Could this be avoided?
 class Damager
 {
 public:
