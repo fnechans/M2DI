@@ -6,8 +6,6 @@
 #include <vector>
 #include <map>
 
-class IMG_wrapper;
-class Window;
 
 class Block
 {
@@ -38,8 +36,7 @@ public:
     // custom properties 
     std::map<std::string, int> property;
 
-    std::shared_ptr<IMG_wrapper> image;
-    bool set_image(Window &window, std::string imagePath);
+    IMG_wrapper* image;
     void plot(Window &wrapper, SDL_Rect *screen = nullptr);
     bool on_screen(SDL_Rect *screen);
 

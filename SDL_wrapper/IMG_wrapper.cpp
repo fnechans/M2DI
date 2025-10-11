@@ -46,7 +46,8 @@ bool IMGW::load_text(Window &window, std::string text, SDL_Color color, uint tex
     }
     //Load image at specified path
     //SDL_Surface* textSurface = TTF_RenderText_Solid( gFont, text.c_str(), color );
-    SDL_Surface *textSurface = TTF_RenderText_Blended_Wrapped(gFont, text.c_str(), color, textWidth);
+    //SDL_Surface *textSurface = TTF_RenderText_Blended_Wrapped(gFont, text.c_str(), color, textWidth);
+    SDL_Surface *textSurface = TTF_RenderText_Blended(gFont, text.c_str(), color); //, textWidth);
 
     if (textSurface == nullptr)
     {

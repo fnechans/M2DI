@@ -30,7 +30,7 @@ public:
     std::map<std::string, SDL_Rect> mappingClips;
     std::vector<Block> tiles;
     std::vector<Block> blocks;
-    std::shared_ptr<IMG_wrapper> image;
+    IMG_wrapper* image;
 
     // TODO: General problem, most stuff public!
     uint nTileX;

@@ -15,7 +15,7 @@ class Animation
 {
 public:
     Animation(Fl_Rect _renderMod = {0, 0, 1, 1}) : renderMod(_renderMod) { frame = 0; }
-    Animation(std::shared_ptr<IMG_wrapper> _image, Fl_Rect _renderMod = {0, 0, 1, 1}) : renderMod(_renderMod), image(_image) { frame = 0; }
+    Animation(IMG_wrapper* _image, Fl_Rect _renderMod = {0, 0, 1, 1}) : renderMod(_renderMod), image(_image) { frame = 0; }
     Animation(const Animation &other);
     void play() { running = true; }
     void pause() { running = false; }
@@ -29,8 +29,7 @@ public:
 
     Fl_Rect renderMod; // x,y shifts, w,h scales of picture when rendering
     // shared because multiple animation will share it
-    std::shared_ptr<IMG_wrapper> image;
-    bool set_image(Window &, std::string imagePath);
+    IMG_wrapper* image;
     void add_clip(SDL_Rect clip) { clips.push_back(clip); }
     void add_clip_relative(std::vector<float> clip);
 

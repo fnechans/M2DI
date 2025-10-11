@@ -5,19 +5,18 @@
 Map_wrapper::Map_wrapper(SDL_Rect border)
     : gameplayBorder(border)
 {
-    image = std::make_shared<IMG_wrapper>();
 }
 
 void Map_wrapper::init(int xMax, int yMax)
 {
-    for(int x = 0; x < xMax; x++)
+    for (int x = 0; x < xMax; x++)
     {
-        for(int y = 0; y < yMax; y++)
+        for (int y = 0; y < yMax; y++)
         {
-            std::string type = std::string(1, (char)'a'+x) + std::string(1, (char)'a'+y);
-            mappingClips[type] = {x * (int) base::TILESIZEINPUT, y * (int) base::TILESIZEINPUT,
-                                  (int) base::TILESIZEINPUT, (int) base::TILESIZEINPUT};
-            mappingColor[type] = {0,0,0,0};
+            std::string type = std::string(1, (char)'a' + x) + std::string(1, (char)'a' + y);
+            mappingClips[type] = {x * (int)base::TILESIZEINPUT, y * (int)base::TILESIZEINPUT,
+                                  (int)base::TILESIZEINPUT, (int)base::TILESIZEINPUT};
+            mappingColor[type] = {0, 0, 0, 0};
             mappingObscure[type] = true;
         }
     }
@@ -36,7 +35,7 @@ void Map_wrapper::render_map(Window &window, SDL_Rect &mapPosition)
     }
 }
 
-SDL_Rect get_tile_draw_rect(Block const &obj, double& scale)
+SDL_Rect get_tile_draw_rect(Block const &obj, double &scale)
 {
     return {(int)(obj.hitbox.x / scale),
             (int)(obj.hitbox.y / scale),
@@ -75,12 +74,12 @@ bool Map_wrapper::load_map(std::string mapFile, int mapSizeX, int mapSizeY)
 {
     mWidth = mapSizeX * base::TILESIZEPHYSICS;
     mHeight = mapSizeY * base::TILESIZEPHYSICS;
-    borderLeft.hitbox = {(int)-base::TILESIZEPHYSICS, (int)-base::TILESIZEPHYSICS, (int)base::TILESIZEPHYSICS, (int)base::TILESIZEPHYSICS*(mapSizeX+2)};
-    borderRight.hitbox = {(int)base::TILESIZEPHYSICS*mapSizeX, (int)-base::TILESIZEPHYSICS, (int)base::TILESIZEPHYSICS, (int)base::TILESIZEPHYSICS*(mapSizeX+2)};
-    borderTop.hitbox = {0, (int)base::TILESIZEPHYSICS*mapSizeY, (int)base::TILESIZEPHYSICS*mapSizeX, (int)base::TILESIZEPHYSICS};
-    borderBottom.hitbox = {0, (int)-base::TILESIZEPHYSICS, (int)base::TILESIZEPHYSICS*mapSizeX, (int)base::TILESIZEPHYSICS};
+    borderLeft.hitbox = {(int)-base::TILESIZEPHYSICS, (int)-base::TILESIZEPHYSICS, (int)base::TILESIZEPHYSICS, (int)base::TILESIZEPHYSICS * (mapSizeX + 2)};
+    borderRight.hitbox = {(int)base::TILESIZEPHYSICS * mapSizeX, (int)-base::TILESIZEPHYSICS, (int)base::TILESIZEPHYSICS, (int)base::TILESIZEPHYSICS * (mapSizeX + 2)};
+    borderTop.hitbox = {0, (int)base::TILESIZEPHYSICS * mapSizeY, (int)base::TILESIZEPHYSICS * mapSizeX, (int)base::TILESIZEPHYSICS};
+    borderBottom.hitbox = {0, (int)-base::TILESIZEPHYSICS, (int)base::TILESIZEPHYSICS * mapSizeX, (int)base::TILESIZEPHYSICS};
 
-    if(mapFile!="")
+    if (mapFile != "")
         tiles = import_map(mapFile, mapSizeX, mapSizeY);
     else
         tiles = blank_map(mapSizeX, mapSizeY);
@@ -99,18 +98,19 @@ bool Map_wrapper::load_blocks(std::string mapFile, int mapSizeX, int mapSizeY)
 
 void Map_wrapper::add_sprite_property(int posX, int posY, SDL_Color col, bool obscures)
 {
-    std::string type = std::string(1, (char)'a'+posX) + std::string(1, (char)'a'+posY);
+    std::string type = std::string(1, (char)'a' + posX) + std::string(1, (char)'a' + posY);
     add_sprite_property(type, col, obscures);
 }
 
 void Map_wrapper::add_sprite_property(std::string type, SDL_Color col, bool obscures)
 {
-    if(type.size()!=2) throw std::runtime_error("type of sprite has to be string length 2!");
+    if (type.size() != 2)
+        throw std::runtime_error("type of sprite has to be string length 2!");
     mappingColor.at(type) = col;
     mappingObscure.at(type) = obscures;
 }
 
-std::vector<Block*> Map_wrapper::map_border_colision()
+std::vector<Block *> Map_wrapper::map_border_colision()
 {
     // TODO: define vector directly! No reason to have these
     // as individual variables
@@ -124,7 +124,7 @@ void Map_wrapper::screen_position(SDL_Rect &screenRect, SDL_Rect &viewPort, Bloc
 
     screenRect.x = obj.position().x * base::scaleRender() - obj.positionScreen.x;
     screenRect.y = obj.position().y * base::scaleRender() - obj.positionScreen.y;
-    
+
     if (screenRect.x < 0)
     {
         screenRect.x = 0;

@@ -4,7 +4,6 @@
 
 #include <exception>
 
-
 Block::Block(uint x, uint y)
 {
     hitbox.x = x;
@@ -16,7 +15,7 @@ Block::Block(uint x, uint y)
     mapColor = {0, 0, 0, 0};
 }
 
-Block::Block(const Block& other)
+Block::Block(const Block &other)
 {
     // TODO: this can be default copy constructor
     // once we remove animation
@@ -35,11 +34,7 @@ Block::Block(const Block& other)
 
 bool Block::on_screen(SDL_Rect *screen)
 {
-    if( !(hitbox.x * base::scaleRender() < screen->x - (int) base::TILESIZERENDER()
-            || hitbox.x * base::scaleRender() > screen->x + screen->w
-            || hitbox.y * base::scaleRender() < screen->y -  (int) base::TILESIZERENDER()
-            || hitbox.y * base::scaleRender() > screen->y + screen->h
-            ))
+    if (!(hitbox.x * base::scaleRender() < screen->x - (int)base::TILESIZERENDER() || hitbox.x * base::scaleRender() > screen->x + screen->w || hitbox.y * base::scaleRender() < screen->y - (int)base::TILESIZERENDER() || hitbox.y * base::scaleRender() > screen->y + screen->h))
     {
         positionScreen = base::toScreen(screen, position());
         return true;
@@ -51,23 +46,16 @@ void Block::plot(Window &window, SDL_Rect *screen)
 {
     if (screen)
     {
-        if(!on_screen(screen))
+        if (!on_screen(screen))
             return;
     }
 
-    int width = hitbox.w*base::scaleRender();
-    int height = hitbox.h*base::scaleRender();
-    SDL_Rect renderRect = {positionScreen.x - (int) width/2, positionScreen.y - (int) height/2, (int) width, (int) height};
+    int width = hitbox.w * base::scaleRender();
+    int height = hitbox.h * base::scaleRender();
+    SDL_Rect renderRect = {positionScreen.x - (int)width / 2, positionScreen.y - (int)height / 2, (int)width, (int)height};
     // image->set_color(255,0,0);
     image->render_image(window, &renderRect, &clip);
 }
-
-bool Block::set_image(Window &window, std::string imagePath)
-{
-    image = std::make_shared<IMG_wrapper>();
-    return image->load_media(window, imagePath.c_str());
-}
-
 
 void Block::copy_animation(Block const &object)
 {
@@ -79,7 +67,7 @@ void Block::copy_animation(Block const &object)
     }
 }
 
-void Block::set_animation(const std::string& animationName)
+void Block::set_animation(const std::string &animationName)
 {
     if (animationName == curAnimation)
         return;
