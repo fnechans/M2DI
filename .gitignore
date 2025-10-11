@@ -5,3 +5,6 @@ data/**
 build/**
 test/**
 *.zip
+env/
+external/lua*
+subprojects/

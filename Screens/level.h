@@ -1,15 +1,15 @@
 #ifndef LEVEL_H
 #define LEVEL_H
 
-#include "viewport.h"
-#include "tilemap.h"
-#include "dmgr_inst.h"
-#include "IMG_wrapper.h"
-#include "astar.h"
-#include "button.h"
-#include "character.h"
-#include "object_manager.hpp"
-#include "vision_cone.h"
+#include "Tools/astar.h"
+#include "Basics/viewport.h"
+#include "Complex/tilemap.h"
+#include "Damage/dmgr_inst.h"
+#include "SDL_wrapper/IMG_wrapper.h"
+#include "Basics/button.h"
+#include "Basics/vision_cone.h"
+#include "Complex/character.h"
+#include "Managers/object_manager.hpp"
 
 #include <utility>
 
@@ -50,7 +50,7 @@ public:
 
     void add_object_animation(Object* obj, std::string aniName, Animation animation, std::string imgName)
     {
-        obj->animations[aniName] = std::move(animation);
+        obj->animations.emplace(aniName, std::move(animation));
         obj->animations[aniName].image = images[imgName];
     }
 

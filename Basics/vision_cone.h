@@ -1,9 +1,10 @@
 #ifndef VISIONCONE_H
 #define VISIONCONE_H
 
-#include "base.h"
+#include "Tools/base.h"
 #include "viewport.h"
-#include "block.h"
+#include "Basics/block.h"
+#include "Tools/tools.h"
 
 #include <math.h>
 

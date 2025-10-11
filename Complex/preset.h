@@ -1,7 +1,7 @@
 #ifndef PRESET_H
 #define PRESET_H
 
-#include "animation.h"
+#include "SDL_wrapper/animation.h"
 // temporary class to hold animation
 // will be replaced by loader
 

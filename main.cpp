@@ -1,7 +1,7 @@
-#include "screen.h"
-#include "top_down.h"
-#include "main_menu.h"
-#include "map_editor.h"
+#include "Screens/screen.h"
+#include "User/top_down.h"
+#include "User/main_menu.h"
+#include "User/map_editor.h"
 
 #include <iostream>
 #include <sstream>

@@ -1,9 +1,8 @@
 #ifndef DAMAGER_H
 #define DAMAGER_H
 
-#include "base.h"
-#include "object.h"
-#include "timer.h"
+#include "Basics/object.h"
+#include "SDL_wrapper/timer.h"
 
 #include <stdexcept>
 #include <sstream>

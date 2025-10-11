@@ -10,9 +10,7 @@
 #include <algorithm>
 #include <map>
 #include <cmath>
-#include "SDL2_gfxPrimitives.h"
 
-#include "tools.h"
 
 typedef unsigned int uint;
 

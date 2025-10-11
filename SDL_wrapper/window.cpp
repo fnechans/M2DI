@@ -1,6 +1,7 @@
 #include "window.h"
 
 #include <SDL_ttf.h>
+#include "SDL_gfx/SDL2_gfxPrimitives.h"
 
 typedef Window SDLW;
 
@@ -53,6 +54,7 @@ bool SDLW::init()
         }
     }
     isInit = success;
+    printf("Window initialized\n");
 
     return success;
 }
@@ -74,4 +76,36 @@ void SDLW::close()
 void SDLW::update_window()
 {
     SDL_UpdateWindowSurface(sdlWindow);
+}
+void SDLW::clear()
+{
+    SDL_RenderClear(sdlRenderer);
+}
+// render everything
+void SDLW::render()
+{
+    SDL_SetRenderDrawColor(sdlRenderer, 0x00, 0x00, 0x00, 0xFF);
+    SDL_RenderPresent(sdlRenderer);
+}
+void SDLW::viewPort(SDL_Rect *viewPort)
+{
+    SDL_RenderSetViewport(sdlRenderer, viewPort);
+}
+void SDLW::drawColorRect(SDL_Rect *rect, const SDL_Color &color)
+{
+    SDL_SetRenderDrawColor(sdlRenderer, color.r, color.g, color.b, color.a);
+    SDL_RenderFillRect(sdlRenderer, rect);
+}
+void SDLW::drawColorLine(const SDL_Rect& start, const SDL_Rect& end, const SDL_Color &color, uint width)
+{
+    SDL_SetRenderDrawColor(sdlRenderer, color.r, color.g, color.b, color.a);
+    //SDL_RenderDrawLine(sdlRenderer, start.x, start.y, end.x, end.y);
+    thickLineRGBA(sdlRenderer, start.x, start.y, end.x, end.y, width, color.r, color.g, color.b, color.a);
+}
+void SDLW::drawColorTriangle(const SDL_Rect& p1, const SDL_Rect& p2, const SDL_Rect& p3, const SDL_Color &color, bool filled)
+{
+    SDL_SetRenderDrawColor(sdlRenderer, color.r, color.g, color.b, color.a);
+    //SDL_RenderDrawLine(sdlRenderer, start.x, start.y, end.x, end.y);
+    if(filled) filledTrigonRGBA(sdlRenderer, p1.x, p1.y, p2.x, p2.y, p3.x, p3.y, color.r, color.g, color.b, color.a);
+    else trigonRGBA(sdlRenderer, p1.x, p1.y, p2.x, p2.y, p3.x, p3.y, color.r, color.g, color.b, color.a);
 }

@@ -1,4 +1,5 @@
 #include "hitscan_damager.h"
+#include "Tools/tools.h"
 
 
 bool HitScanDamager::evaluate_target(Object *target)

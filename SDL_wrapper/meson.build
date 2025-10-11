@@ -1,0 +1,2 @@
+subdir('SDL_gfx')
+wrappers_lib = shared_library('wrappers', 'IMG_wrapper.cpp', 'animation.cpp', 'timer.cpp', 'window.cpp', dependencies: [sdl], link_with: [sdlgfx, tools_lib], include_directories: root_inc)

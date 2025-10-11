@@ -1,7 +1,7 @@
 #ifndef DMGR_INST_H
 #define DMGR_INST_H
 
-#include "timer.h"
+#include "SDL_wrapper/timer.h"
 #include "damager.h"
 #include "area_damager.h"
 #include "hitscan_damager.h"
