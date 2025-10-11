@@ -1,12 +1,13 @@
 #ifndef BLOCK_H
 #define BLOCK_H
 
-#include "base.h"
-#include "IMG_wrapper.h"
-#include "animation.h"
+#include "SDL_wrapper/animation.h"
 
 #include <vector>
 #include <map>
+
+class IMG_wrapper;
+class Window;
 
 class Block
 {

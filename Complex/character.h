@@ -1,8 +1,8 @@
 #ifndef CHARACTER_H
 #define CHARACTER_H
 
-#include "object.h"
-#include "dmgr_inst.h"
+#include "Basics/object.h"
+#include "Damage/dmgr_inst.h"
 
 class Dmgr_instance;
 

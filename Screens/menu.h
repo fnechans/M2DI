@@ -1,11 +1,11 @@
 #ifndef MENU_H
 #define MENU_H
 
-#include "viewport.h"
-#include "button.h"
+#include "Basics/viewport.h"
+#include "Basics/button.h"
 #include <map>
-#include "IMG_wrapper.h"
-#include "timer.h"
+#include "SDL_wrapper/IMG_wrapper.h"
+#include "SDL_wrapper/timer.h"
 
 class Menu : public Viewport
 {

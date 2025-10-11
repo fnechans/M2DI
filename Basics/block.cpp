@@ -1,4 +1,6 @@
-#include "block.h"
+#include "Basics/block.h"
+#include "Tools/base.h"
+#include "SDL_wrapper/IMG_wrapper.h"
 
 #include <exception>
 
@@ -73,7 +75,7 @@ void Block::copy_animation(Block const &object)
     {
         if (animations.find(iter.first) != animations.end())
             std::cout << "Warning: Animation " << iter.first << " already exists!\n";
-        animations[iter.first] = Animation(iter.second);
+        animations.emplace(iter.first, iter.second);
     }
 }
 

@@ -1,8 +1,8 @@
 #ifndef BUTTON_H
 #define BUTTON_H
 
-#include "base.h"
-#include "IMG_wrapper.h"
+#include "Tools/base.h"
+#include "SDL_wrapper/IMG_wrapper.h"
 
 class button
 {

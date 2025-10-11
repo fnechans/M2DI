@@ -3,9 +3,8 @@
 
 #include <algorithm>
 
-#include "screen.h"
-#include "preset.h"
-
+#include "Screens/screen.h"
+#include "Complex/preset.h"
 #include "main_menu.h"
 
 class main_menu;

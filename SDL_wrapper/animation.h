@@ -1,8 +1,8 @@
 #ifndef ANIMATION_H
 #define ANIMATION_H
 
-#include "base.h"
-#include "IMG_wrapper.h"
+#include "Tools/base.h"
+#include "SDL_wrapper/IMG_wrapper.h"
 
 #include <vector>
 

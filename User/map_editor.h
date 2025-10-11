@@ -1,8 +1,7 @@
 #ifndef MAPEDITOR_H
 #define MAPEDITOR_H
 
-#include "screen.h"
-#include "preset.h"
+#include "Screens/screen.h"
 
 class map_editor : public screen
 {

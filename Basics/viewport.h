@@ -1,8 +1,8 @@
 #ifndef VIEWPORT_H
 #define VIEWPORT_H
 
-#include "base.h"
-#include "window.h"
+#include "Tools/base.h"
+#include "SDL_wrapper/window.h"
 
 class Viewport
 {

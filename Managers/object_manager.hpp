@@ -1,8 +1,9 @@
 #ifndef OBJ_MGR_H
 #define OBJ_MGR_H
 
-#include "object.h"
-#include "base.h"
+#include "Basics/object.h"
+#include "Tools/tools.h"
+#include "Tools/base.h"
 
 #include <map>
 #include <string>

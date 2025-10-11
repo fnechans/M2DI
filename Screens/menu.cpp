@@ -1,9 +1,9 @@
 #include "menu.h"
+#include "Tools/tools.h"
 
 Menu::Menu(Window *win, Position pos, SDL_Rect bor) : Viewport(win, pos, bor)
 {
 }
-
 
 bool Menu::evaluate(SDL_Event &event)
 {

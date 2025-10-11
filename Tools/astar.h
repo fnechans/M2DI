@@ -4,6 +4,10 @@
 #include <map>
 #include <cmath>
 #include <algorithm>
+#include <iostream>
+#include <memory>
+#include "Tools/base.h"
+
 
 template <typename node>
 class AStar

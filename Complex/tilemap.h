@@ -1,8 +1,8 @@
 #ifndef MAP_H
 #define MAP_H
 
-#include "base.h"
-#include "block.h"
+#include "Tools/base.h"
+#include "Basics/block.h"
 
 #include <vector>
 #include <map>
