@@ -46,14 +46,21 @@ public:
     }
     Level &add_level()
     {
-        levels.push_back(Level(window.get()));
-        return levels.back();
+        level = std::make_unique<Level>(window.get());
+        return *level;
     }
 
     void schedule_button_update(const std::string &name, std::function<void()> func)
     {
         updates.push_back([name, func, this]()
                           { if (menu->get_state(name)) func(); });
+    }
+    void schedule_screen_position_update(Character *target)
+    {
+        updates.push_back([this, target]()
+                          {
+        level->set_viewPort();
+        level->get_map().screen_position(level->screenRect, level->viewPort, *target); });
     }
 
     std::function<void()> l_quit()
@@ -88,7 +95,7 @@ public:
         isInit = true;
     }
     std::unique_ptr<Menu> menu;
-    std::vector<Level> levels;
+    std::unique_ptr<Level> level;
     std::string nextScreen = "";
 
 private:

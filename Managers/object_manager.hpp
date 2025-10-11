@@ -9,10 +9,10 @@
 #include <string>
 
 template <class objType>
-class Object_manager
+class ObjManager
 {
 public:
-    Object_manager(){}
+    ObjManager(){}
 
     objType* add(const std::string& name, double x, double y)
     {

@@ -13,6 +13,8 @@
 
 #include <utility>
 
+
+using CharacterManager = ObjManager<Character>;
 // Goal of Level is that player does not have to
 // interact with any Object unless really necessary
 class Level : public Viewport
@@ -43,6 +45,11 @@ public:
         obj->animations[aniName].image = image;
     }
 
+    void set_map_screen_position(Block* target)
+    {
+        curMap->screen_position(screenRect, viewPort, *target);
+    }
+
     // object-collection getter:
     std::vector<Block *> &get_collision_objects() { return collisionObjects; }
     std::vector<Block *> &get_obscuring_objects() { return obscuringObjects; }
@@ -53,8 +60,11 @@ public:
 
     button bScreen;
 
-    Object_manager<Character> characters;
-    Object_manager<Character> grenades;
+    CharacterManager characters;
+    Character& add_character(const std::string & name, double x, double y) { return *characters.add(name, x, y); }
+
+    CharacterManager projectiles;
+    Character& add_projectile(const std::string & name, double x, double y) { return *projectiles.add(name, x, y); }
 
 private:
     std::unique_ptr<Map_wrapper> curMap;

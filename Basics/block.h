@@ -41,11 +41,14 @@ public:
     bool on_screen(SDL_Rect *screen);
 
     std::map<std::string, Animation> animations;
+    void add_animation(const std::string& animationName, Animation animation) { animations.emplace(animationName, std::move(animation)); }
+
     void copy_animation(Block const &object);
     void plot_animation(Window &window, SDL_Rect *screen = nullptr, bool pause = false);
     void set_animation(const std::string& animationName);
     Animation&  get_current_animation() { return animations[curAnimation]; }
     const std::string&  get_current_animation_name() { return curAnimation; }
+
 
 private:
     std::string curAnimation = "";
