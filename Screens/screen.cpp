@@ -1,6 +1,6 @@
 #include "screen.h"
 
-void screen::evaluate()
+void Screen::evaluate()
 {
     if (event.type == SDL_QUIT)
     {
@@ -13,9 +13,8 @@ void screen::evaluate()
     }
     else
     {
-        for (auto &m : menus)
-            if (m.evaluate(event))
-                return;
+        if (menu->evaluate(event))
+            return;
         for (auto &l : levels)
             if (l.evaluate(event))
                 return;
@@ -23,10 +22,11 @@ void screen::evaluate()
     }
 }
 
-screen_ptr screen::loop()
+screen_ptr Screen::loop()
 {
     if (!isInit)
         init();
+    
 
     std::cout << "Starting new loop\n";
 
@@ -56,8 +56,7 @@ screen_ptr screen::loop()
             {
 
                 nEval++;
-                for (auto &m : menus)
-                    m.reset();
+                menu->reset();
                 for (auto &l : levels)
                     l.reset();
 
@@ -66,8 +65,8 @@ screen_ptr screen::loop()
                 {
                     evaluate();
                 }
-
-                user_update();
+                for (auto& f : updates)
+                    f();
 
                 next_game_step += game_step_ms; // count 1 game tick done
 
@@ -96,8 +95,7 @@ screen_ptr screen::loop()
 
             for (auto &l : levels)
                  l.plot();
-            for (auto &m : menus)
-                m.plot();
+            menu->plot();
             window->render();
 
             user_finish();

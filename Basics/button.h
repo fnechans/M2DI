@@ -21,16 +21,16 @@ public:
     button(const button &b);
     ~button() {}
 
+
     SDL_Rect clips[COUNT];
 
     SDL_Rect screenPos;
     uint state = DEFAULT;
 
-    std::shared_ptr<IMG_wrapper> image;
-    std::shared_ptr<IMG_wrapper> text;
+    IMG_wrapper* image;
+    IMG_wrapper* text;
     void plot(Window &wrapper);
     int evaluate(SDL_Event &event, SDL_Rect viewPort);
-    bool set_image(Window &window, std::string imagePath, std::string title = "", SDL_Color color = {255, 255, 150, 255});
 
     int mouseX = 0;
     int mouseY = 0;

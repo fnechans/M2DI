@@ -1,2 +1,2 @@
-basics_lib = library('basics', 'block.cpp', 'button.cpp', 'object.cpp', 'viewport.cpp', include_directories: root_inc, dependencies: [sdl])
+basics_lib = library('basics', 'block.cpp', 'button.cpp', 'object.cpp', 'viewport.cpp', include_directories: root_inc, dependencies: [sdl], link_with: [tools_lib, wrappers_lib])
 

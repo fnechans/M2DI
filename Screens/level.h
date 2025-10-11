@@ -35,23 +35,12 @@ public:
         curMap = std::make_unique<Map_wrapper>(border);
     }
     Map_wrapper &get_map() { return *curMap; }
-    void set_map_image(std::string name) { curMap->image = images[name]; }
+    void set_map_image(IMG_wrapper *image) { curMap->image = image; }
 
-     // Images
-    void add_image(std::string name, std::string imagePath)
-    {
-        images.emplace(name, std::make_shared<IMG_wrapper>());
-        images[name]->load_media(*window, imagePath.c_str());
-    }
-    std::shared_ptr<IMG_wrapper> get_image(const std::string& name)
-    {
-        return images.at(name);
-    }
-
-    void add_object_animation(Object* obj, std::string aniName, Animation animation, std::string imgName)
+    void add_object_animation(Object *obj, std::string aniName, Animation animation, IMG_wrapper *image)
     {
         obj->animations.emplace(aniName, std::move(animation));
-        obj->animations[aniName].image = images[imgName];
+        obj->animations[aniName].image = image;
     }
 
     // object-collection getter:
@@ -66,6 +55,7 @@ public:
 
     Object_manager<Character> characters;
     Object_manager<Character> grenades;
+
 private:
     std::unique_ptr<Map_wrapper> curMap;
     // TODO: might be better to have single vector
@@ -74,9 +64,6 @@ private:
     std::vector<Block *> collisionObjects;
     std::vector<Block *> obscuringObjects;
     std::vector<Object *> damagableObjects;
-
-    std::map<std::string, std::shared_ptr<IMG_wrapper>> images;
-
 };
 
 #endif

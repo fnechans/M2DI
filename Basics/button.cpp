@@ -60,7 +60,7 @@ int button::evaluate(SDL_Event &e, SDL_Rect viewPort)
     if (e.type == SDL_MOUSEMOTION || e.type == SDL_MOUSEBUTTONDOWN || e.type == SDL_MOUSEBUTTONUP)
     {
         //Get mouse position
-        if (mouseX >= viewPort.x + screenPos.x && mouseX <= viewPort.x + screenPos.x + screenPos.w && mouseY >= viewPort.y + screenPos.y && mouseY <= viewPort.y + screenPos.y + screenPos.h && e.button.button == SDL_BUTTON_LEFT)
+        if (mouseX >= viewPort.x + screenPos.x && mouseX <= viewPort.x + screenPos.x + screenPos.w && mouseY >= viewPort.y + screenPos.y && mouseY <= viewPort.y + screenPos.y + screenPos.h)
         {
             //Set mouse over sprite
             switch (e.type)
@@ -68,13 +68,15 @@ int button::evaluate(SDL_Event &e, SDL_Rect viewPort)
             case SDL_MOUSEMOTION:
                 state = HOVER;
                 break;
-
+            
             case SDL_MOUSEBUTTONDOWN:
-                state = CLICK;
+                if (e.button.button == SDL_BUTTON_LEFT)
+                    state = CLICK;
                 break;
 
             case SDL_MOUSEBUTTONUP:
-                state = UNCLICK;
+                if (e.button.button == SDL_BUTTON_LEFT)
+                    state = HOVER; //UNCLICK; TODO add
                 break;
             }
         }
@@ -88,20 +90,13 @@ void button::plot(Window &window)
 {
    // image->set_color(255, 0, 0);
     image->render_image(window, &screenPos, &clips[state]);
-    if (text)
-        text->render_image(window, &screenPos);
-}
+    // For text, we modify the position to match the text
 
-bool button::set_image(Window &window, std::string imagePath, std::string title, SDL_Color color)
-{
-    image = std::make_shared<IMG_wrapper>();
-    if (!image->load_media(window, imagePath.c_str()))
-        return false;
-    if (title != "")
-    {
-        text = std::make_shared<IMG_wrapper>();
-        if (!text->load_text(window, title, color, screenPos.h))
-            return false;
-    }
-    return true;
+    SDL_Rect new_position = screenPos;
+    int gap = (screenPos.w - text->width);
+    new_position.x += gap / 2;
+    new_position.w -= gap;
+
+    if (text)
+        text->render_image(window, &new_position);
 }

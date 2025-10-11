@@ -4,24 +4,13 @@
 #include "Basics/viewport.h"
 #include "Basics/button.h"
 #include <map>
-#include "SDL_wrapper/IMG_wrapper.h"
-#include "SDL_wrapper/timer.h"
-
 class Menu : public Viewport
 {
 public:
-
     Menu(Window *_wrapper, Position pos = RIGHT, SDL_Rect border = {0, base::TILESIZEINPUT * 12, base::TILESIZEINPUT * 12, 0});
     bool evaluate(SDL_Event &event); // returns true if event relevant to speed up/avoid multiple evals
     void reset();
     void plot();
-
-    // Images
-    void add_image(std::string name, std::string imagePath)
-    {
-        images.emplace(name, std::make_shared<IMG_wrapper>());
-        images[name]->load_media(*window, imagePath.c_str());
-    }
 
     // Buttons
     void add_button(std::string name, SDL_Rect position, float ws = 2, float hs = 1, SDL_Keycode key = SDLK_UNKNOWN)
@@ -42,23 +31,16 @@ public:
         buttonKeys.emplace(name, key);
         buttonState.emplace(name, false);
     }
-    void set_button_image(std::string name, std::string imgName, std::string text = "", SDL_Color textColor = {255, 255, 150, 255})
+    button& add_button2(std::string name, int x, int y, int ws, int hs, SDL_Keycode key = SDLK_UNKNOWN)
     {
-        auto& curButton = buttons.at(name);
-        curButton.image = images.at(imgName);
-        if (text != "")
-        {
-            curButton.text = std::make_shared<IMG_wrapper>();
-            // 0.9 for the last argument (width of text) to leave place for button border
-            curButton.text->load_text(*window, text, textColor, 
-                curButton.clips[0].h*base::scaleRenderInput(),
-                curButton.clips[0].w*base::scaleRenderInput()*10);
-        }
+        add_button(name, {x, y, ws, hs}, 2., 1., key);
+        return buttons.at(name);
     }
     bool get_state(std::string name) { return buttonState.at(name); }
 
+
+
 private:
-    std::map<std::string, std::shared_ptr<IMG_wrapper>> images;
     std::map<std::string, button> buttons;
     std::map<std::string, SDL_Keycode> buttonKeys;
     std::map<std::string, bool> buttonState;
