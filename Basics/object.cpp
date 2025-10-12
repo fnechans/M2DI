@@ -10,27 +10,30 @@ Object::Object(const Object& other) : Block(other)
     bounceFactor = other.bounceFactor;
     doPlotPath = other.doPlotPath;
     target = other.target;
+
+    properties = other.properties;
 }
 
-void Object::set_health(uint value)
+void Object::set_health(int value)
 {
-    property["health"] = value;
-    property["max_health"] = value;
+    properties.set("health", value);
+    properties.set("max_health", value);
 }
 
 void Object::modify_health(int value)
 {
-    if(property.count("health") == 0)
+    if(properties.count("health") == 0)
     {
         std::cout << "Attemping to modify health but non health propery\n";
         return; // skip if object does not have health
     }
-    property["health"] += value;
-    if (property["health"] > property["max_health"])
-        property["health"] = property["max_health"];
-    if (property["health"] < 0)
-        property["health"] = 0;
-    if (property["health"] == 0)
+    int& health = properties.get<int>("health");
+    int& max_health = properties.get<int>("max_health");
+
+    health += value;    
+    if (health > max_health) health = max_health;
+    if (health < 0) health = 0;
+    if (health == 0)
     {
         dead = true;
     }
@@ -58,7 +61,7 @@ void Object::move_right()
     }
 }
 
-void Object::move_up(std::vector<Block *> &collObjects)
+void Object::move_up(const std::vector<Block *> &collObjects)
 {
     switch(moveType)
     {
@@ -119,7 +122,7 @@ void Object::plot_path(Window &wrapper, SDL_Rect *screen)
     }
 }
 
-void Object::move(std::vector<Block *> &collObjects, double DELTA_T)
+void Object::move(const std::vector<Block *> &collObjects, double DELTA_T)
 {
     // TODO: this whole thing needs to be done better,
     // but not sure how right now
@@ -233,7 +236,7 @@ void Object::move(std::vector<Block *> &collObjects, double DELTA_T)
     extVelY = 0;
 }
 
-bool Object::does_collide(SDL_Rect &pos, std::vector<Block *> &collObjects)
+bool Object::does_collide(SDL_Rect &pos, const std::vector<Block *> &collObjects)
 {
 
     for (auto obj : collObjects)
@@ -246,7 +249,7 @@ bool Object::does_collide(SDL_Rect &pos, std::vector<Block *> &collObjects)
     return false;
 }
 
-bool Object::next_to(SDL_Rect pos, direction dir, std::vector<Block *> &collObjects)
+bool Object::next_to(SDL_Rect pos, direction dir, const std::vector<Block *> &collObjects)
 {
     switch (dir)
     {

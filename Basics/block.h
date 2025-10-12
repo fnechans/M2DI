@@ -7,7 +7,7 @@
 #include <map>
 
 
-class Block
+class Block : public HasProperties
 {
 public:
     Block(uint x = 0, uint y = 0);
@@ -32,9 +32,6 @@ public:
     bool obscuresVision{true};
 
     // TODO: Following should probably be refactored out?
-
-    // custom properties 
-    std::map<std::string, int> property;
 
     IMG_wrapper* image;
     void plot(Window &wrapper, SDL_Rect *screen = nullptr);

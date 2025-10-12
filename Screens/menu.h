@@ -36,7 +36,12 @@ public:
         add_button(name, {x, y, ws, hs}, 2., 1., key);
         return buttons.at(name);
     }
-    bool get_state(std::string name) { return buttonState.at(name); }
+    bool get_state(std::string name) { 
+        if(buttonState.count(name)==0)
+            throw std::runtime_error("Button of name "+name+" does "
+                "not texists in the menu.");
+        return buttonState.at(name);
+    }
 
 
 

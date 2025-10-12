@@ -10,7 +10,7 @@ public:
 
     Object(const Object& other);
 
-    void set_health(uint value);
+    void set_health(int value);
     void modify_health(int value);
     bool dead = false;
 
@@ -35,7 +35,7 @@ public:
     MoveType moveType = TopDown;
     void move_left();
     void move_right();
-    void move_up(std::vector<Block *> &collObjects);
+    void move_up(const std::vector<Block *> &collObjects);
     void move_down();
 
 
@@ -56,9 +56,9 @@ public:
     std::vector<Block *> path = {};
     Object *target{nullptr};
 
-    void move(std::vector<Block *> &collObjects, double DELTA_T);
-    bool does_collide(SDL_Rect &pos, std::vector<Block *>& collObjects);
-    bool next_to(SDL_Rect pos, direction dir, std::vector<Block *>& collObjects); // here copy of pos(ition) on purpose!
+    void move(const std::vector<Block *> &collObjects, double DELTA_T);
+    bool does_collide(SDL_Rect &pos, const std::vector<Block *>& collObjects);
+    bool next_to(SDL_Rect pos, direction dir, const std::vector<Block *>& collObjects); // here copy of pos(ition) on purpose!
 
     // intrinsic speed of the character
     float intrVelX{0.};

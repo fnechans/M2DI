@@ -1,7 +1,7 @@
 #ifndef BASE_H
 #define BASE_H
 
-//Using SDL and standard IO
+// Using SDL and standard IO
 #include <SDL.h>
 #include <stdio.h>
 #include <memory>
@@ -10,29 +10,57 @@
 #include <algorithm>
 #include <map>
 #include <cmath>
-
+#include <variant>
 
 typedef unsigned int uint;
 
 namespace base
 {
 
-
     const uint TILESIZEPHYSICS = 1024; // defines physical size
-                                    // so it is more related to
-                                    // speed and such
-    const uint TILESIZEINPUT = 16;    // defines basic size of
-                                    // tile in input
-    uint TILESIZERENDER();              // defines size of tile on screen
-                                    // so can change if zooming in/out
+                                       // so it is more related to
+                                       // speed and such
+    const uint TILESIZEINPUT = 16;     // defines basic size of
+                                       // tile in input
+    uint TILESIZERENDER();             // defines size of tile on screen
+                                       // so can change if zooming in/out
     double scaleRender();
     double scaleRenderInput();
 
     void set_tilerender(int);
 
-    SDL_Rect toScreen(SDL_Rect* screen, const SDL_Rect& position);
+    SDL_Rect toScreen(SDL_Rect *screen, const SDL_Rect &position);
 
-    SDL_Rect fromScreen(SDL_Rect* screen, const SDL_Rect& positionScreen);
+    SDL_Rect fromScreen(SDL_Rect *screen, const SDL_Rect &positionScreen);
+};
+
+class Properties
+{
+public:
+    uint count(const std::string &name) { return properties.count(name); }
+
+//    template <typename T>
+//    void set(const std::string &name, T value) { properties.emplace(name, value); }
+//
+    void set(const std::string &name, std::variant<bool, int, float, std::string> value) { properties.emplace(name, value); }
+
+    template <typename T>
+    T &get(const std::string &name)
+    {
+        if (properties.count(name) == 0)
+            throw std::runtime_error("Property of name " + name + " does "
+                                                                  "not exists in the manager.");
+        return std::get<T>(properties.at(name));
+    }
+
+private:
+    std::map<std::string, std::variant<bool, int, float, std::string>> properties;
+};
+
+class HasProperties
+{
+public:
+    Properties properties;
 };
 
 #endif

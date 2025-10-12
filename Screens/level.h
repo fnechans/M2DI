@@ -17,7 +17,7 @@
 using CharacterManager = ObjManager<Character>;
 // Goal of Level is that player does not have to
 // interact with any Object unless really necessary
-class Level : public Viewport
+class Level : public Viewport, public HasProperties
 {
 public:
     Level(Window *win, Position pos = WHOLE, SDL_Rect bor = {0, 0, 0, 0});

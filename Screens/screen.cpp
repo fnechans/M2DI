@@ -17,7 +17,7 @@ void Screen::evaluate()
             return;
         if (level && level->evaluate(event))
             return;
-        user_evaluate();
+        keybinds.evaluate(event);
     }
 }
 
@@ -65,6 +65,7 @@ screen_ptr Screen::loop()
                 }
                 for (auto& f : updates)
                     f();
+                if (level) level->move_chars(DELTA_T);
 
                 next_game_step += game_step_ms; // count 1 game tick done
 
@@ -88,7 +89,8 @@ screen_ptr Screen::loop()
 
             if (level) level->plot_map();
 
-            user_plot();
+            for (auto& f : plots)
+                f();
 
             if (level) level->plot();
             menu->plot();
