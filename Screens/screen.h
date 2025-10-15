@@ -82,8 +82,10 @@ public:
     std::function<void()> l_nextScreen(const std::string &name);
 
     void schedule_plot(std::function<void()> func);
-    std::function<void()> l_plot_viewport(Viewport *viewport);
-    std::function<void()> l_plot_image(IMG_wrapper *img, int x, int y);
+    std::function<void()> l_plot_on_level(Level *viewport);
+    std::function<void()> l_plot_on_menu(Menu *menu);
+    std::function<void()> l_plot_image(IMG_wrapper *img, int x, int y, const bool &condition);
+    std::function<void()> l_set_animation(Character *object, const std::string &name, std::function<bool()> condition);
 
     KeyBinds keybinds;
 

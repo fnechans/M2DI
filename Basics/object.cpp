@@ -2,7 +2,22 @@
 #include "Tools/tools.h"
 
 
-Object::Object(const Object& other) : Block(other)
+Object::Object(uint x, uint y) : Block(x, y),
+    health(properties.set_and_get<int>("health", 0)),
+    max_health(properties.set_and_get<int>("max_health", 0)),
+    dead(properties.set_and_get<bool>("dead", false)),
+    moved(properties.set_and_get<bool>("moved", false)),
+    bounced(properties.set_and_get<bool>("bounced", false)),
+    dir(properties.set_and_get<int>("direction", 0))
+{}
+
+Object::Object(const Object& other) : Block(other),
+    health(properties.set_and_get<int>("health", other.health)),
+    max_health(properties.set_and_get<int>("max_health", other.max_health)),
+    dead(properties.set_and_get<bool>("dead", other.dead)),
+    moved(properties.set_and_get<bool>("moved", false)),
+    bounced(properties.set_and_get<bool>("bounced", false)),
+    dir(properties.set_and_get<int>("direction", 0))
 {
     moveType = other.moveType;
     speedX = other.speedX;

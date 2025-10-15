@@ -3,6 +3,7 @@
 #include "SDL_wrapper/IMG_wrapper.h"
 
 #include <exception>
+#include <variant>
 
 Block::Block(uint x, uint y)
 {
@@ -24,8 +25,6 @@ Block::Block(const Block &other)
     mapColor = other.mapColor;
     clip = other.clip;
     image = other.image;
-    copy_animation(other);
-    curAnimation = other.curAnimation;
 
     doPlot = other.doPlot;
     hasCollision = other.hasCollision;
@@ -57,28 +56,29 @@ void Block::plot(Window &window, SDL_Rect *screen)
     image->render_image(window, &renderRect, &clip);
 }
 
-void Block::copy_animation(Block const &object)
+void Block::add_animation(Animation& animation, std::vector<std::pair<std::string, PropertyType>>& checkers)
 {
-    for (auto &iter : object.animations)
+    std::vector<ValueChecker> tmp_checkers;
+    for (auto &checker : checkers)
     {
-        if (animations.find(iter.first) != animations.end())
-            std::cout << "Warning: Animation " << iter.first << " already exists!\n";
-        animations.emplace(iter.first, iter.second);
+        tmp_checkers.push_back(properties.get_checker(checker.first, checker.second));
     }
+    animations.push_back(AnimationHelper{std::move(animation), std::move(tmp_checkers)});
 }
 
-void Block::set_animation(const std::string &animationName)
+void Block::set_animation()
 {
-    if (animationName == curAnimation)
-        return;
-
-    if (curAnimation != "")
-        animations[curAnimation].stop();
-    if (animations.find(animationName) == animations.end())
-        throw std::runtime_error("Animation with " + animationName + " does not exist!");
-
-    animations[animationName].play();
-    curAnimation = animationName;
+    for (auto &anim : animations)
+    {
+        if (anim())
+        {
+            if (currentAnimation == &anim.animation) return;
+            if (currentAnimation) currentAnimation->stop();
+            currentAnimation = &anim.animation;
+            currentAnimation->play();
+            break;
+        }
+    }
 }
 
 void Block::plot_animation(Window &window, SDL_Rect *screen, bool pause)
@@ -91,9 +91,10 @@ void Block::plot_animation(Window &window, SDL_Rect *screen, bool pause)
             skipPlot = true;
     }
 
-    if (curAnimation != "")
+
+    if (currentAnimation)
     {
-        auto &anim = animations[curAnimation];
+        auto &anim = *currentAnimation;
         if (pause)
             anim.pause();
         anim.run_and_plot(window, positionScreen, skipPlot);

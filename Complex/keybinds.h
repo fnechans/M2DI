@@ -20,7 +20,7 @@ public:
     void add_keybind(const std::string &name,
             SDL_Keycode key,
             std::function<void()> func_down,
-            std::function<void()> func_up)
+            std::function<void()> func_up = nullptr)
     {
         if (binds.count(name) > 0)
             throw std::runtime_error("Keybind of name " + name + " already "
@@ -39,8 +39,8 @@ public:
             {
                 if (bind.second.key == events.key.keysym.sym)
                 {
-                    std::cout << "Keybind: " << bind.first << " pressed" << std::endl;
-                    bind.second.func_down();
+//                    std::cout << "Keybind: " << bind.first << " pressed" << std::endl;
+                    if (bind.second.func_down) bind.second.func_down();
                 }
             }
         }
@@ -50,8 +50,8 @@ public:
             {
                 if (bind.second.key == events.key.keysym.sym)
                 {
-                    std::cout << "Keybind: " << bind.first << " released" << std::endl;
-                    bind.second.func_up();
+//                    std::cout << "Keybind: " << bind.first << " released" << std::endl;
+                    if (bind.second.func_up) bind.second.func_up();
                 }
             }
         }

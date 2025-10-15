@@ -33,3 +33,8 @@ SDL_Rect base::fromScreen(SDL_Rect *screen, const SDL_Rect &positionScreen)
     position.y = (positionScreen.y + screen->y) / gscaleRender;
     return position;
 }
+
+ValueChecker Properties::get_checker(const std::string &name, const PropertyType& target) 
+{ 
+    return ValueChecker(target, properties[name]); 
+}

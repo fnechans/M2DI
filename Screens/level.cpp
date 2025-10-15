@@ -64,10 +64,12 @@ void Level::move_chars(double DELTA_T)
     for(auto obj : characters)
     {
         obj->move(collisionObjects, DELTA_T);
+        obj->set_animation();
     }
     for(auto obj : projectiles)
     {
         obj->move(collisionObjects, DELTA_T);
+        obj->set_animation();
     }
 }
 
@@ -104,7 +106,7 @@ void Level::plot()
     {
         if(!obj->doPlot) continue;
 
-        if(obj->get_current_animation_name()!="") obj->plot_animation(*window, &screenRect, pause);
+        if(obj->has_animation()) obj->plot_animation(*window, &screenRect, pause);
         else obj->plot(*window, &screenRect);
     }
 

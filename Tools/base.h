@@ -34,18 +34,27 @@ namespace base
     SDL_Rect fromScreen(SDL_Rect *screen, const SDL_Rect &positionScreen);
 };
 
+
+using PropertyType = std::variant<bool, int, float, std::string>;
+
+class ValueChecker;
+
 class Properties
 {
 public:
     uint count(const std::string &name) { return properties.count(name); }
 
-//    template <typename T>
-//    void set(const std::string &name, T value) { properties.emplace(name, value); }
-//
-    void set(const std::string &name, std::variant<bool, int, float, std::string> value) { properties.emplace(name, value); }
+    //    template <typename T>
+    //    void set(const std::string &name, T value) { properties.emplace(name, value); }
+    //
+    void set(const std::string &name, PropertyType value) { properties.emplace(name, value); }
+
 
     template <typename T>
-    T &get(const std::string &name)
+    T& set_and_get(const std::string &name, T value) { properties.emplace(name, value); return get<T>(name); }
+
+    template <typename T>
+    T& get(const std::string &name)
     {
         if (properties.count(name) == 0)
             throw std::runtime_error("Property of name " + name + " does "
@@ -53,8 +62,28 @@ public:
         return std::get<T>(properties.at(name));
     }
 
+    template <typename T>
+    T *getp(const std::string &name)
+    {
+        if (properties.count(name) == 0)
+            throw std::runtime_error("Property of name " + name + " does "
+                                                                  "not exists in the manager.");
+        return &std::get<T>(properties.at(name));
+    }
+
+    PropertyType& operator[](const std::string &name)
+    {
+        if (properties.count(name) == 0)
+            throw std::runtime_error("Property of name " + name + " does "
+                                                                  "not exists in the manager.");
+        return properties.at(name);
+    }
+
+    ValueChecker get_checker(const std::string &name, const PropertyType& target); 
+
+
 private:
-    std::map<std::string, std::variant<bool, int, float, std::string>> properties;
+    std::map<std::string, PropertyType> properties;
 };
 
 class HasProperties
@@ -62,5 +91,15 @@ class HasProperties
 public:
     Properties properties;
 };
+
+class ValueChecker
+{
+public:
+    ValueChecker(PropertyType target, PropertyType& value) : target(target), value(value) {}
+    const PropertyType target;
+    PropertyType& value;
+    bool operator()() { return value == target; }
+};
+
 
 #endif

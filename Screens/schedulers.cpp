@@ -45,7 +45,9 @@ std::function<void()> Screen::l_screen_zoom(double factor)
     return [this, factor]()
         {
             // TODO: limits
-            base::set_tilerender(base::TILESIZERENDER() * factor);
+            int real_factor = base::TILESIZERENDER() * factor;
+            if (real_factor > 0)
+                base::set_tilerender(real_factor);
         };
 }
 
@@ -53,22 +55,41 @@ std::function<void()> Screen::l_screen_zoom(double factor)
 
 void Screen::schedule_plot(std::function<void()> func)
 {
-    updates.push_back(func);
+    plots.push_back(func);
 }
 
-std::function<void()> Screen::l_plot_viewport(Viewport *viewport)
+std::function<void()> Screen::l_plot_on_level(Level *viewport)
 {
-    return [&viewport]()
+    return [viewport]()
     { 
         viewport->set_viewPort();
     };
 }
 
-std::function<void()> Screen::l_plot_image(IMG_wrapper *img, int x, int y)
+std::function<void()> Screen::l_plot_on_menu(Menu *menu)
 {
-    return [this, &img, x, y]()
-    {
-        img->render_image(*window, x, y);
+    return [menu]()
+    { 
+        menu->set_viewPort();
     };
 }
 
+std::function<void()> Screen::l_plot_image(IMG_wrapper *img, int x, int y, const bool &condition)
+{
+    return [this, &img, x, y, &condition]()
+    {
+        if(condition) img->render_image(*window, x, y);
+    };
+}
+
+// prepsat -> vse do Objectu
+// init -> definitovat ktere properties ovlivni animaci (vector string)
+// pridani animace pak je vektor pozadovanych vlastnosti
+// vlastnoti by meli mit flag jestli se zmenili -> get by mel dat true,
+// false se pak bude delat pri resetu
+// otazka je jestli  mit moved/direction jako properties
+// nebo emmber promenne. Ten kod by mohl proste uklada vector
+// pointeru a pro moved/direction by meli vyjimku pri init
+// otazka jestli to pak neomzeit na int (a bool)
+// taky otazka jestli umoznit "na danem parametru nezalezi"
+// ale to by pak vedlo k ambiguite? Jaky by byl priklad?

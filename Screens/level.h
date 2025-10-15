@@ -39,12 +39,6 @@ public:
     Map_wrapper &get_map() { return *curMap; }
     void set_map_image(IMG_wrapper *image) { curMap->image = image; }
 
-    void add_object_animation(Object *obj, std::string aniName, Animation animation, IMG_wrapper *image)
-    {
-        obj->animations.emplace(aniName, std::move(animation));
-        obj->animations[aniName].image = image;
-    }
-
     void set_map_screen_position(Block* target)
     {
         curMap->screen_position(screenRect, viewPort, *target);
