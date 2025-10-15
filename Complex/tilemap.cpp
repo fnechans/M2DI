@@ -99,10 +99,10 @@ bool Map_wrapper::load_blocks(std::string mapFile, int mapSizeX, int mapSizeY)
 void Map_wrapper::add_sprite_property(int posX, int posY, SDL_Color col, bool obscures)
 {
     std::string type = std::string(1, (char)'a' + posX) + std::string(1, (char)'a' + posY);
-    add_sprite_property(type, col, obscures);
+    add_sprite_property2(type, col, obscures);
 }
 
-void Map_wrapper::add_sprite_property(std::string type, SDL_Color col, bool obscures)
+void Map_wrapper::add_sprite_property2(std::string type, SDL_Color col, bool obscures)
 {
     if (type.size() != 2)
         throw std::runtime_error("type of sprite has to be string length 2!");

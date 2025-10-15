@@ -6,17 +6,9 @@
 class Object : public Block
 {
 public:
-    using Block::Block;
+    Object(uint x = 0, uint y = 0);
 
     Object(const Object& other);
-
-    void set_health(uint value);
-    void modify_health(int value);
-    bool dead = false;
-
-    /////////////
-    // MOVEMENT//
-    /////////////
 
     enum direction
     {
@@ -27,6 +19,20 @@ public:
     };
     static inline const char *const dirName[4]{"UP", "DOWN", "LEFT", "RIGHT"};
 
+    /// Properties
+    int& health;
+    int& max_health;
+    bool& dead;
+    bool& moved;
+    bool& bounced;
+    int& dir;
+
+    /// Health
+
+    void set_health(int value);
+    void modify_health(int value);
+
+    /// MOVEMENT
 
     // Type of movement
     // TopDown - WSAD like, moves in any direction
@@ -35,7 +41,7 @@ public:
     MoveType moveType = TopDown;
     void move_left();
     void move_right();
-    void move_up(std::vector<Block *> &collObjects);
+    void move_up(const std::vector<Block *> &collObjects);
     void move_down();
 
 
@@ -56,16 +62,15 @@ public:
     std::vector<Block *> path = {};
     Object *target{nullptr};
 
-    void move(std::vector<Block *> &collObjects, double DELTA_T);
-    bool does_collide(SDL_Rect &pos, std::vector<Block *>& collObjects);
-    bool next_to(SDL_Rect pos, direction dir, std::vector<Block *>& collObjects); // here copy of pos(ition) on purpose!
+    void move(const std::vector<Block *> &collObjects, double DELTA_T);
+    bool does_collide(SDL_Rect &pos, const std::vector<Block *>& collObjects);
+    bool next_to(SDL_Rect pos, direction dir, const std::vector<Block *>& collObjects); // here copy of pos(ition) on purpose!
 
     // intrinsic speed of the character
     float intrVelX{0.};
     float intrVelY{0.};
     float speedX{4.};
     float speedY{4.};
-    bool moved{false};
     // velocity based of external factors (knockback)
     float extVelX{0.};
     float extVelY{0.};
@@ -73,8 +78,6 @@ public:
     float frictionX{4.};
     float frictionY{4.};
     float bounceFactor = 0; // fraction of velocity object gets back when colliding with wall
-    bool bounced;
-    direction dir{DOWN};
     bool doPlotPath{false};
     std::string dir_name(){ return dirName[dir]; }
 

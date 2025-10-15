@@ -6,12 +6,13 @@
 
 #include "menu.h"
 #include "level.h"
+#include "Complex/keybinds.h"
 
 class Screen;
 
 typedef std::shared_ptr<Screen> screen_ptr;
 
-class Screen
+class Screen: public HasProperties
 {
 public:
     Screen() { window = std::make_shared<Window>(); }
@@ -21,8 +22,6 @@ public:
     std::shared_ptr<Window> window;
     SDL_Event event;
 
-    virtual void user_evaluate() {}
-    virtual void user_plot() {}
     virtual void user_finish() {}
     virtual screen_ptr user_nextScreen() { return nullptr; }
 
@@ -46,25 +45,8 @@ public:
     }
     Level &add_level()
     {
-        levels.push_back(Level(window.get()));
-        return levels.back();
-    }
-
-    void schedule_button_update(const std::string &name, std::function<void()> func)
-    {
-        updates.push_back([name, func, this]()
-                          { if (menu->get_state(name)) func(); });
-    }
-
-    std::function<void()> l_quit()
-    {
-        return [this]()
-        { quit = true; };
-    }
-    std::function<void()> l_nextScreen(const std::string &name)
-    {
-        return [this, name]()
-        { nextScreen = name; };
+        level = std::make_unique<Level>(window.get());
+        return *level;
     }
 
     void evaluate();
@@ -88,11 +70,28 @@ public:
         isInit = true;
     }
     std::unique_ptr<Menu> menu;
-    std::vector<Level> levels;
+    std::unique_ptr<Level> level;
     std::string nextScreen = "";
+
+    void schedule_button_update(const std::string &name, std::function<void()> func);
+    void schedule_screen_position_update(Character *target);
+    std::function<void()> l_screen_zoom(double factor);
+    std::function<void()> l_quit();
+    std::function<void()> l_pause();
+    std::function<void()> l_property_update(const std::string &name, const std::variant<bool, int, float, std::string>& value);
+    std::function<void()> l_nextScreen(const std::string &name);
+
+    void schedule_plot(std::function<void()> func);
+    std::function<void()> l_plot_on_level(Level *viewport);
+    std::function<void()> l_plot_on_menu(Menu *menu);
+    std::function<void()> l_plot_image(IMG_wrapper *img, int x, int y, const bool &condition);
+    std::function<void()> l_set_animation(Character *object, const std::string &name, std::function<bool()> condition);
+
+    KeyBinds keybinds;
 
 private:
     bool isInit = false;
     std::vector<std::function<void()>> updates;
+    std::vector<std::function<void()>> plots;
 };
 #endif

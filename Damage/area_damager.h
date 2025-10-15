@@ -27,7 +27,7 @@ public:
     virtual bool evaluate(const SDL_Rect &origin, Object::direction dir, std::vector<Object *>& targets) override;
 
 private:
-    SDL_Rect get_targetZone(const SDL_Rect &origin, Object::direction dir);
+    SDL_Rect get_targetZone(const SDL_Rect &origin, int dir);
 
     // properties
     float shift;   // shift of target rect in direction of attack

@@ -10,13 +10,7 @@ cmake_install_prefix =  '/install'
 wlevel = ' -Wall -Wextra'
 
 root_inc = include_directories('.')
-# include_directories('Screens')
-# include_directories('User')
 sdl2 = dependency('sdl2')
-# sdl2 = declare_dependency(
-#   dependencies : sdl2_raw,               # link flag (‑lSDL2, .lib, …)
-#   include_directories : sdl2_raw.include_directories(),
-# )
 sdl2image = dependency('sdl2_image')
 sdl2ttf = dependency('sdl2_ttf')
 sol2proj = subproject('sol2')

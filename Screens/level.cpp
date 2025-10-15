@@ -31,7 +31,7 @@ void Level::bake()
 void Level::reset()
 {
     characters.clean();
-    grenades.clean();
+    projectiles.clean();
     bake();
 }
 
@@ -64,10 +64,12 @@ void Level::move_chars(double DELTA_T)
     for(auto obj : characters)
     {
         obj->move(collisionObjects, DELTA_T);
+        obj->set_animation();
     }
-    for(auto obj : grenades)
+    for(auto obj : projectiles)
     {
         obj->move(collisionObjects, DELTA_T);
+        obj->set_animation();
     }
 }
 
@@ -92,7 +94,7 @@ void Level::plot()
             obj->plot_path(*window, &screenRect);
     }
     plotable.insert(plotable.end(), characters.get_obj().begin(), characters.get_obj().end());
-    plotable.insert(plotable.end(), grenades.get_obj().begin(), grenades.get_obj().end());
+    plotable.insert(plotable.end(), projectiles.get_obj().begin(), projectiles.get_obj().end());
 
     // plot objects from to bottom (overlap!)
     // TODO: is this the best way? feels slow - maybe check for nearby?
@@ -104,7 +106,7 @@ void Level::plot()
     {
         if(!obj->doPlot) continue;
 
-        if(obj->get_current_animation_name()!="") obj->plot_animation(*window, &screenRect, pause);
+        if(obj->has_animation()) obj->plot_animation(*window, &screenRect, pause);
         else obj->plot(*window, &screenRect);
     }
 

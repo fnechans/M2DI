@@ -46,28 +46,21 @@ private:
     uint frame;
 };
 
-class animation_data
+class AnimationData
 {
 public:
-    animation_data()  {}
+    AnimationData()  {}
     Fl_Rect renderMod{0, 0, 1, 1};
     // TMP: figure out how to best propagate ticks/frames per sec?
     uint frequency = 60/8;
+    void set_frequency(float freq_sec, uint fps) { frequency = uint(freq_sec * fps); }
     std::vector<std::vector<float>> fclips;
     std::vector<SDL_Rect> clips;
     bool repeat = true;
-    bool relative = true;
     Animation get_animation()
     {
         Animation a(renderMod);
-        if(relative)
-        {
-            for (auto clip : fclips) a.add_clip_relative(clip);
-        }
-        else
-        {
-            for (auto clip : clips) a.add_clip(clip);
-        }
+         for (auto clip : clips) a.add_clip(clip);
         if (frequency == 0)
             frequency = 1;
         a.frequency = frequency;

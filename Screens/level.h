@@ -13,9 +13,11 @@
 
 #include <utility>
 
+
+using CharacterManager = ObjManager<Character>;
 // Goal of Level is that player does not have to
 // interact with any Object unless really necessary
-class Level : public Viewport
+class Level : public Viewport, public HasProperties
 {
 public:
     Level(Window *win, Position pos = WHOLE, SDL_Rect bor = {0, 0, 0, 0});
@@ -37,10 +39,9 @@ public:
     Map_wrapper &get_map() { return *curMap; }
     void set_map_image(IMG_wrapper *image) { curMap->image = image; }
 
-    void add_object_animation(Object *obj, std::string aniName, Animation animation, IMG_wrapper *image)
+    void set_map_screen_position(Block* target)
     {
-        obj->animations.emplace(aniName, std::move(animation));
-        obj->animations[aniName].image = image;
+        curMap->screen_position(screenRect, viewPort, *target);
     }
 
     // object-collection getter:
@@ -53,8 +54,11 @@ public:
 
     button bScreen;
 
-    Object_manager<Character> characters;
-    Object_manager<Character> grenades;
+    CharacterManager characters;
+    Character& add_character(const std::string & name, double x, double y) { return *characters.add(name, x, y); }
+
+    CharacterManager projectiles;
+    Character& add_projectile(const std::string & name, double x, double y) { return *projectiles.add(name, x, y); }
 
 private:
     std::unique_ptr<Map_wrapper> curMap;

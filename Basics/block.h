@@ -5,13 +5,22 @@
 
 #include <vector>
 #include <map>
+#include <variant>
 
 
-class Block
+struct AnimationHelper
+{
+    Animation animation;
+    std::vector<ValueChecker> checkers;
+    bool operator()() { 
+        return std::all_of(checkers.begin(), checkers.end(), [](ValueChecker checker) { return checker(); }); 
+    }
+};
+
+class Block : public HasProperties
 {
 public:
     Block(uint x = 0, uint y = 0);
-  //  Block(Block& other) = default;
     Block(const Block& other);
     Block(Block&&) = default;
     ~Block() {}
@@ -33,22 +42,18 @@ public:
 
     // TODO: Following should probably be refactored out?
 
-    // custom properties 
-    std::map<std::string, int> property;
-
     IMG_wrapper* image;
     void plot(Window &wrapper, SDL_Rect *screen = nullptr);
     bool on_screen(SDL_Rect *screen);
 
-    std::map<std::string, Animation> animations;
-    void copy_animation(Block const &object);
     void plot_animation(Window &window, SDL_Rect *screen = nullptr, bool pause = false);
-    void set_animation(const std::string& animationName);
-    Animation&  get_current_animation() { return animations[curAnimation]; }
-    const std::string&  get_current_animation_name() { return curAnimation; }
+    void add_animation(Animation& animation, std::vector<std::pair<std::string, PropertyType>>& checkers);
+    bool has_animation() { return !animations.empty(); }
+    void set_animation();
 
 private:
-    std::string curAnimation = "";
+    std::vector <AnimationHelper> animations;
+    Animation* currentAnimation{nullptr};
 
 };
 

@@ -1,6 +1,6 @@
 #include "area_damager.h"
 
-SDL_Rect AreaDamager::get_targetZone(const SDL_Rect &origin, Object::direction dir)
+SDL_Rect AreaDamager::get_targetZone(const SDL_Rect &origin, int dir)
 {
     SDL_Rect targetZone;
     switch (dir)

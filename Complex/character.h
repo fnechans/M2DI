@@ -25,4 +25,10 @@ public:
 private:
 };
 
+std::function<void()> l_player_move_up(Character *player);
+std::function<void()> l_player_jump_up(Character *player, const std::vector<Block *>& collision_objects);
+std::function<void()> l_player_move_down(Character *player);
+std::function<void()> l_player_move_left(Character *player);
+std::function<void()> l_player_move_right(Character *player);
+
 #endif // CHARACTER_H

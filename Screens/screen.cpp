@@ -15,10 +15,9 @@ void Screen::evaluate()
     {
         if (menu->evaluate(event))
             return;
-        for (auto &l : levels)
-            if (l.evaluate(event))
-                return;
-        user_evaluate();
+        if (level && level->evaluate(event))
+            return;
+        keybinds.evaluate(event);
     }
 }
 
@@ -57,8 +56,7 @@ screen_ptr Screen::loop()
 
                 nEval++;
                 menu->reset();
-                for (auto &l : levels)
-                    l.reset();
+                if (level) level->reset();
 
                 // process inputs
                 while (SDL_PollEvent(&event) != 0)
@@ -67,6 +65,7 @@ screen_ptr Screen::loop()
                 }
                 for (auto& f : updates)
                     f();
+                if (level) level->move_chars(DELTA_T);
 
                 next_game_step += game_step_ms; // count 1 game tick done
 
@@ -88,13 +87,12 @@ screen_ptr Screen::loop()
             }
             window->clear();
 
-            for (auto &l : levels)
-                l.plot_map();
+            if (level) level->plot_map();
 
-            user_plot();
+            for (auto& f : plots)
+                f();
 
-            for (auto &l : levels)
-                 l.plot();
+            if (level) level->plot();
             menu->plot();
             window->render();
 
