@@ -11,6 +11,7 @@
 #include <map>
 #include <cmath>
 #include <variant>
+#include <functional>
 
 typedef unsigned int uint;
 

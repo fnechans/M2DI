@@ -1,4 +1,5 @@
 #include "character.h"
+#include <utility>
 
 bool Character::evaluate_attack(const std::string& name, std::vector<Object*>& targets)
 {

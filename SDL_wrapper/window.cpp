@@ -54,8 +54,9 @@ bool SDLW::init()
         }
     }
     isInit = success;
-    printf("Window initialized\n");
-
+    if (!success)
+        close();
+    else printf("Window initialized\n");
     return success;
 }
 

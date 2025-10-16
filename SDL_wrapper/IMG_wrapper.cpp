@@ -27,7 +27,7 @@ bool IMGW::load_media(Window &window, const char *path)
     if (loadedSurface == nullptr)
     {
         printf("Unable to load image %s! SDL Error: %s\n", path, SDL_GetError());
-        return false;
+        loadedSurface = IMG_Load("data/placeholder.png");
     }
     // deletion is handled by surf_to_texture function
     return surf_to_texture(window.sdlRenderer, loadedSurface);
@@ -98,6 +98,14 @@ void IMGW::render_image(Window &window, int x, int y, SDL_Rect *clip, double ang
 
 void IMGW::render_image(Window &window, SDL_Rect *renderQuad, SDL_Rect *clip, double angle, SDL_RendererFlip flip)
 {
+    // Check clip size compared to width, height
+    if (clip != nullptr)
+    {
+        if(clip->x + clip->w > width)
+            clip = nullptr;
+        else if(clip->y + clip->h > height)
+            clip = nullptr;
+    }
     //Render texture to screen
     SDL_RenderCopyEx(window.sdlRenderer, image, clip, renderQuad, angle, nullptr, flip);
 }
