@@ -191,7 +191,7 @@ std::vector<Block> Map_wrapper::import_map(std::string mapFile, int _mapSizeX, i
 
     std::ifstream mapStream(mapFile);
     if (mapStream.fail())
-        throw std::runtime_error("Loading of map file failed!");
+        throw std::runtime_error("Loading of map file " + mapFile + " failed!");
     else
     {
         std::string tileType = "00";

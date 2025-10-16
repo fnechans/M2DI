@@ -43,7 +43,8 @@ int main(int argc, char *args[])
     // Set window (also respondible for rendering)
     bool VSYNC = false;
     auto window = std::make_shared<Window>(VSYNC);
-    window->init();
+    if(!window->init())
+        throw std::runtime_error("=== failed to init window ===");
     sleep(1);
     lua["imageManager"] = std::make_unique<ImageManager>(*window);
     ImageManager &imageManager = lua["imageManager"];
