@@ -92,10 +92,10 @@ screen:schedule_screen_position_update(player)
 
 --- MENU
 print(" > adding menu")
-local buttonW = TILESIZEINPUT * 6;
-local buttonH = TILESIZEINPUT * 2;
+local buttonW = TILESIZEINPUT * 8;
+local buttonH = TILESIZEINPUT * 3;
+local text_size = TILESIZEINPUT*2
 menu = screen:add_menu2(Position.RIGHT, 0, 0, buttonW*3, 0)
-local text_size = 12 --button.screenPosition.h/2
 
 function add_button(name, title, x, y)
     local button = menu:add_button2(name, x*buttonW, y*buttonH, buttonW, buttonH, 0)
@@ -104,7 +104,7 @@ function add_button(name, title, x, y)
 end
 
 print(" > adding buttons")
-add_button("main_menu", "Main menu", 0, 0)
+add_button("main_menu", "Menu", 0, 0)
 screen:schedule_button_update('main_menu', screen:l_nextScreen("main_menu"))
 screen:schedule_button_update('main_menu', screen:l_quit())
 
@@ -117,8 +117,8 @@ add_button("quit", "Quit", 2, 0)
 screen:schedule_button_update('quit', screen:l_quit())
 
 add_button("+", "+", 0, 1)
-screen:schedule_button_update('+', screen:l_screen_zoom(1.5))
-screen.keybinds:add_keybind("zoom_in", KEYS.p, screen:l_screen_zoom(1.5))
+screen:schedule_button_update('+', screen:l_screen_zoom(2))
+screen.keybinds:add_keybind("zoom_in", KEYS.p, screen:l_screen_zoom(2))
 
 add_button("-", "-", 1, 1)
 screen:schedule_button_update('-', screen:l_screen_zoom(0.5))
