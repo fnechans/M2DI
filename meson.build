@@ -1,5 +1,5 @@
 project('SDL2Test', 'cpp', 'c', default_options : 
-    ['default_library=static',
+    ['default_library=shared',
      'cpp_std=c++23',
    #  'warning_level=3',
      'buildtype=debug',

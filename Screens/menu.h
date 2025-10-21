@@ -7,13 +7,13 @@
 class Menu : public Viewport
 {
 public:
-    Menu(Window *_wrapper, Position pos = RIGHT, SDL_Rect border = {0, base::TILESIZEINPUT * 12, base::TILESIZEINPUT * 12, 0});
+    Menu(Window *_wrapper, Position pos, SDL_Rect border);
     bool evaluate(SDL_Event &event); // returns true if event relevant to speed up/avoid multiple evals
     void reset();
     void plot();
 
     // Buttons
-    void add_button(std::string name, SDL_Rect position, float ws = 2, float hs = 1, SDL_Keycode key = SDLK_UNKNOWN)
+    void add_button(std::string name, SDL_Rect position, int ws = 2, int hs = 1, SDL_Keycode key = SDLK_UNKNOWN)
     {
         buttons.emplace(name, button(position, ws, hs));
         buttonKeys.emplace(name, key);
@@ -31,9 +31,9 @@ public:
         buttonKeys.emplace(name, key);
         buttonState.emplace(name, false);
     }
-    button& add_button2(std::string name, int x, int y, int ws, int hs, SDL_Keycode key = SDLK_UNKNOWN)
+    button& add_button2(std::string name, int x, int y, int w, int h, int w_sprite, int h_sprite, SDL_Keycode key = SDLK_UNKNOWN)
     {
-        add_button(name, {x, y, ws, hs}, 2., 1., key);
+        add_button(name, {x, y, w, h}, w_sprite, h_sprite, key);
         return buttons.at(name);
     }
     bool get_state(std::string name) { 

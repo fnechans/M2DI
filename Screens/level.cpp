@@ -16,15 +16,15 @@ void Level::bake()
         damagableObjects.push_back(obj); // TODO: simply return characters?
     }
 
-    for (auto &t : curMap->blocks)
+    for (auto &t : currentBlocks->tiles)
     {
         if(t.hasCollision) collisionObjects.push_back(&t);
         if(t.obscuresVision) obscuringObjects.push_back(&t);
     }
     
-    for (auto t : curMap->map_border_colision())
+    for (auto t : currentMap->map_border_colision())
     {
-        if(t->hasCollision) collisionObjects.push_back(t);
+        collisionObjects.push_back(t);
     }
 }
 
@@ -61,6 +61,9 @@ void Level::move_chars(double DELTA_T)
 {
     if (pause)
         return;
+
+    if(ai_active) follow_ai();
+
     for(auto obj : characters)
     {
         obj->move(collisionObjects, DELTA_T);
@@ -76,7 +79,8 @@ void Level::move_chars(double DELTA_T)
 void Level::plot_map()
 {
     set_viewPort();
-    curMap->render_map(*window, screenRect);
+    currentMap->render_map(*window, worldCoordinatesOnScreen, renderScale);
+    currentBlocks->render_map(*window, worldCoordinatesOnScreen, renderScale);
 }
 
 void Level::plot()
@@ -90,8 +94,8 @@ void Level::plot()
     std::vector<Object *> plotable;
     for (auto obj : characters)
     {
-        if (obj->doPlotPath)
-            obj->plot_path(*window, &screenRect);
+        if (true) //obj->doPlotPath)
+            obj->plot_path(*window, worldCoordinatesOnScreen, renderScale);
     }
     plotable.insert(plotable.end(), characters.get_obj().begin(), characters.get_obj().end());
     plotable.insert(plotable.end(), projectiles.get_obj().begin(), projectiles.get_obj().end());
@@ -106,9 +110,11 @@ void Level::plot()
     {
         if(!obj->doPlot) continue;
 
-        if(obj->has_animation()) obj->plot_animation(*window, &screenRect, pause);
-        else obj->plot(*window, &screenRect);
+        if(obj->has_animation()) obj->plot_animation(*window, worldCoordinatesOnScreen, renderScale, pause);
+        else obj->plot(*window, worldCoordinatesOnScreen, renderScale);
     }
-
-    curMap->render_minimap(*window, collisionObjects);
+    if(minimap){
+        currentMap->render_minimap(*window, worldCoordinatesOnMinimap, renderScaleMinimap);
+        currentBlocks->render_minimap(*window, worldCoordinatesOnMinimap, renderScaleMinimap, collisionObjects);
+    }
 }

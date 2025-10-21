@@ -14,9 +14,14 @@ class ObjManager
 public:
     ObjManager(){}
 
-    objType* add(const std::string& name, double x, double y)
+    objType* add(const std::string& name, double x, double y, double w, double h)
     {
-        return add(name, (uint) x*base::TILESIZEPHYSICS, (uint) y*base::TILESIZEPHYSICS);
+        return add(name, 
+                   static_cast<uint>(x*base::TILESIZEPHYSICS),
+                   static_cast<uint>(y*base::TILESIZEPHYSICS),
+                   static_cast<uint>(w*base::TILESIZEPHYSICS),
+                   static_cast<uint>(h*base::TILESIZEPHYSICS)
+        );
     }
 
     objType* add(const std::string& name, float x, float y)
@@ -29,13 +34,13 @@ public:
         return add(name, (uint) x, (uint) y);
     }
 
-    objType* add(const std::string& name, uint x, uint y)
+    objType* add(const std::string& name, uint x, uint y, uint w, uint h)
     {
         if(objects.count(name)>0)
             throw std::runtime_error("Object of name "+name+" already "
                 "exists in the manager."); //TODO: manager name?
         // unique_ptr should take care of casting (?!)
-        objects.emplace(name, std::make_unique<objType>(x, y));
+        objects.emplace(name, std::make_unique<objType>(x, y, w, h));
         iterable.push_back(objects[name].get());
         vctObj.push_back(get_obj(name));
         return objects[name].get();

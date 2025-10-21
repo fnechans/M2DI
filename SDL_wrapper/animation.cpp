@@ -3,7 +3,6 @@
 
 Animation::Animation(const Animation &other)
 {
-    renderMod = other.renderMod;
     image = other.image;
     frame = 0;
     clips = other.clips;
@@ -28,29 +27,11 @@ SDL_Rect Animation::get()
     return clips.at(pos);
 }
 
-void Animation::add_clip_relative(std::vector<float> clip)
-{
-    if (clip.size() != 4)
-        throw std::runtime_error("Add_clip_relative size not 4!");
-    int xx = (int)(clip[0] * base::TILESIZEINPUT);
-    int yy = (int)(clip[1] * base::TILESIZEINPUT);
-    int ww = (int)(clip[2] * base::TILESIZEINPUT);
-    int hh = (int)(clip[3] * base::TILESIZEINPUT);
-    // TODO: This did not work with emplace on linux
-    clips.push_back({xx, yy, ww, hh});
-}
-
 void Animation::run_and_plot(Window& window, SDL_Rect positionScreen, bool skipPlot)
 {
     SDL_Rect spriteRect = get();
     if (skipPlot)
         return;
-    SDL_Rect renderRect = {
-        positionScreen.x + (int)(renderMod.x * base::TILESIZERENDER()),
-        positionScreen.y + (int)(renderMod.y * base::TILESIZERENDER()),
-        (int)(spriteRect.w * renderMod.w * base::scaleRenderInput()),
-        (int)(spriteRect.h * renderMod.h * base::scaleRenderInput())};
     if(!image) throw std::runtime_error("No image in animation");
-    // image->set_color(255,0,0);
-    image->render_image(window, &renderRect, &spriteRect, angle, flip);
+    image->render_image(window, &positionScreen, &spriteRect, angle, flip);
 }

@@ -5,13 +5,12 @@
 #include <exception>
 #include <variant>
 
-Block::Block(uint x, uint y)
+Block::Block(uint x, uint y, uint w, uint h)
 {
     hitbox.x = x;
     hitbox.y = y;
-    // DEFAULT hitbox based on tilesize, can be changed
-    hitbox.w = base::TILESIZEPHYSICS;
-    hitbox.h = base::TILESIZEPHYSICS;
+    hitbox.w = w;
+    hitbox.h = h;
 
     mapColor = {0, 0, 0, 0};
 }
@@ -31,39 +30,34 @@ Block::Block(const Block &other)
     obscuresVision = other.obscuresVision;
 }
 
-bool Block::on_screen(SDL_Rect *screen)
+bool Block::on_screen(SDL_Rect& screen, double renderScale)
 {
-    if (!(hitbox.x * base::scaleRender() < screen->x - (int)base::TILESIZERENDER() || hitbox.x * base::scaleRender() > screen->x + screen->w || hitbox.y * base::scaleRender() < screen->y - (int)base::TILESIZERENDER() || hitbox.y * base::scaleRender() > screen->y + screen->h))
+    if (!((hitbox.x+hitbox.w) * renderScale < screen.x || hitbox.x * renderScale > screen.x + screen.w ||
+          (hitbox.y+hitbox.h) * renderScale < screen.y || hitbox.y * renderScale > screen.y + screen.h))
     {
-        positionScreen = base::toScreen(screen, position());
         return true;
     }
     return false;
 }
 
-void Block::plot(Window &window, SDL_Rect *screen)
+void Block::plot(Window &window, SDL_Rect& screen, double renderScale)
 {
-    if (screen)
-    {
-        if (!on_screen(screen))
-            return;
-    }
+    if (!on_screen(screen, renderScale))
+        return;
 
-    int width = hitbox.w * base::scaleRender();
-    int height = hitbox.h * base::scaleRender();
-    SDL_Rect renderRect = {positionScreen.x - (int)width / 2, positionScreen.y - (int)height / 2, (int)width, (int)height};
-    // image->set_color(255,0,0);
+    SDL_Rect renderRect = base::toScreen(screen, hitbox, renderScale);
     image->render_image(window, &renderRect, &clip);
 }
 
-void Block::add_animation(Animation& animation, std::vector<std::pair<std::string, PropertyType>>& checkers)
+void Block::add_animation(Animation &animation, std::vector<std::pair<std::string, PropertyType>> &checkers, Fl_Rect shift)
 {
     std::vector<ValueChecker> tmp_checkers;
     for (auto &checker : checkers)
     {
         tmp_checkers.push_back(properties.get_checker(checker.first, checker.second));
     }
-    animations.push_back(AnimationHelper{std::move(animation), std::move(tmp_checkers)});
+    SDL_Rect real_shift = {shift.x * base::TILESIZEPHYSICS, shift.y * base::TILESIZEPHYSICS, shift.w * base::TILESIZEPHYSICS, shift.h * base::TILESIZEPHYSICS};
+    animations.push_back(AnimationHelper{std::move(animation), std::move(tmp_checkers), real_shift});
 }
 
 void Block::set_animation()
@@ -72,32 +66,36 @@ void Block::set_animation()
     {
         if (anim())
         {
-            if (currentAnimation == &anim.animation) return;
-            if (currentAnimation) currentAnimation->stop();
-            currentAnimation = &anim.animation;
-            currentAnimation->play();
+            if (currentAnimation == &anim)
+                return;
+            if (currentAnimation)
+                currentAnimation->animation.stop();
+            currentAnimation = &anim;
+            currentAnimation->animation.play();
             break;
         }
     }
 }
 
-void Block::plot_animation(Window &window, SDL_Rect *screen, bool pause)
+void Block::plot_animation(Window &window, SDL_Rect& screen, double renderScale, bool pause)
 {
     // whether to skip the actual plotting (but keeps the animation playing and sets up the position_screen)
-    bool skipPlot = false;
-    if (screen)
-    {
-        if (!on_screen(screen))
-            skipPlot = true;
-    }
-
+    bool skipPlot = !on_screen(screen, renderScale);
 
     if (currentAnimation)
     {
-        auto &anim = *currentAnimation;
+        SDL_Rect positionScreen = base::toScreen(screen, position(), renderScale);
+        auto &anim = currentAnimation->animation;
+        SDL_Rect renderRect = currentAnimation->shift;
+        renderRect.x *= renderScale;
+        renderRect.y *= renderScale;
+        renderRect.w *= renderScale;
+        renderRect.h *= renderScale;
+        renderRect.x += positionScreen.x;
+        renderRect.y += positionScreen.y;
         if (pause)
             anim.pause();
-        anim.run_and_plot(window, positionScreen, skipPlot);
+        anim.run_and_plot(window, renderRect, skipPlot);
         if (pause)
             anim.play();
     }

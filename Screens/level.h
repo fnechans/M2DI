@@ -8,13 +8,11 @@
 #include "SDL_wrapper/IMG_wrapper.h"
 #include "Basics/button.h"
 #include "Basics/vision_cone.h"
-#include "Complex/character.h"
 #include "Managers/object_manager.hpp"
 
 #include <utility>
 
-
-using CharacterManager = ObjManager<Character>;
+using ObjectManager = ObjManager<Object>;
 // Goal of Level is that player does not have to
 // interact with any Object unless really necessary
 class Level : public Viewport, public HasProperties
@@ -32,17 +30,45 @@ public:
     void plot_map();
     void plot();
 
-    void set_map(SDL_Rect border = {0, 0, base::TILESIZEINPUT * 12, 0})
+    void set_map()
     {
-        curMap = std::make_unique<Map_wrapper>(border);
+        currentMap = std::make_unique<Map_wrapper>();
+        currentBlocks = std::make_unique<Map_wrapper>();
     }
-    Map_wrapper &get_map() { return *curMap; }
-    void set_map_image(IMG_wrapper *image) { curMap->image = image; }
+    Map_wrapper &get_map() { return *currentMap; }
+    Map_wrapper &get_blocks() { return *currentBlocks; }
 
-    void set_map_screen_position(Block* target)
+    double renderScale = 40. / base::TILESIZEPHYSICS;
+    double renderScaleMinimap = 10. / base::TILESIZEPHYSICS;
+    void set_map_screen_position(Block *target)
     {
-        curMap->screen_position(screenRect, viewPort, *target);
+        currentMap->screen_position(worldCoordinatesOnScreen, viewPort, *target, renderScale);
+        if (minimap)
+            currentMap->screen_position(worldCoordinatesOnMinimap, minimap->viewPort, *target, renderScaleMinimap);
     }
+    void set_ai()
+    {
+        ai.init(currentMap->get_tile_pointers());
+        ai_active = true;
+    }
+    void follow_ai()
+    {
+        ai.increment();
+        for (auto chr : characters)
+        {
+            if (!chr->target)
+                continue;
+            if (ai.tick(50))
+            {
+                auto tmp = ai.acko->find_path(chr, chr->target, get_collision_objects());
+                if (!tmp.empty())
+                    chr->path = tmp;
+            }
+            chr->follow_path(get_collision_objects());
+        }
+    }
+
+    void add_minimap(Position pos, SDL_Rect bor) { minimap = std::make_unique<Viewport>(window, pos, bor); }
 
     // object-collection getter:
     std::vector<Block *> &get_collision_objects() { return collisionObjects; }
@@ -50,24 +76,29 @@ public:
     std::vector<Object *> &get_damagable_objects() { return damagableObjects; }
 
     bool pause = false; // is level paused?
-    SDL_Rect screenRect;
 
-    button bScreen;
+    ObjectManager characters;
+    Object &add_character(const std::string &name, double x, double y, double w, double h) { return *characters.add(name, x, y, w, h); }
 
-    CharacterManager characters;
-    Character& add_character(const std::string & name, double x, double y) { return *characters.add(name, x, y); }
-
-    CharacterManager projectiles;
-    Character& add_projectile(const std::string & name, double x, double y) { return *projectiles.add(name, x, y); }
+    ObjectManager projectiles;
+    Object &add_projectile(const std::string &name, double x, double y, double w, double h) { return *projectiles.add(name, x, y, w, h); }
 
 private:
-    std::unique_ptr<Map_wrapper> curMap;
+    std::unique_ptr<Map_wrapper> currentMap;
+    std::unique_ptr<Map_wrapper> currentBlocks;
     // TODO: might be better to have single vector
     // and make functions which use them check
     // flags defined in the Block?
     std::vector<Block *> collisionObjects;
     std::vector<Block *> obscuringObjects;
     std::vector<Object *> damagableObjects;
+    AI<Block *> ai;
+    bool ai_active = false;
+
+    std::unique_ptr<Viewport> minimap = nullptr;
+    SDL_Rect worldCoordinatesOnScreen;
+    SDL_Rect worldCoordinatesOnMinimap;
+    button bScreen;
 };
 
 #endif

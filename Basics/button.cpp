@@ -1,15 +1,15 @@
 #include "button.h"
 
-button::button(SDL_Rect pos, double ws, double hs)
+button::button(SDL_Rect pos, int ws, int hs)
 {
     screenPos = pos;
 
     for (int c = DEFAULT; c < COUNT; ++c)
     {
-        clips[c] = {(int)(c * base::TILESIZEINPUT * ws),
+        clips[c] = {c * ws,
                      0,
-                     (int)(base::TILESIZEINPUT * ws),
-                     (int)(base::TILESIZEINPUT * hs)};
+                     ws,
+                     hs};
     }
 
     // initial state

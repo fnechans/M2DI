@@ -40,7 +40,7 @@ namespace tools
     SDL_Rect get_endpoint(const SDL_Rect& origin, const SDL_Rect &direction, int range);
     std::vector<MLine> get_lines(const SDL_Rect& rect);
     std::vector<SDL_Rect> get_points(const SDL_Rect& rect);
-    inline float distance2(const SDL_Rect& rect, const SDL_Rect& rect2)
+    inline double distance2(const SDL_Rect& rect, const SDL_Rect& rect2)
     { return (rect.x-rect2.x)*(rect.x-rect2.x) + (rect.y-rect2.y)*(rect.y-rect2.y);}
     bool line_intersect(const MLine& l1, const MLine& l2, SDL_Rect* intersection = nullptr);
 

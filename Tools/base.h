@@ -21,22 +21,14 @@ namespace base
     const uint TILESIZEPHYSICS = 1024; // defines physical size
                                        // so it is more related to
                                        // speed and such
-    const uint TILESIZEINPUT = 16;     // defines basic size of
-                                       // tile in input
-    uint TILESIZERENDER();             // defines size of tile on screen
-                                       // so can change if zooming in/out
-    double scaleRender();
-    double scaleRenderInput();
 
-    void set_tilerender(int);
+    SDL_Rect toScreen(SDL_Rect& screen, const SDL_Rect &position, double renderScale);
 
-    SDL_Rect toScreen(SDL_Rect *screen, const SDL_Rect &position);
-
-    SDL_Rect fromScreen(SDL_Rect *screen, const SDL_Rect &positionScreen);
+    SDL_Rect fromScreen(SDL_Rect& screen, const SDL_Rect &positionScreen, double renderScale);
 };
 
 
-using PropertyType = std::variant<bool, int, float, std::string>;
+using PropertyType = std::variant<bool, int, double, std::string>;
 
 class ValueChecker;
 

@@ -8,53 +8,66 @@
 #include <map>
 #include <cstring>
 
+class Sprite
+{
+public:
+    Sprite(IMG_wrapper* img, SDL_Rect clip, SDL_Color col, bool obs=true) : image(img), clip(clip), color(col), obscure(obs) {}
+    IMG_wrapper* image;
+    SDL_Rect clip;
+    SDL_Color color;
+    bool obscure;
+};
+
+class Sprites
+{
+public:
+    Sprites() {}
+    ~Sprites() {}
+    void add(std::string name, IMG_wrapper* img, SDL_Rect clip, SDL_Color col, bool obs)
+    { sprites.emplace(name, Sprite(img, clip, col, obs)); }
+
+    Sprite& at(std::string name) { return sprites.at(name); }
+    std::map<std::string, Sprite> sprites;
+};
 
 class Map_wrapper
 {
 public:
-    Map_wrapper(SDL_Rect border = {0, 0, base::TILESIZEINPUT * 12, 0});
+    Map_wrapper();
     ~Map_wrapper() {}
 
-    void init(int xMax, int yMax);
-    void render_minimap(Window &wrapper, std::vector<Block *> &block);
-    void render_map(Window &wrapper, SDL_Rect &mapPosition);
-    void add_sprite_property(int posX, int posY, SDL_Color col, bool obscures=true);
-    void add_sprite_property2(std::string, SDL_Color col, bool obscures=true);
-    bool load_map(std::string mapFile, int mapSizeX, int mapSizeY);
-    bool load_blocks(std::string mapFile, int mapSizeX, int mapSizeY);
-    void screen_position(SDL_Rect &screenRect, SDL_Rect &viewPort, Block &block);
-    std::vector<Block> import_map(std::string mapFile, int mapSizeX, int mapSizeY);
-    std::vector<Block> blank_map(int mapSizeX, int mapSizeY);
-    SDL_Rect screen;
-    double scale;
-    std::map<std::string, SDL_Rect> mappingClips;
+    void init(int xMax, int yMax, int tileSize);
+    void render_map(Window &wrapper, SDL_Rect &mapPosition, double renderScale);
+    void render_minimap(Window &window, SDL_Rect &minimapViewPort, double renderSCale, const std::vector<Block *> &objects = {});
+    void adjust_screen();
+    void screen_position(SDL_Rect &worldCoordinatesOnScreen, SDL_Rect &viewPort, Block &block, double renderScale);
+    void import_map(std::string mapFile, Sprites& sprites);
+    void blank_map(int mapSizeX, int mapSizeY);
+    std::vector<Block*>& get_tile_pointers();
     std::vector<Block> tiles;
-    std::vector<Block> blocks;
-    IMG_wrapper* image;
 
     // TODO: General problem, most stuff public!
-    uint nTileX;
-    uint nTileY;
+    int nTileX;
+    int nTileY;
 
-    uint width(){return mWidth;}
-    uint height(){return mHeight;}
+    uint width(){return mapWidth;}
+    uint height(){return mapHeight;}
 
     std::vector<Block*> map_border_colision();
 private:
-    SDL_Rect gameplayBorder;
-    SDL_Rect minimapBorder;
     SDL_Rect minimapViewPort;
 
     // Map dimension constants
-    uint mWidth;
-    uint mHeight;
+    uint mapWidth;
+    uint mapHeight;
     // Borders to restrict movement
     Block borderLeft, borderRight, borderTop, borderBottom;
     
-    std::map<std::string, SDL_Color> mappingColor;
-    std::map<std::string, bool> mappingObscure;
+    std::vector<Block*> tilePointers;
 };
 
 SDL_Rect get_tile_draw_rect(Block const &block, double& scale);
+
+
 
 #endif // MAP_H

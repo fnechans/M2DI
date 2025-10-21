@@ -8,12 +8,13 @@ void Screen::schedule_button_update(const std::string &name, std::function<void(
                       { if (menu->get_state(name)) func(); });
 }
 
-void Screen::schedule_screen_position_update(Character *target)
+void Screen::schedule_screen_position_update(Object *target)
 {
     updates.push_back([this, target]()
                       {
         level->set_viewPort();
-        level->get_map().screen_position(level->screenRect, level->viewPort, *target); });
+        level->set_map_screen_position(target);
+    });
 }
 
 std::function<void()> Screen::l_quit()
@@ -28,7 +29,7 @@ std::function<void()> Screen::l_pause()
     { level->pause = !level->pause; };
 }
 
-std::function<void()> Screen::l_property_update(const std::string &name, const std::variant<bool, int, float, std::string>& value)
+std::function<void()> Screen::l_property_update(const std::string &name, const PropertyType& value)
 {
     return [this, name, value]()
     { properties.set(name, value); };
@@ -44,10 +45,7 @@ std::function<void()> Screen::l_screen_zoom(double factor)
 {
     return [this, factor]()
         {
-            // TODO: limits
-            int real_factor = base::TILESIZERENDER() * factor;
-            if (real_factor > 0)
-                base::set_tilerender(real_factor);
+            level->renderScale *= factor;
         };
 }
 

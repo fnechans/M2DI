@@ -86,7 +86,7 @@ namespace tools
         // if lines intersect and intersection provided, determine the point
         if(intersection)
         {
-            float t = ((float) num1)/denom;
+            double t = ((double) num1)/denom;
             intersection->x = l1.p1.x + t*(l1.p2.x-l1.p1.x);
             intersection->y = l1.p1.y + t*(l1.p2.y-l1.p1.y);
         }

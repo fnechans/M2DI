@@ -1,40 +1,30 @@
 #include "base.h"
 
-// "Global variables for rendering, accesible only via functions
-uint gTILESIZERENDER{0};              // defines size of tile on screen
-                                  // so can change if zooming in/out
-double gscaleRender{1.};
-double gscaleRenderInput{1.};
 
-uint base::TILESIZERENDER(){ return gTILESIZERENDER; };              // defines size of tile on screen
-                                    // so can change if zooming in/out
-double base::scaleRender(){ return gscaleRender; }
-double base::scaleRenderInput(){ return gscaleRenderInput; };
-
-void base::set_tilerender(int TR)
-{
-    gTILESIZERENDER = TR;
-    gscaleRender = ((double)gTILESIZERENDER) / TILESIZEPHYSICS;
-    gscaleRenderInput = ((double)gTILESIZERENDER) / TILESIZEINPUT;
-}
-
-SDL_Rect base::toScreen(SDL_Rect *screen, const SDL_Rect &position)
+SDL_Rect base::toScreen(SDL_Rect& screen, const SDL_Rect &position, double renderScale)
 {
     SDL_Rect positionScreen;
-    positionScreen.x = position.x * gscaleRender - screen->x;
-    positionScreen.y = position.y * gscaleRender - screen->y;
+    positionScreen.x = position.x * renderScale - screen.x;
+    positionScreen.y = position.y * renderScale - screen.y;
+    positionScreen.w = position.w * renderScale;
+    positionScreen.h = position.h * renderScale;
     return positionScreen;
 }
 
-SDL_Rect base::fromScreen(SDL_Rect *screen, const SDL_Rect &positionScreen)
+SDL_Rect base::fromScreen(SDL_Rect& screen, const SDL_Rect &positionScreen, double renderScale)
 {
     SDL_Rect position;
-    position.x = (positionScreen.x + screen->x) / gscaleRender;
-    position.y = (positionScreen.y + screen->y) / gscaleRender;
+    position.x = (positionScreen.x + screen.x) / renderScale;
+    position.y = (positionScreen.y + screen.y) / renderScale;
+    position.w = positionScreen.w / renderScale;
+    position.h = positionScreen.h / renderScale;
     return position;
 }
 
 ValueChecker Properties::get_checker(const std::string &name, const PropertyType& target) 
 { 
-    return ValueChecker(target, properties[name]); 
+    if (properties.count(name) == 0)
+        throw std::runtime_error("Property of name " + name + " does "
+                                                              "not exists in the manager.");
+    return ValueChecker(target, properties.at(name)); 
 }

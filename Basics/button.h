@@ -15,7 +15,7 @@ public:
         UNCLICK,
         COUNT
     };
-    button(SDL_Rect pos, double ws = 2, double hs = 1);
+    button(SDL_Rect pos, int ws = 2, int hs = 1);
     button(SDL_Rect pos, SDL_Rect _clips[COUNT]);
     button(SDL_Rect pos, SDL_Rect clip);
     button(const button &b);

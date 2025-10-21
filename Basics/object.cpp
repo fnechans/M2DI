@@ -2,7 +2,7 @@
 #include "Tools/tools.h"
 
 
-Object::Object(uint x, uint y) : Block(x, y),
+Object::Object(uint x, uint y, uint w, uint h) : Block(x, y, w, h),
     health(properties.set_and_get<int>("health", 0)),
     max_health(properties.set_and_get<int>("max_health", 0)),
     dead(properties.set_and_get<bool>("dead", false)),
@@ -109,8 +109,14 @@ void Object::follow_path(std::vector<Block *> &collObjects)
 
     if (!path.empty())
     {
-        int dirX = path.back()->hitbox.x - hitbox.x;
-        int dirY = path.back()->hitbox.y - hitbox.y;
+        while (std::abs(position().x - path.back()->position().x) <  hitbox.w/10 &&
+            std::abs(position().y - path.back()->position().y) < hitbox.h/10 && path.size() > 1)
+        {
+            path.pop_back();
+        }
+
+        int dirX = path.back()->position().x - position().x; 
+        int dirY = path.back()->position().y - position().y;
 
         // set speed
         if (dirX > 0) move_right();
@@ -118,20 +124,17 @@ void Object::follow_path(std::vector<Block *> &collObjects)
         if (dirY > 0) move_down();
         else if (dirY < 0) move_up(collObjects);
 
-        if ((uint) std::abs(hitbox.x - path.back()->hitbox.x) <= base::TILESIZEPHYSICS &&
-            (uint) std::abs(hitbox.y - path.back()->hitbox.y) <= base::TILESIZEPHYSICS && path.size() > 1)
-            path.pop_back();
     }
 }
 
-void Object::plot_path(Window &wrapper, SDL_Rect *screen)
+void Object::plot_path(Window &wrapper, SDL_Rect& screen, double renderScale)
 {
     if (!path.empty())
     {
         for (auto t : path)
         {
             t->image->set_color(mapColor.r, mapColor.g, mapColor.b);
-            t->plot(wrapper, screen);
+            t->plot(wrapper, screen, renderScale);
             t->image->set_color(255, 255, 255);
         }
     }
@@ -139,12 +142,36 @@ void Object::plot_path(Window &wrapper, SDL_Rect *screen)
 
 void Object::move(const std::vector<Block *> &collObjects, double DELTA_T)
 {
+
+    // if top down, normalize velocity
+    double tmp_intrVelX = intrVelX;
+    double tmp_intrVelY = intrVelY;
+    if (moveType == TopDown)
+    {
+        double norm = std::sqrt(intrVelX*intrVelX + intrVelY*intrVelY)/speedX;
+        if (norm > 0)
+        {
+            tmp_intrVelX /= norm;
+            tmp_intrVelY /= norm;
+        }
+    }
+
     // TODO: this whole thing needs to be done better,
     // but not sure how right now
-    tools::reduce_to_zero<float>(extVelX, frictionX*DELTA_T);
-    tools::reduce_to_zero<float>(extVelY, frictionY*DELTA_T);
-    int dX0 = (extVelX + intrVelX)*base::TILESIZEPHYSICS*DELTA_T;
-    int dY0 = (extVelY + intrVelY)*base::TILESIZEPHYSICS*DELTA_T;
+    tools::reduce_to_zero<double>(extVelX, frictionX*DELTA_T);
+    tools::reduce_to_zero<double>(extVelY, frictionY*DELTA_T);
+    int dX0 = (extVelX + tmp_intrVelX)*base::TILESIZEPHYSICS*DELTA_T;
+    int dY0 = (extVelY + tmp_intrVelY)*base::TILESIZEPHYSICS*DELTA_T;
+
+    // if we are following a path, truncate the movement
+    if (!path.empty())
+    {
+        if(dX0 > 0) dX0 = std::min(dX0, path.back()->position().x - position().x);
+        if(dX0 < 0) dX0 = std::max(dX0, path.back()->position().x - position().x);
+        if(dY0 > 0) dY0 = std::min(dY0, path.back()->position().y - position().y);
+        if(dY0 < 0) dY0 = std::max(dY0, path.back()->position().y - position().y);
+    }
+
 
     moved = false;
     bounced = false;
@@ -285,10 +312,43 @@ bool Object::next_to(SDL_Rect pos, direction dir, const std::vector<Block *> &co
     return does_collide(pos, collObjects);
 }
 
-void Object::kick(const SDL_Rect &origin, float multiplier)
+void Object::kick(const SDL_Rect &origin, double multiplier)
 {
     double dirX = position().x - origin.x;
     double dirY = position().y - origin.y;
     extVelX += multiplier * dirX / sqrt(dirX * dirX + dirY * dirY);
     extVelY += multiplier * dirY / sqrt(dirX * dirX + dirY * dirY);
 }
+
+ std::function<void()> l_player_move_up(Object *player)
+{
+    return [player]()
+    { player->move_up({}); };
+}
+
+std::function<void()> l_player_jump_up(Object *player, const std::vector<Block *>& collision_objects)
+{
+    return [player, &collision_objects = std::as_const(collision_objects)]()
+    { player->move_up(collision_objects); };
+}
+
+std::function<void()> l_player_move_down(Object *player)
+{
+    return [player]()
+    { player->move_down(); };
+}
+
+std::function<void()> l_player_move_left(Object *player)
+{
+    return [player]()
+    { player->move_left(); };
+}
+
+std::function<void()> l_player_move_right(Object *player)
+{
+    return [player]()
+    { player->move_right(); };
+}
+
+
+

@@ -1,4 +1,5 @@
 imageManager:add_image("map", "data/gfx/Overworld.png")
 imageManager:add_image("player", "data/gfx/character.png")
+imageManager:add_image("log", "data/gfx/log.png")
 imageManager:add_image("attack", "data/attack.bmp")
 imageManager:add_image("explosion", "data/expl/wills_pixel_explosions_sample/round_explosion/spritesheet/spritesheet.png")

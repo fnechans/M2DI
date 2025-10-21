@@ -12,6 +12,7 @@ struct AnimationHelper
 {
     Animation animation;
     std::vector<ValueChecker> checkers;
+    SDL_Rect shift;
     bool operator()() { 
         return std::all_of(checkers.begin(), checkers.end(), [](ValueChecker checker) { return checker(); }); 
     }
@@ -20,7 +21,7 @@ struct AnimationHelper
 class Block : public HasProperties
 {
 public:
-    Block(uint x = 0, uint y = 0);
+    Block(uint x = 0, uint y = 0, uint w = base::TILESIZEPHYSICS, uint h = base::TILESIZEPHYSICS);
     Block(const Block& other);
     Block(Block&&) = default;
     ~Block() {}
@@ -32,9 +33,6 @@ public:
     SDL_Rect hitbox;
     SDL_Rect position(){ return {hitbox.x+hitbox.w/2, hitbox.y+hitbox.h/2, 1, 1}; }
 
-    // local coor. vard
-    SDL_Rect positionScreen;
-
     // switches
     bool doPlot{true};
     bool hasCollision{true};
@@ -43,17 +41,17 @@ public:
     // TODO: Following should probably be refactored out?
 
     IMG_wrapper* image;
-    void plot(Window &wrapper, SDL_Rect *screen = nullptr);
-    bool on_screen(SDL_Rect *screen);
+    void plot(Window &wrapper, SDL_Rect& screen, double renderScale);
+    bool on_screen(SDL_Rect& screen, double renderScale);
 
-    void plot_animation(Window &window, SDL_Rect *screen = nullptr, bool pause = false);
-    void add_animation(Animation& animation, std::vector<std::pair<std::string, PropertyType>>& checkers);
+    void plot_animation(Window &window, SDL_Rect& screen, double renderScale, bool pause = false);
+    void add_animation(Animation& animation, std::vector<std::pair<std::string, PropertyType>>& checkers, Fl_Rect shift);
     bool has_animation() { return !animations.empty(); }
     void set_animation();
 
 private:
     std::vector <AnimationHelper> animations;
-    Animation* currentAnimation{nullptr};
+    AnimationHelper* currentAnimation{nullptr};
 
 };
 

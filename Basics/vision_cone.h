@@ -16,7 +16,7 @@ public:
 
     int lengthFactor = 10000;
 
-    bool set_cone(const SDL_Rect &origin, const SDL_Rect &dir, float _angle)
+    bool set_cone(const SDL_Rect &origin, const SDL_Rect &dir, double _angle)
     {
         angle = _angle;
 
@@ -34,7 +34,7 @@ public:
         perpPoint.y = direction.y - dx;
 
         // Define distance from direction necesarry for such point to be at angle wrt origin to endpoint line
-        float perpLength = tan(angle * 3.14 / 180.0) * (float) lengthFactor; // close enough
+        double perpLength = tan(angle * 3.14 / 180.0) * (double) lengthFactor; // close enough
 
         // Find points at correct angle from origin
         auto dir1 = tools::get_endpoint(direction, perpPoint, perpLength);
@@ -65,8 +65,8 @@ public:
         Block *obst{nullptr};   // origin block fo the point (if any)
         std::vector<Block*> obsts; // for points shared by multiple blocks
         Block *endpointObst{nullptr};   // origin block of the endpoint (if any)
-        float endpointDistance; //
-        float distance{0.};
+        double endpointDistance; //
+        double distance{0.};
     };
 
     bool evaluate_point(BorderPair &bdrPair, Block *origin, std::vector<Block *> &obstacles)
@@ -80,8 +80,8 @@ public:
         // if set to the same distance
         if (doCone)
         {
-            float distConeMax = tools::distance2(direction, coneL1.p2)*1.05 ; // +5% to accomodate for inprecision (we want points at exactly this distance)
-            float distPoint = tools::distance2(direction, tools::get_endpoint(origin->position(), bdrPair.point, lengthFactor));
+            double distConeMax = tools::distance2(direction, coneL1.p2)*1.05 ; // +5% to accomodate for inprecision (we want points at exactly this distance)
+            double distPoint = tools::distance2(direction, tools::get_endpoint(origin->position(), bdrPair.point, lengthFactor));
             if (distPoint > distConeMax)
                 return false;
             ;
@@ -146,7 +146,7 @@ public:
                         continue;
                     }
                     // else find  if intersection is closer than current potential endpoint
-                    float tmpDist = tools::distance2(origin->position(), interPoint);
+                    double tmpDist = tools::distance2(origin->position(), interPoint);
                     if (tmpDist < bdrPair.endpointDistance)
                     {
                         bdrPair.endpointDistance = tmpDist;
@@ -282,17 +282,17 @@ public:
             
             bool returnValue = !pos; // switches based on hemisphere!
 
-            float dx1 = (origin->position().x - p1.x);
+            double dx1 = (origin->position().x - p1.x);
             // Check for dY = 0
-            float dy1 = (origin->position().y - p1.y);
+            double dy1 = (origin->position().y - p1.y);
             if (dy1 == 0 && dx1 > 0) // positive inf
                 return returnValue;
             if (dy1 == 0 && dx1 < 0) // negative inf
                 return !returnValue;
 
-            float dx2 = (origin->position().x - p2.x);
+            double dx2 = (origin->position().x - p2.x);
             // Check for dY = 0, not return opposite
-            float dy2 = (origin->position().y - p2.y);
+            double dy2 = (origin->position().y - p2.y);
             if (dy2 == 0 && dx2 > 0) // positive inf
                 return !returnValue;
             if (dy2 == 0 && dx2 < 0) // negative inf
@@ -318,8 +318,8 @@ public:
             // since we restrict to cone < 90 degr. to each side we can check
             // for which  origin(x +-lengthFactor) is one of the cone lines closest,
             // if positive thne positive goes first
-            float dp = std::min(std::abs(origin->position().x + lengthFactor - coneL1.p2.x), std::abs(origin->position().x + lengthFactor - coneL2.p2.x));
-            float dn = std::min(std::abs(origin->position().x - lengthFactor - coneL1.p2.x), std::abs(origin->position().x - lengthFactor - coneL2.p2.x));
+            double dp = std::min(std::abs(origin->position().x + lengthFactor - coneL1.p2.x), std::abs(origin->position().x + lengthFactor - coneL2.p2.x));
+            double dn = std::min(std::abs(origin->position().x - lengthFactor - coneL1.p2.x), std::abs(origin->position().x - lengthFactor - coneL2.p2.x));
             if (dp > dn)
             {
                 cornersPos.insert(cornersPos.end(), cornersNeg.begin(), cornersNeg.end());
@@ -400,7 +400,7 @@ private:
     MLine coneL1, coneL2;
     SDL_Rect border;
     SDL_Rect direction;
-    float angle;
+    double angle;
     bool doCone{false};
 };
 

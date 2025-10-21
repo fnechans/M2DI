@@ -135,12 +135,13 @@ class AI
 public:
     int AIclick = 0; // how often is AI updated
     std::unique_ptr<AStar<node>> acko = nullptr;
-    void init_astar(std::vector<node> nodes)
+    void init(std::vector<node>& nodes)
     {
         acko = std::make_unique<AStar<node>>(nodes);
     }
     bool tick(uint frequency) { return AIclick % frequency == 0; }
     void increment(){AIclick++;}
+
 };
 
 #endif // ASTAR_H

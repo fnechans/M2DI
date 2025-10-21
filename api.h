@@ -18,7 +18,6 @@ void init_enums(sol::state &lua)
                  "LEFT_FILL", Menu::Position::LEFT_FILL,
                  "TOP_FILL", Menu::Position::TOP_FILL,
                  "BOTTOM_FILL", Menu::Position::BOTTOM_FILL);
-    lua["TILESIZEINPUT"] = base::TILESIZEINPUT;
     uint fps = Screen::FRAMES_PER_SECOND;
     lua["FRAMES_PER_SECOND"] = fps;
 
@@ -78,16 +77,15 @@ void create_classes(sol::state &lua)
         auto cl = lua.new_usertype<Block>("Block", sol::constructors<Block(), Block(uint, uint)>());
     }
     {
-        auto cl = lua.new_usertype<Character>("Character", sol::constructors<Character()>());
-        cl["image"] = &Character::image;
-        cl["mapColor"] = &Character::mapColor;
-        cl["add_animation"] = &Character::add_animation;
-        cl["properties"] = &Character::properties;
+        auto cl = lua.new_usertype<Object>("Object", sol::constructors<Object()>());
+        cl["image"] = &Object::image;
+        cl["mapColor"] = &Object::mapColor;
+        cl["add_animation"] = &Object::add_animation;
+        cl["properties"] = &Object::properties;
+        cl["hitbox"] = &Object::hitbox;
+        cl["set_target"] = &Object::set_target;
         lua["create_checker"] = &create_checkers;
-        lua["add_checker_int"] = &add_checker<int>;
-        lua["add_checker_float"] = &add_checker<float>;
-        lua["add_checker_string"] = &add_checker<std::string>;
-        lua["add_checker_bool"] = &add_checker<bool>;
+        lua["add_checker"] = &add_checker<PropertyType>;
     }
     {
         auto cl = lua.new_usertype<KeyBinds>("KeyBinds", sol::constructors<KeyBinds()>());
@@ -102,11 +100,11 @@ void create_classes(sol::state &lua)
         auto cl = lua.new_usertype<Properties>("Properties");
         cl["set"] = &Properties::set;
         cl["get_int"] = &Properties::get<int>;
-        cl["get_float"] = &Properties::get<float>;
+        cl["get_double"] = &Properties::get<double>;
         cl["get_string"] = &Properties::get<std::string>;
         cl["get_bool"] = &Properties::get<bool>;
         cl["getp_int"] = &Properties::getp<int>;
-        cl["getp_float"] = &Properties::getp<float>;
+        cl["getp_double"] = &Properties::getp<double>;
         cl["getp_string"] = &Properties::getp<std::string>;
         cl["getp_bool"] = &Properties::getp<bool>;
     }
@@ -118,23 +116,25 @@ void create_classes(sol::state &lua)
     }
     {
         auto cl = lua.new_usertype<AnimationData>("AnimationData", sol::constructors<AnimationData()>());
-        cl["renderMod"] = &AnimationData::renderMod;
         cl["set_frequency"] = &AnimationData::set_frequency;
         cl["rpt"] = &AnimationData::repeat;
         cl["clips"] = &AnimationData::clips;
         cl["get_animation"] = &AnimationData::get_animation;
     }
     {
+        auto cl = lua.new_usertype<Sprites>("Sprites");
+        cl["add"] = &Sprites::add;
+    }
+    {
         // tilemap
-        sol::usertype<Map_wrapper> cl = lua.new_usertype<Map_wrapper>("Tilemap");
-        cl["load_map"] = &Map_wrapper::load_map;
-        cl["init"] = &Map_wrapper::init;
-        cl["render_map"] = &Map_wrapper::render_map;
-        cl["load_blocks"] = &Map_wrapper::load_blocks;
-        cl["add_sprite_property"] = &Map_wrapper::add_sprite_property;
+        sol::usertype<Map_wrapper> cl = lua.new_usertype<Map_wrapper>("Map_wrapper");
+        cl["import_map"] = &Map_wrapper::import_map;
         cl["map_border_colision"] = &Map_wrapper::map_border_colision;
-        cl["image"] = &Map_wrapper::image;
-        cl["screen_position"] = &Map_wrapper::screen_position;
+        cl["get_tile_pointers"] = &Map_wrapper::get_tile_pointers;
+    }
+    {
+        auto cl = lua.new_usertype<AI<Block*>>("AI");
+        cl["init"] = &AI<Block*>::init;
     }
 
     /// SDL
@@ -146,7 +146,7 @@ void create_classes(sol::state &lua)
         cl["h"] = &SDL_Rect::h;
     }
     {
-        auto cl = lua.new_usertype<Fl_Rect>("Fl_Rect", sol::constructors<Fl_Rect(), Fl_Rect(float, float, float, float)>());
+        auto cl = lua.new_usertype<Fl_Rect>("Fl_Rect", sol::constructors<Fl_Rect(), Fl_Rect(double, double, double, double)>());
         cl["x"] = &Fl_Rect::x;
         cl["y"] = &Fl_Rect::y;
         cl["w"] = &Fl_Rect::w;
@@ -177,9 +177,12 @@ void create_classes(sol::state &lua)
         sol::usertype<Level> cl = lua.new_usertype<Level>("Level");
         cl["set_map"] = &Level::set_map;
         cl["get_map"] = &Level::get_map;
+        cl["get_blocks"] = &Level::get_blocks;
         cl["set_map_screen_position"] = &Level::set_map_screen_position;
         cl["add_character"] = &Level::add_character;
         cl["add_projectile"] = &Level::add_projectile;
+        cl["set_ai"] = &Level::set_ai;
+        cl["add_minimap"] = &Level::add_minimap;
     }
     {
         sol::usertype<Screen> cl = lua.new_usertype<Screen>("Screen");
