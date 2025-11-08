@@ -3,6 +3,53 @@
 #include <fstream>
 #include <sstream>
 
+Chunk::Chunk(int x, int y, uint _size) : size(_size)
+{
+    tiles.reserve(size * size);
+    for (uint i = 0; i < size; i++)
+        for (uint j = 0; j < size; j++)
+            tiles.push_back(
+                Block(
+                    x + i * base::TILESIZEPHYSICS,
+                    y + j * base::TILESIZEPHYSICS)
+            );
+
+    boundBox = {
+        x, 
+        y, 
+        static_cast<int>(size * base::TILESIZEPHYSICS),
+        static_cast<int>(size * base::TILESIZEPHYSICS)
+    };
+}
+
+void Chunk::import(const std::string &mapFile, Sprites &sprites)
+{
+    std::ifstream mapStream(mapFile);
+    if (mapStream.fail())
+        throw std::runtime_error("Loading of map file " + mapFile + " failed!");
+
+    std::string line;
+    uint nTile{0};
+    while (getline(mapStream, line))
+    {
+        std::stringstream lineStream(line);
+        std::string tile_name;
+
+        while (lineStream >> tile_name)
+        {
+
+            if (tile_name == "NULL")
+            {
+                continue;
+            }
+
+            sprites.at(tile_name).apply(tiles.at(nTile++));
+
+            if(nTile >> size) throw std::runtime_error("Map file " + mapFile + " is too big!");
+        }
+    }    
+}
+
 Map_wrapper::Map_wrapper()
 {
 }
@@ -11,28 +58,26 @@ void Map_wrapper::render_map(Window &window, SDL_Rect &mapPosition, double rende
 {
     for (auto &tile : tiles)
     {
-        tile.plot(window, mapPosition, renderScale);
+        if (tile.image)
+            tile.plot(window, mapPosition, renderScale);
     }
 }
 
-
-void Map_wrapper::render_minimap(Window &window, SDL_Rect &minimapViewPort, double renderScale, const std::vector<Block *> &objects)
+void Map_wrapper::render_minimap(Window &window, SDL_Rect &minimapPosition, double renderScale, const std::vector<Block *> &objects)
 {
-    // TODO: custom setting in future:
-    window.viewPort(&minimapViewPort);
     for (auto &tile : tiles)
     {
-        if (!tile.on_screen(minimapViewPort, renderScale))
+        if (!tile.on_screen(minimapPosition, renderScale))
             return;
-        SDL_Rect renderRect = base::toScreen(minimapViewPort, tile.hitbox, renderScale);
+        SDL_Rect renderRect = base::toScreen(minimapPosition, tile.hitbox, renderScale);
         window.drawColorRect(&renderRect, tile.mapColor);
     }
 
     for (auto &obj : objects)
     {
-        if (!obj->on_screen(minimapViewPort, renderScale))
+        if (!obj->on_screen(minimapPosition, renderScale))
             return;
-        SDL_Rect renderRect = base::toScreen(minimapViewPort, obj->hitbox, renderScale);
+        SDL_Rect renderRect = base::toScreen(minimapPosition, obj->hitbox, renderScale);
         window.drawColorRect(&renderRect, obj->mapColor);
     }
 }
@@ -47,8 +92,8 @@ std::vector<Block *> Map_wrapper::map_border_colision()
 void Map_wrapper::screen_position(SDL_Rect &worldCoordinatesOnScreen, SDL_Rect &viewPort, Block &obj, double renderScale)
 {
     SDL_Rect objPositionScreen;
-    objPositionScreen.x = viewPort.x + viewPort.w / 2;
-    objPositionScreen.y = viewPort.y + viewPort.h / 2;
+    objPositionScreen.x = viewPort.w / 2;
+    objPositionScreen.y = viewPort.h / 2;
 
     worldCoordinatesOnScreen.x = obj.position().x * renderScale - objPositionScreen.x;
     worldCoordinatesOnScreen.y = obj.position().y * renderScale - objPositionScreen.y;
@@ -57,18 +102,18 @@ void Map_wrapper::screen_position(SDL_Rect &worldCoordinatesOnScreen, SDL_Rect &
     {
         worldCoordinatesOnScreen.x = 0;
     }
-    else if (worldCoordinatesOnScreen.x + (viewPort.x + viewPort.w) > mapWidth * renderScale && mapWidth * renderScale > (viewPort.x + viewPort.w))
+    else if (worldCoordinatesOnScreen.x + (viewPort.w) > mapWidth * renderScale && mapWidth * renderScale > (viewPort.w))
     {
-        worldCoordinatesOnScreen.x = mapWidth * renderScale - (viewPort.x + viewPort.w);
+        worldCoordinatesOnScreen.x = mapWidth * renderScale - (viewPort.w);
     }
 
     if (worldCoordinatesOnScreen.y < 0)
     {
         worldCoordinatesOnScreen.y = 0;
     }
-    else if (worldCoordinatesOnScreen.y + (viewPort.y + viewPort.h) > mapHeight * renderScale && mapHeight * renderScale > (viewPort.y + viewPort.h))
+    else if (worldCoordinatesOnScreen.y + (viewPort.h) > mapHeight * renderScale && mapHeight * renderScale > (viewPort.h))
     {
-        worldCoordinatesOnScreen.y = mapHeight * renderScale - (viewPort.y + viewPort.h);
+        worldCoordinatesOnScreen.y = mapHeight * renderScale - (viewPort.h);
     }
 
     worldCoordinatesOnScreen.w = viewPort.w;
@@ -79,7 +124,7 @@ void Map_wrapper::adjust_screen()
 {
     mapWidth = nTileX * base::TILESIZEPHYSICS;
     mapHeight = nTileY * base::TILESIZEPHYSICS;
-    borderLeft.hitbox = {(int)-base::TILESIZEPHYSICS, (int)-base::TILESIZEPHYSICS, 
+    borderLeft.hitbox = {(int)-base::TILESIZEPHYSICS, (int)-base::TILESIZEPHYSICS,
                          (int)base::TILESIZEPHYSICS, (int)base::TILESIZEPHYSICS * (nTileX + 2)};
     borderRight.hitbox = {(int)base::TILESIZEPHYSICS * nTileX, (int)-base::TILESIZEPHYSICS,
                           (int)base::TILESIZEPHYSICS, (int)base::TILESIZEPHYSICS * (nTileX + 2)};
@@ -93,12 +138,10 @@ void Map_wrapper::blank_map(int _mapSizeX, int _mapSizeY)
     nTileY = _mapSizeY;
     uint x = 0;
     uint y = 0;
-    std::vector<Block> tiles;
 
     for (int i = 0; i < nTileX * nTileY; ++i)
     {
         tiles.emplace_back(x, y);
-
         x += base::TILESIZEPHYSICS;
         if (x >= nTileX * base::TILESIZEPHYSICS)
         {
@@ -107,10 +150,9 @@ void Map_wrapper::blank_map(int _mapSizeX, int _mapSizeY)
         }
     }
     adjust_screen();
-    
 }
 
-void Map_wrapper::import_map(std::string mapFile, Sprites& sprites)
+void Map_wrapper::import_map(const std::string &mapFile, Sprites &sprites)
 {
     nTileX = 0;
     nTileY = 0;
@@ -122,30 +164,27 @@ void Map_wrapper::import_map(std::string mapFile, Sprites& sprites)
         throw std::runtime_error("Loading of map file " + mapFile + " failed!");
 
     std::string line;
-    while( getline(mapStream, line) )
+    while (getline(mapStream, line))
     {
         nTileY++;
 
         std::stringstream lineStream(line);
-        std::string tile;
+        std::string tile_name;
         nTileX = 0;
 
-        while(lineStream >> tile)
+        while (lineStream >> tile_name)
         {
             nTileX++;
 
-            if (tile == "NULL"){
-                x+=base::TILESIZEPHYSICS;
+            if (tile_name == "NULL")
+            {
+                x += base::TILESIZEPHYSICS;
                 continue;
             }
 
             tiles.emplace_back(x, y);
-            auto& sprite = sprites.at(tile);
-            tiles.back().clip = sprite.clip;
-            tiles.back().mapColor = sprite.color;
-            tiles.back().obscuresVision = sprite.obscure;
-            tiles.back().image = sprite.image;
-            x+=base::TILESIZEPHYSICS;
+            sprites.at(tile_name).apply(tiles.back());
+            x += base::TILESIZEPHYSICS;
         }
         y += base::TILESIZEPHYSICS;
         x = 0;
@@ -154,7 +193,19 @@ void Map_wrapper::import_map(std::string mapFile, Sprites& sprites)
     adjust_screen();
 }
 
-std::vector<Block *>& Map_wrapper::get_tile_pointers()
+void Map_wrapper::export_map(const std::string &mapFile)
+{
+    std::ofstream mapStream(mapFile);
+    if (mapStream.fail())
+        throw std::runtime_error("Creating map file " + mapFile + " failed!");
+    for (auto &tile : tiles)
+    {
+        mapStream << tile.hitbox.x << " ";
+    }
+    mapStream << std::endl;
+}
+
+std::vector<Block *> &Map_wrapper::get_tile_pointers()
 {
     tilePointers.reserve(tiles.size());
     for (auto &tile : tiles)

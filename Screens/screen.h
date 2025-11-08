@@ -43,9 +43,12 @@ public:
         add_menu(pos, {x, y, w, h});
         return menu.get();
     }
-    Level &add_level()
+    Level &add_level(Level::Position pos = Level::WHOLE, 
+                    SDL_Rect bor = {0, 0, 0, 0})
     {
-        level = std::make_unique<Level>(window.get());
+        level = std::make_unique<Level>(window.get(),
+                                        pos,
+                                        bor);
         return *level;
     }
 
@@ -74,11 +77,15 @@ public:
 
     void schedule_button_update(const std::string &name, std::function<void()> func);
     void schedule_screen_position_update(Object *target);
+    void schedule_screen_click_update(std::function<void()> func);
+    void schedule_tile_click_update(std::function<void(Block&)> func);
     std::function<void()> l_screen_zoom(double factor);
     std::function<void()> l_quit();
     std::function<void()> l_pause();
     std::function<void()> l_property_update(const std::string &name, const PropertyType& value);
     std::function<void()> l_nextScreen(const std::string &name);
+    std::function<void(Block&)> l_update_tile_from_sprite(Sprites& sprites, std::string* name);
+    std::function<void()> l_fullscreen();
 
     void schedule_plot(std::function<void()> func);
     std::function<void()> l_plot_on_level(Level *viewport);

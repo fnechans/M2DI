@@ -5,12 +5,12 @@
 #include <exception>
 #include <variant>
 
-Block::Block(uint x, uint y, uint w, uint h)
+Block::Block(int x, int y, uint w, uint h)
 {
     hitbox.x = x;
     hitbox.y = y;
-    hitbox.w = w;
-    hitbox.h = h;
+    hitbox.w = static_cast<int>(w);
+    hitbox.h = static_cast<int>(h);
 
     mapColor = {0, 0, 0, 0};
 }
@@ -32,21 +32,32 @@ Block::Block(const Block &other)
 
 bool Block::on_screen(SDL_Rect& screen, double renderScale)
 {
-    if (!((hitbox.x+hitbox.w) * renderScale < screen.x || hitbox.x * renderScale > screen.x + screen.w ||
-          (hitbox.y+hitbox.h) * renderScale < screen.y || hitbox.y * renderScale > screen.y + screen.h))
-    {
-        return true;
-    }
-    return false;
+    ZoneScoped; 
+    if ((hitbox.x+hitbox.w) * renderScale < screen.x) return false;
+    if (hitbox.x * renderScale > screen.x + screen.w) return false;
+    if ((hitbox.y+hitbox.h) * renderScale < screen.y) return false;
+    if (hitbox.y * renderScale > screen.y + screen.h) return false;
+    return true;
+}
+
+bool Block::on_screen_quick(SDL_Rect& screen)
+{
+    if ((hitbox.x+hitbox.w) < screen.x) return false;
+    if (hitbox.x > screen.x + screen.w) return false;
+    if ((hitbox.y+hitbox.h) < screen.y) return false;
+    if (hitbox.y > screen.y + screen.h) return false;
+    return true;
 }
 
 void Block::plot(Window &window, SDL_Rect& screen, double renderScale)
 {
     if (!on_screen(screen, renderScale))
         return;
+    
+    if (!image) image = &IMG_wrapper::defaultImage;
 
     SDL_Rect renderRect = base::toScreen(screen, hitbox, renderScale);
-    image->render_image(window, &renderRect, &clip);
+    image->render_image(window, &renderRect, clip);
 }
 
 void Block::add_animation(Animation &animation, std::vector<std::pair<std::string, PropertyType>> &checkers, Fl_Rect shift)

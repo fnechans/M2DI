@@ -31,20 +31,12 @@ Object::Object(const Object& other) : Block(other),
 
 void Object::set_health(int value)
 {
-    properties.set("health", value);
-    properties.set("max_health", value);
+    health = value;
+    max_health = value;
 }
 
 void Object::modify_health(int value)
 {
-    if(properties.count("health") == 0)
-    {
-        std::cout << "Attemping to modify health but non health propery\n";
-        return; // skip if object does not have health
-    }
-    int& health = properties.get<int>("health");
-    int& max_health = properties.get<int>("max_health");
-
     health += value;    
     if (health > max_health) health = max_health;
     if (health < 0) health = 0;

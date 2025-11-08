@@ -21,13 +21,13 @@ struct AnimationHelper
 class Block : public HasProperties
 {
 public:
-    Block(uint x = 0, uint y = 0, uint w = base::TILESIZEPHYSICS, uint h = base::TILESIZEPHYSICS);
+    Block(int x = 0, int y = 0, uint w = base::TILESIZEPHYSICS, uint h = base::TILESIZEPHYSICS);
     Block(const Block& other);
     Block(Block&&) = default;
     ~Block() {}
 
     SDL_Color mapColor;
-    SDL_Rect clip;
+    SDL_Rect* clip{nullptr};
 
     // global coor. vars
     SDL_Rect hitbox;
@@ -40,9 +40,10 @@ public:
 
     // TODO: Following should probably be refactored out?
 
-    IMG_wrapper* image;
+    IMG_wrapper* image{nullptr};
     void plot(Window &wrapper, SDL_Rect& screen, double renderScale);
     bool on_screen(SDL_Rect& screen, double renderScale);
+    bool on_screen_quick(SDL_Rect& screen);
 
     void plot_animation(Window &window, SDL_Rect& screen, double renderScale, bool pause = false);
     void add_animation(Animation& animation, std::vector<std::pair<std::string, PropertyType>>& checkers, Fl_Rect shift);

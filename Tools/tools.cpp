@@ -1,4 +1,5 @@
 #include "tools.h"
+#include "tracy/Tracy.hpp"
 
 bool MLine::intersects(const MLine& l2, SDL_Rect* intersection )
 {

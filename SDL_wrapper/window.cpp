@@ -54,10 +54,18 @@ bool SDLW::init()
         }
     }
     isInit = success;
+    toggleFullscreen();
     if (!success)
         close();
     else printf("Window initialized\n");
     return success;
+}
+
+void SDLW::toggleFullscreen()
+{
+    if (!fullscreen) SDL_SetWindowFullscreen(sdlWindow, SDL_WINDOW_FULLSCREEN_DESKTOP);
+    else SDL_SetWindowFullscreen(sdlWindow, 0);
+    fullscreen = !fullscreen;
 }
 
 void SDLW::close()

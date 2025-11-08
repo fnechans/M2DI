@@ -3,6 +3,7 @@
 
 SDL_Rect base::toScreen(SDL_Rect& screen, const SDL_Rect &position, double renderScale)
 {
+    ZoneScoped;
     SDL_Rect positionScreen;
     positionScreen.x = position.x * renderScale - screen.x;
     positionScreen.y = position.y * renderScale - screen.y;
@@ -23,8 +24,8 @@ SDL_Rect base::fromScreen(SDL_Rect& screen, const SDL_Rect &positionScreen, doub
 
 ValueChecker Properties::get_checker(const std::string &name, const PropertyType& target) 
 { 
-    if (properties.count(name) == 0)
+    if (propertyMap.count(name) == 0)
         throw std::runtime_error("Property of name " + name + " does "
                                                               "not exists in the manager.");
-    return ValueChecker(target, properties.at(name)); 
+    return ValueChecker(target, propertyMap.at(name)); 
 }

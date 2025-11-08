@@ -35,7 +35,7 @@ void Viewport::set_viewPort()
     case RIGHT: // right is default
     default:
         viewPort = {window->sWidth - border.w, border.y, border.w,
-                    window->sHeight - border.h - border.y};
+                   window->sHeight - border.h - border.y};
         break;
     }
     SDL_RenderSetViewport(window->sdlRenderer, &viewPort);

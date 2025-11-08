@@ -16,6 +16,13 @@ public:
     SDL_Rect clip;
     SDL_Color color;
     bool obscure;
+    void apply(Block& tile)
+    {
+        tile.image = image;
+        tile.clip = &clip;
+        tile.mapColor = color;
+        tile.obscuresVision = obscure;
+    }
 };
 
 class Sprites
@@ -30,18 +37,29 @@ public:
     std::map<std::string, Sprite> sprites;
 };
 
+
+class Chunk
+{
+public:
+    Chunk(int x, int y, uint _size = 16);
+    void import(const std::string& mapFile, Sprites& sprites);
+    std::vector<Block> tiles;
+    uint size;
+    SDL_Rect boundBox;
+};
+
 class Map_wrapper
 {
 public:
     Map_wrapper();
     ~Map_wrapper() {}
 
-    void init(int xMax, int yMax, int tileSize);
     void render_map(Window &wrapper, SDL_Rect &mapPosition, double renderScale);
-    void render_minimap(Window &window, SDL_Rect &minimapViewPort, double renderSCale, const std::vector<Block *> &objects = {});
+    void render_minimap(Window &window, SDL_Rect &minimapPosition, double renderSCale, const std::vector<Block *> &objects = {});
     void adjust_screen();
     void screen_position(SDL_Rect &worldCoordinatesOnScreen, SDL_Rect &viewPort, Block &block, double renderScale);
-    void import_map(std::string mapFile, Sprites& sprites);
+    void import_map(const std::string& mapFile, Sprites& sprites);
+    void export_map(const std::string& mapFile);
     void blank_map(int mapSizeX, int mapSizeY);
     std::vector<Block*>& get_tile_pointers();
     std::vector<Block> tiles;

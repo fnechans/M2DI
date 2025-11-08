@@ -13,29 +13,28 @@ public:
     void plot();
 
     // Buttons
-    void add_button(std::string name, SDL_Rect position, int ws = 2, int hs = 1, SDL_Keycode key = SDLK_UNKNOWN)
+    button& add_button_width_height(std::string name, SDL_Rect position, int ws = 2, int hs = 1, SDL_Keycode key = SDLK_UNKNOWN)
     {
         buttons.emplace(name, button(position, ws, hs));
         buttonKeys.emplace(name, key);
         buttonState.emplace(name, false);
+        return buttons.at(name);
     }
-    void add_button(std::string name, SDL_Rect position, SDL_Rect clips[button::COUNT], SDL_Keycode key = SDLK_UNKNOWN)
+    button& add_button_clips(std::string name, SDL_Rect position, SDL_Rect clips[button::COUNT], SDL_Keycode key = SDLK_UNKNOWN)
     {
         buttons.emplace(name, button(position, clips));
         buttonKeys.emplace(name, key);
         buttonState.emplace(name, false);
+        return buttons.at(name);
     }
-    void add_button(std::string name, SDL_Rect position, SDL_Rect clip, SDL_Keycode key = SDLK_UNKNOWN)
+    button& add_button_clip(std::string name, SDL_Rect position, SDL_Rect clip, SDL_Keycode key = SDLK_UNKNOWN)
     {
         buttons.emplace(name, button(position, clip));
         buttonKeys.emplace(name, key);
         buttonState.emplace(name, false);
-    }
-    button& add_button2(std::string name, int x, int y, int w, int h, int w_sprite, int h_sprite, SDL_Keycode key = SDLK_UNKNOWN)
-    {
-        add_button(name, {x, y, w, h}, w_sprite, h_sprite, key);
         return buttons.at(name);
     }
+
     bool get_state(std::string name) { 
         if(buttonState.count(name)==0)
             throw std::runtime_error("Button of name "+name+" does "

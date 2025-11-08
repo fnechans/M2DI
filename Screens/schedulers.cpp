@@ -5,7 +5,13 @@ using Fnc = std::function<void()>;
 void Screen::schedule_button_update(const std::string &name, std::function<void()> func)
 {
     updates.push_back([name, func, this]()
-                      { if (menu->get_state(name)) func(); });
+        { 
+            if (menu->get_state(name)) 
+            {
+                func(); 
+            }
+        }
+    );
 }
 
 void Screen::schedule_screen_position_update(Object *target)
@@ -14,6 +20,35 @@ void Screen::schedule_screen_position_update(Object *target)
                       {
         level->set_viewPort();
         level->set_map_screen_position(target);
+    });
+}
+
+void Screen::schedule_screen_click_update(std::function<void()> func)
+{
+    updates.push_back([this, func]()
+                      { if(level->screenClick) func(); });
+    
+}
+
+void Screen::schedule_tile_click_update(std::function<void(Block&)> func)
+{
+    updates.push_back([this, func]()
+                      { 
+    ZoneScoped; 
+    if(level->screenClick)
+    {
+        SDL_Rect mouseWorld = base::fromScreen(level->worldCoordinatesOnScreen, {level->bScreen.mouseX, level->bScreen.mouseY, 0, 0}, level->renderScale);
+        for(auto &tile : level->get_map().tiles)
+        {
+            if(tile.on_screen_quick(level->activeWorldCoordinates) &&
+                tools::point_within_rect(mouseWorld.x, mouseWorld.y, tile.hitbox
+                )
+            )
+            {
+                func(tile);
+            }
+        }
+    }
     });
 }
 
@@ -31,8 +66,11 @@ std::function<void()> Screen::l_pause()
 
 std::function<void()> Screen::l_property_update(const std::string &name, const PropertyType& value)
 {
+    try { std::cout << std::get<std::string>(value) << std::endl; } catch (...) {}
     return [this, name, value]()
-    { properties.set(name, value); };
+    { 
+        properties.set(name, value); 
+    };
 }
 
 std::function<void()> Screen::l_nextScreen(const std::string &name)
@@ -47,6 +85,22 @@ std::function<void()> Screen::l_screen_zoom(double factor)
         {
             level->renderScale *= factor;
         };
+}
+
+std::function<void(Block&)> Screen::l_update_tile_from_sprite(Sprites& sprites, std::string* name)
+{
+    return [&sprites, name](Block& tile)
+    {
+        sprites.at(*name).apply(tile);
+    };
+}
+
+std::function<void()> Screen::l_fullscreen()
+{
+    return [this]()
+    {
+        window->toggleFullscreen();
+    };
 }
 
 /// Plotting
@@ -79,15 +133,3 @@ std::function<void()> Screen::l_plot_image(IMG_wrapper *img, int x, int y, const
         if(condition) img->render_image(*window, x, y);
     };
 }
-
-// prepsat -> vse do Objectu
-// init -> definitovat ktere properties ovlivni animaci (vector string)
-// pridani animace pak je vektor pozadovanych vlastnosti
-// vlastnoti by meli mit flag jestli se zmenili -> get by mel dat true,
-// false se pak bude delat pri resetu
-// otazka je jestli  mit moved/direction jako properties
-// nebo emmber promenne. Ten kod by mohl proste uklada vector
-// pointeru a pro moved/direction by meli vyjimku pri init
-// otazka jestli to pak neomzeit na int (a bool)
-// taky otazka jestli umoznit "na danem parametru nezalezi"
-// ale to by pak vedlo k ambiguite? Jaky by byl priklad?

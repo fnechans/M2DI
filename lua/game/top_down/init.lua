@@ -13,7 +13,7 @@ add_sprite("dirt", 12, 13, colors.brown, true)
 add_sprite("wood", 4, 5, colors.wood, true)
 add_sprite("water", 0, 1, colors.blue, false)
 
-level = screen:add_level()
+level = screen:add_level(Position.WHOLE, rect(0, 0, 0, 0))
 level:set_map(SDL_Rect.new(0, 0, 120, 0))
 map = level:get_map()
 map:import_map("data/start.map", sprites)
@@ -41,7 +41,7 @@ create_animation("WALK_UP", 0.15, {
 create_animation("WALK_LEFT", 0.15, {
     rect_tile(0, 6, 1, 2), rect_tile(1, 6 ,1 ,2), rect_tile(2, 6, 1, 2), rect_tile(3, 6, 1, 2)}, true)
 
-create_animation("LOG_DEFAULT", 1, {rect_tile(0, 0, 2, 2), rect_tile(10, 0, 2, 2)}, true)
+create_animation("LOG_DEFAULT", 0.3, {rect_tile(8, 0, 2, 2), rect_tile(8, 2, 2, 2), rect_tile(8, 4, 2, 2), rect_tile(8, 6, 2, 2)}, true)
 create_animation("LOG_WALK_DOWN", 0.15, {
     rect_tile(0, 0, 2, 2), rect_tile(2, 0 ,2 ,2), rect_tile(4, 0, 2, 2), rect_tile(6, 0, 2, 2)}, true)
 create_animation("LOG_WALK_UP", 0.15, {
@@ -77,7 +77,7 @@ enemy.image = imageManager:get_image('log')
 enemy.mapColor = SDL_Color.new(0, 250, 0, 255)
 
 function log_anim(char)
-    shift = float_rect(-1, -1.5, 2, 2)
+    shift = float_rect(-1, -1.656, 2, 2)
     add_animation(char, "log", "LOG_DEFAULT", {"moved"}, {false}, shift)
     add_animation(char, "log", "LOG_WALK_DOWN", {"moved", "direction"}, {true, Direction.DOWN}, shift)
     add_animation(char, "log", "LOG_WALK_UP", {"moved", "direction"}, {true, Direction.UP}, shift)
@@ -99,10 +99,13 @@ local text_size = TILESIZEINPUT*2
 menu = screen:add_menu2(Position.RIGHT, 0, 0, buttonW*3, 0)
 
 --- minimap under the menu
-level:add_minimap(Position.RIGHT, rect_tile(0, buttonH*2, buttonW*3, buttonW*3))
+level:add_minimap(Position.RIGHT, rect(0, buttonH*2, buttonW*3, buttonW*3))
 
 function add_button(name, title, x, y)
-    local button = menu:add_button2(name, x*buttonW, y*buttonH, buttonW, buttonH, buttonSpriteW, buttonSpriteH, 0)
+    local button = menu:add_button_width_height(name,
+        rect(x*buttonW, y*buttonH, buttonW, buttonH),
+        buttonSpriteW, buttonSpriteH, 0
+    )
     button.image = imageManager:get_image('button')
     button.text = imageManager:add_text(name, title, colors.button, text_size, buttonW*10)
 end

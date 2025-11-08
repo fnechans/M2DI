@@ -2,6 +2,8 @@
 
 typedef IMG_wrapper IMGW;
 
+IMGW IMGW::defaultImage;
+
 void IMGW::clear()
 {
     SDL_DestroyTexture(image);
@@ -83,6 +85,7 @@ bool IMGW::surf_to_texture(SDL_Renderer *renderer, SDL_Surface *loadedSurface)
 
 void IMGW::render_image(Window &window, int x, int y, SDL_Rect *clip, double angle)
 {
+    if (image == nullptr) load_media(window, "data/placeholder.png");
     //Set rendering space and render to screen
     SDL_Rect renderQuad = {x, y, width, height};
 
@@ -98,6 +101,7 @@ void IMGW::render_image(Window &window, int x, int y, SDL_Rect *clip, double ang
 
 void IMGW::render_image(Window &window, SDL_Rect *renderQuad, SDL_Rect *clip, double angle, SDL_RendererFlip flip)
 {
+    if (image == nullptr) load_media(window, "data/placeholder.png");
     // Check clip size compared to width, height
     if (clip != nullptr)
     {
@@ -106,6 +110,7 @@ void IMGW::render_image(Window &window, SDL_Rect *renderQuad, SDL_Rect *clip, do
         else if(clip->y + clip->h > height)
             clip = nullptr;
     }
+    
     //Render texture to screen
     SDL_RenderCopyEx(window.sdlRenderer, image, clip, renderQuad, angle, nullptr, flip);
 }

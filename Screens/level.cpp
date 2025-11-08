@@ -49,7 +49,7 @@ bool Level::evaluate(SDL_Event &event)
         screenClick = true;
         return true;
     }
-    else if (state == bScreen.UNCLICK)
+    else if (state >= bScreen.UNCLICK)
     {
         screenClick = false;
         return true;
@@ -76,16 +76,12 @@ void Level::move_chars(double DELTA_T)
     }
 }
 
-void Level::plot_map()
+void Level::plot()
 {
     set_viewPort();
     currentMap->render_map(*window, worldCoordinatesOnScreen, renderScale);
     currentBlocks->render_map(*window, worldCoordinatesOnScreen, renderScale);
-}
 
-void Level::plot()
-{
-    set_viewPort();
     // TODO: are all collision objects needed here?
 
     // First plot paths and add characters
@@ -114,6 +110,7 @@ void Level::plot()
         else obj->plot(*window, worldCoordinatesOnScreen, renderScale);
     }
     if(minimap){
+        minimap->set_viewPort();
         currentMap->render_minimap(*window, worldCoordinatesOnMinimap, renderScaleMinimap);
         currentBlocks->render_minimap(*window, worldCoordinatesOnMinimap, renderScaleMinimap, collisionObjects);
     }

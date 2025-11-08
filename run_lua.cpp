@@ -1,6 +1,5 @@
 #define SOL_ALL_SAFETIES_ON 1
 #include <sol/sol.hpp>
-
 #include <iostream>
 
 #include "api.h"
@@ -11,6 +10,7 @@ const std::string path = "lua/game/";
 
 std::string run_screen(sol::state &lua, const std::string &dirname, std::shared_ptr<Window> window)
 {
+    ZoneScoped; // Need at least one call into Tracy
     std::cout << "Running: " << dirname << std::endl;
 
     std::cout << "=== load screen ===" << std::endl;
