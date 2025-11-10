@@ -19,7 +19,7 @@ typedef unsigned int uint;
 namespace base
 {
 
-    const uint TILESIZEPHYSICS = 1024; // defines physical size
+    const int TILESIZEPHYSICS = 1024; // defines physical size
                                        // so it is more related to
                                        // speed and such
 
@@ -43,8 +43,8 @@ public:
     //
     void set(const std::string &name, PropertyType value) {
         if (propertyMap.count(name) == 0)
-            propertyMap.emplace(name, value); 
-        else 
+            propertyMap.emplace(name, value);
+        else
             propertyMap.at(name) = value;
     }
 
@@ -78,7 +78,7 @@ public:
         return propertyMap.at(name);
     }
 
-    ValueChecker get_checker(const std::string &name, const PropertyType& target); 
+    ValueChecker get_checker(const std::string &name, const PropertyType& target);
 
 
 private:

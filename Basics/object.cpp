@@ -37,7 +37,7 @@ void Object::set_health(int value)
 
 void Object::modify_health(int value)
 {
-    health += value;    
+    health += value;
     if (health > max_health) health = max_health;
     if (health < 0) health = 0;
     if (health == 0)
@@ -107,7 +107,7 @@ void Object::follow_path(std::vector<Block *> &collObjects)
             path.pop_back();
         }
 
-        int dirX = path.back()->position().x - position().x; 
+        int dirX = path.back()->position().x - position().x;
         int dirY = path.back()->position().y - position().y;
 
         // set speed
@@ -125,9 +125,10 @@ void Object::plot_path(Window &wrapper, SDL_Rect& screen, double renderScale)
     {
         for (auto t : path)
         {
-            t->image->set_color(mapColor.r, mapColor.g, mapColor.b);
+            SDL_Color color = (sprite) ? sprite->color : SDL_Color{255, 0, 0, 128};
+            t->sprite->image->set_color(color.r, color.g, color.b);
             t->plot(wrapper, screen, renderScale);
-            t->image->set_color(255, 255, 255);
+            t->sprite->image->set_color(255, 255, 255);
         }
     }
 }

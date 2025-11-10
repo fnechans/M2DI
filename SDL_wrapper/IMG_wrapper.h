@@ -15,8 +15,10 @@
 class IMG_wrapper
 {
 public:
-    IMG_wrapper() { gFont = nullptr; }
-    ~IMG_wrapper() { clear(); }
+    IMG_wrapper() {}
+    ~IMG_wrapper() {
+        clear();
+    }
 
     //Loads media
     bool load_media(Window &, const char *path);

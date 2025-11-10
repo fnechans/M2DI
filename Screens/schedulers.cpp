@@ -5,10 +5,10 @@ using Fnc = std::function<void()>;
 void Screen::schedule_button_update(const std::string &name, std::function<void()> func)
 {
     updates.push_back([name, func, this]()
-        { 
-            if (menu->get_state(name)) 
+        {
+            if (menu->get_state(name))
             {
-                func(); 
+                func();
             }
         }
     );
@@ -27,25 +27,25 @@ void Screen::schedule_screen_click_update(std::function<void()> func)
 {
     updates.push_back([this, func]()
                       { if(level->screenClick) func(); });
-    
+
 }
 
 void Screen::schedule_tile_click_update(std::function<void(Block&)> func)
 {
     updates.push_back([this, func]()
-                      { 
-    ZoneScoped; 
+                      {
     if(level->screenClick)
     {
-        SDL_Rect mouseWorld = base::fromScreen(level->worldCoordinatesOnScreen, {level->bScreen.mouseX, level->bScreen.mouseY, 0, 0}, level->renderScale);
-        for(auto &tile : level->get_map().tiles)
+        SDL_Rect mouseWorld = base::fromScreen(level->worldCoordinatesOnScreen,
+                {level->bScreen.mouseX, level->bScreen.mouseY, 0, 0}, level->renderScale);
+        for(auto &tile : level->get_map().get_tile_pointers())
         {
-            if(tile.on_screen_quick(level->activeWorldCoordinates) &&
-                tools::point_within_rect(mouseWorld.x, mouseWorld.y, tile.hitbox
+            if(tile->on_screen_quick(level->activeWorldCoordinates) &&
+                tools::point_within_rect(mouseWorld.x, mouseWorld.y, tile->hitbox
                 )
             )
             {
-                func(tile);
+                func(*tile);
             }
         }
     }
@@ -68,8 +68,21 @@ std::function<void()> Screen::l_property_update(const std::string &name, const P
 {
     try { std::cout << std::get<std::string>(value) << std::endl; } catch (...) {}
     return [this, name, value]()
-    { 
-        properties.set(name, value); 
+    {
+        properties.set(name, value);
+    };
+}
+
+std::function<void()> Screen::l_property_toggle(const std::string &name)
+{
+    if(!std::holds_alternative<bool>(properties[name]))
+    {
+        std::cout << "property " << name << " is not a bool" << std::endl;
+        return [](){};
+    }
+    return [this, name]()
+    {
+        properties.set(name, !properties.get<bool>(name));
     };
 }
 
@@ -91,7 +104,7 @@ std::function<void(Block&)> Screen::l_update_tile_from_sprite(Sprites& sprites, 
 {
     return [&sprites, name](Block& tile)
     {
-        sprites.at(*name).apply(tile);
+        tile.sprite = &sprites.at(*name);
     };
 }
 
@@ -113,7 +126,7 @@ void Screen::schedule_plot(std::function<void()> func)
 std::function<void()> Screen::l_plot_on_level(Level *viewport)
 {
     return [viewport]()
-    { 
+    {
         viewport->set_viewPort();
     };
 }
@@ -121,7 +134,7 @@ std::function<void()> Screen::l_plot_on_level(Level *viewport)
 std::function<void()> Screen::l_plot_on_menu(Menu *menu)
 {
     return [menu]()
-    { 
+    {
         menu->set_viewPort();
     };
 }

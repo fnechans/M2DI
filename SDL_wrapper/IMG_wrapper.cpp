@@ -26,6 +26,7 @@ bool IMGW::load_media(Window &window, const char *path)
 {
     //Load image at specified path
     SDL_Surface *loadedSurface = IMG_Load(path);
+    std::cout << "Loading: " << path << std::endl;
     if (loadedSurface == nullptr)
     {
         printf("Unable to load image %s! SDL Error: %s\n", path, SDL_GetError());
@@ -110,7 +111,7 @@ void IMGW::render_image(Window &window, SDL_Rect *renderQuad, SDL_Rect *clip, do
         else if(clip->y + clip->h > height)
             clip = nullptr;
     }
-    
+
     //Render texture to screen
     SDL_RenderCopyEx(window.sdlRenderer, image, clip, renderQuad, angle, nullptr, flip);
 }

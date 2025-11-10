@@ -4,7 +4,7 @@ print(" > initializing map")
 
 map_image = imageManager:get_image('map')
 function add_sprite(name, x, y, col, obs)
-    sprites:add(name, map_image, rect_tile(x, y, 1, 1), col, obs)
+    sprites:add(name, map_image, rect_tile(x, y, 1, 1), col, float_rect(0, 0, 0, 0))
 end
 add_sprite("sand", 1, 4, colors.yellow, true)
 add_sprite("grass", 0, 0, colors.green, true)
@@ -20,7 +20,12 @@ level = screen:add_level(Position.LEFT_FILL, rect(0, 0, buttonW*3, 0))
 
 level:set_map()
 map = level:get_map()
-map:blank_map(1000, 1000)
+for i = -10, 10 do
+    for j = -10, 10 do
+        map:add_chunk(Chunk.new(i, j, 16))
+        -- todo: add chunks when click in empty space
+    end
+end
 
 player = level:add_character("player", 9, 9, 0.1, 0.1);
 player.speedX = 24
@@ -70,7 +75,7 @@ screen.keybinds:add_keybind("zoom_out", KEYS.minus, screen:l_screen_zoom(0.5))
 
 add_button("fps", "FPS", 2, 1)
 screen.properties:set("showFPS", false)
-screen:schedule_button_update('fps', screen:l_property_update("showFPS", not screen.properties:get_bool("showFPS")))
+screen:schedule_button_update('fps', screen:l_property_toggle("showFPS"))
 
 function add_tile_button(name, x, y)
     local button = menu:add_button_clip(name,

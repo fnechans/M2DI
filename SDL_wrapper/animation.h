@@ -2,33 +2,31 @@
 #define ANIMATION_H
 
 #include "Tools/base.h"
-#include "SDL_wrapper/IMG_wrapper.h"
+#include "SDL_wrapper/sprite.h"
 
 #include <vector>
 
-struct Fl_Rect
-{
-    double x, y, w, h;
-};
 
 class Animation
 {
 public:
-    Animation() { frame = 0; }
-    Animation(IMG_wrapper* _image) : image(_image) { frame = 0; }
+    Animation(uint frequency = 10, bool repeat = true) : frequency(frequency), repeat(repeat) {}
     Animation(const Animation &other);
+    void plot(Window& window, SDL_Rect* position, bool skipPlot = false);
+    SDL_Rect get_render_rect(SDL_Rect& screen, const SDL_Rect &position, double renderScale);
+
+    void run(); // increases frame and handles consequences
+
+    // controls state of the animation
     void play() { running = true; }
     void pause() { running = false; }
-    SDL_Rect get();
-    void run_and_plot(Window& window, SDL_Rect position, bool skipPlot = false);
     void stop()
     {
         running = false;
         frame = 0;
     }
 
-    IMG_wrapper* image;
-    void add_clip(SDL_Rect clip) { clips.push_back(clip); }
+    void add_sprite(Sprite* sprite) { sprites.push_back(sprite); }
 
     // TMP
     uint frequency = 60/8;
@@ -37,10 +35,10 @@ public:
 
     bool repeat = true;
     bool running = false;
-    std::vector<SDL_Rect> clips;
 
 private:
-    uint frame;
+    std::vector<Sprite*> sprites;
+    uint frame{0};
 };
 
 class AnimationData
@@ -49,14 +47,14 @@ public:
     AnimationData()  {}
     // TMP: figure out how to best propagate ticks/frames per sec?
     uint frequency = 60/8;
-    void set_frequency(double freq_sec, uint fps) { frequency = uint(freq_sec * fps); }
-    std::vector<std::vector<double>> fclips;
-    std::vector<SDL_Rect> clips;
+    void set_frequency(double freq_seconds, uint fps) { frequency = uint(freq_seconds * fps); }
     bool repeat = true;
+    std::vector<Sprite*> sprites;
+    void add_sprite(Sprite* sprite) { sprites.push_back(sprite); }
     Animation get_animation()
     {
         Animation a;
-        for (auto clip : clips) a.add_clip(clip);
+        for (auto sprite : sprites) a.add_sprite(sprite);
         if (frequency == 0)
             frequency = 1;
         a.frequency = frequency;

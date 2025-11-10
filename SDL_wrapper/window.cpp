@@ -54,7 +54,6 @@ bool SDLW::init()
         }
     }
     isInit = success;
-    toggleFullscreen();
     if (!success)
         close();
     else printf("Window initialized\n");

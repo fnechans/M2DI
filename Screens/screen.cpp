@@ -25,7 +25,7 @@ screen_ptr Screen::loop()
 {
     if (!isInit)
         init();
-    
+
 
     std::cout << "Starting new loop\n";
 
@@ -99,13 +99,16 @@ screen_ptr Screen::loop()
 
             SDL_Rect wp = {0, 0, window->sWidth, window->sHeight};
             window->viewPort(&wp);
-            streamFPS.str("");
-            streamFPS << "FPS: " << currentFPS << "\t Tickrate: " << currentTickrate;
-            textFPS.load_text(*window, streamFPS.str(), {255, 100, 100, 255}, 16, 16 * 24);
-            textFPS.render_image(*window, 0, 0);
+            if(showFPS)
+            {
+                streamFPS.str("");
+                streamFPS << "FPS: " << currentFPS << "\t Tickrate: " << currentTickrate;
+                textFPS.load_text(*window, streamFPS.str(), {255, 100, 100, 255}, 16, 16 * 24);
+                textFPS.render_image(*window, 0, 0);
+            }
 
             window->render();
-            
+
             user_finish();
         }
         else
