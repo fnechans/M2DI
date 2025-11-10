@@ -4,85 +4,81 @@ print(" > initializing map")
 
 
 map_image = imageManager:get_image('map')
-function add_sprite(name, x, y, col, obs)
-    sprites:add(name, map_image, rect_tile(x, y, 1, 1), col, obs)
+function add_sprite(name, x, y, col)
+    sprites:add(name, map_image, rect_tile(x, y, 1, 1), col, Fl_Rect.new(0, 0, 0, 0))
 end
-add_sprite("sand", 1, 4, colors.yellow, true)
-add_sprite("grass", 0, 0, colors.green, true)
-add_sprite("dirt", 12, 13, colors.brown, true)
-add_sprite("wood", 4, 5, colors.wood, true)
-add_sprite("water", 0, 1, colors.blue, false)
+add_sprite("sand", 1, 4, colors.yellow)
+add_sprite("grass", 0, 0, colors.green)
+add_sprite("dirt", 12, 13, colors.brown)
+add_sprite("wood", 4, 5, colors.wood)
+add_sprite("water", 0, 1, colors.blue)
 
-level = screen:add_level()
+level = screen:add_level(Position.WHOLE, rect(0, 0, 0, 0))
 level:set_map(SDL_Rect.new(0, 0, 120, 0))
 map = level:get_map()
-map:import_map("data/start.map", sprites)
-
 blocks = level:get_blocks()
-blocks:import_map("data/startBlock2.map", sprites)
+for i = -10, 10 do
+    for j = -10, 10 do
+        map:add_chunk(Chunk.new(i, j, "data/start.map", sprites, 16))
+        blocks:add_chunk(Chunk.new(i, j, "data/startBlock2.map", sprites, 16))
+    end
+end
 
 level:set_ai()
 
 -- Animations
 print(" > initializing animations")
 
-create_animation("DEFAULT_DOWN", 1, {rect_tile(0, 0, 1, 2), rect_tile(6, 0, 1, 2)}, true)
-create_animation("DEFAULT_RIGHT", 1, {rect_tile(0, 2, 1, 2), rect_tile(6, 2, 1, 2)}, true)
-create_animation("DEFAULT_UP", 1, {rect_tile(0, 4, 1, 2), rect_tile(6, 4, 1, 2)}, true)
-create_animation("DEFAULT_LEFT", 1, {rect_tile(0, 6, 1, 2), rect_tile(6, 6, 1, 2)}, true)
+function anim_player(name, clips, freq)
+    create_animation(name, "player", clips, float_rect(-0.5, -1.5, 1, 2), freq, true)
+end
+anim_player("DEFAULT_DOWN", {rect_tile(0, 0, 1, 2), rect_tile(6, 0, 1, 2)}, 1)
+anim_player("DEFAULT_RIGHT", {rect_tile(0, 2, 1, 2), rect_tile(6, 2, 1, 2)}, 1)
+anim_player("DEFAULT_UP", {rect_tile(0, 4, 1, 2), rect_tile(6, 4, 1, 2)}, 1)
+anim_player("DEFAULT_LEFT", {rect_tile(0, 6, 1, 2), rect_tile(6, 6, 1, 2)}, 1)
+anim_player("WALK_DOWN", {rect_tile(0, 0, 1, 2), rect_tile(1, 0 ,1 ,2), rect_tile(2, 0, 1, 2), rect_tile(3, 0, 1, 2)}, 0.15)
+anim_player("WALK_RIGHT", {rect_tile(0, 2, 1, 2), rect_tile(1, 2 ,1 ,2), rect_tile(2, 2, 1, 2), rect_tile(3, 2, 1, 2)}, 0.15)
+anim_player("WALK_UP", {rect_tile(0, 4, 1, 2), rect_tile(1, 4 ,1 ,2), rect_tile(2, 4, 1, 2), rect_tile(3, 4, 1, 2)}, 0.15)
+anim_player("WALK_LEFT", {rect_tile(0, 6, 1, 2), rect_tile(1, 6 ,1 ,2), rect_tile(2, 6, 1, 2), rect_tile(3, 6, 1, 2)}, 0.15)
 
-
-create_animation("WALK_DOWN", 0.15, {
-    rect_tile(0, 0, 1, 2), rect_tile(1, 0 ,1 ,2), rect_tile(2, 0, 1, 2), rect_tile(3, 0, 1, 2)}, true)
-create_animation("WALK_RIGHT", 0.15, {
-    rect_tile(0, 2, 1, 2), rect_tile(1, 2 ,1 ,2), rect_tile(2, 2, 1, 2), rect_tile(3, 2, 1, 2)}, true)
-create_animation("WALK_UP", 0.15, {
-    rect_tile(0, 4, 1, 2), rect_tile(1, 4 ,1 ,2), rect_tile(2, 4, 1, 2), rect_tile(3, 4, 1, 2)}, true)
-create_animation("WALK_LEFT", 0.15, {
-    rect_tile(0, 6, 1, 2), rect_tile(1, 6 ,1 ,2), rect_tile(2, 6, 1, 2), rect_tile(3, 6, 1, 2)}, true)
-
-create_animation("LOG_DEFAULT", 1, {rect_tile(0, 0, 2, 2), rect_tile(10, 0, 2, 2)}, true)
-create_animation("LOG_WALK_DOWN", 0.15, {
-    rect_tile(0, 0, 2, 2), rect_tile(2, 0 ,2 ,2), rect_tile(4, 0, 2, 2), rect_tile(6, 0, 2, 2)}, true)
-create_animation("LOG_WALK_UP", 0.15, {
-    rect_tile(0, 2, 2, 2), rect_tile(2, 2 ,2 ,2), rect_tile(4, 2, 2, 2), rect_tile(6, 2, 2, 2)}, true)
-create_animation("LOG_WALK_RIGHT", 0.15, {
-    rect_tile(0, 4, 2, 2), rect_tile(2, 4 ,2 ,2), rect_tile(4, 4, 2, 2), rect_tile(6, 4, 2, 2)}, true)
-create_animation("LOG_WALK_LEFT", 0.15, {
-    rect_tile(0, 6, 2, 2), rect_tile(2, 6 ,2 ,2), rect_tile(4, 6, 2, 2), rect_tile(6, 6, 2, 2)}, true)
-
+function anim_log(name, clips, freq)
+    create_animation(name, "log", clips, float_rect(-1, -1.656, 2, 2), freq, true)
+end
+anim_log("LOG_DEFAULT", {rect_tile(8, 0, 2, 2), rect_tile(8, 2, 2, 2), rect_tile(8, 4, 2, 2), rect_tile(8, 6, 2, 2)}, 1)
+anim_log("LOG_WALK_DOWN", {rect_tile(0, 0, 2, 2), rect_tile(2, 0 ,2 ,2), rect_tile(4, 0, 2, 2), rect_tile(6, 0, 2, 2)}, 0.15)
+anim_log("LOG_WALK_UP", {rect_tile(0, 2, 2, 2), rect_tile(2, 2 ,2 ,2), rect_tile(4, 2, 2, 2), rect_tile(6, 2, 2, 2)}, 0.15)
+anim_log("LOG_WALK_RIGHT", {rect_tile(0, 4, 2, 2), rect_tile(2, 4 ,2 ,2), rect_tile(4, 4, 2, 2), rect_tile(6, 4, 2, 2)}, 0.15)
+anim_log("LOG_WALK_LEFT", {rect_tile(0, 6, 2, 2), rect_tile(2, 6 ,2 ,2), rect_tile(4, 6, 2, 2), rect_tile(6, 6, 2, 2)}, 0.15)
 
 -- Add chars
 print(" > adding characters")
 player = level:add_character("player", 9, 9, 0.8, 0.8);
-player.image = imageManager:get_image('player')
-player.mapColor = SDL_Color.new(0, 250, 0, 255)
+-- player.mapColor = SDL_Color.new(0, 250, 0, 255)
 
 function char_anim(char)
-    shift = float_rect(-0.5, -1.5, 1, 2)
-    add_animation(char, "player", "DEFAULT_DOWN", {"moved", "direction"}, {false, Direction.DOWN}, shift)
-    add_animation(char, "player", "DEFAULT_RIGHT", {"moved", "direction"}, {false, Direction.RIGHT}, shift)
-    add_animation(char, "player", "DEFAULT_UP", {"moved", "direction"}, {false, Direction.UP}, shift)
-    add_animation(char, "player", "DEFAULT_LEFT", {"moved", "direction"}, {false, Direction.LEFT}, shift)
-    add_animation(char, "player", "WALK_DOWN", {"moved", "direction"}, {true, Direction.DOWN}, shift)
-    add_animation(char, "player", "WALK_RIGHT", {"moved", "direction"}, {true, Direction.RIGHT}, shift)
-    add_animation(char, "player", "WALK_UP", {"moved", "direction"}, {true, Direction.UP}, shift)
-    add_animation(char, "player", "WALK_LEFT", {"moved", "direction"}, {true, Direction.LEFT}, shift)
+    add_animation(char, "DEFAULT_DOWN", {"moved", "direction"}, {false, Direction.DOWN})
+    add_animation(char, "DEFAULT_RIGHT", {"moved", "direction"}, {false, Direction.RIGHT})
+    add_animation(char, "DEFAULT_UP", {"moved", "direction"}, {false, Direction.UP})
+    add_animation(char, "DEFAULT_LEFT", {"moved", "direction"}, {false, Direction.LEFT})
+    add_animation(char, "WALK_DOWN", {"moved", "direction"}, {true, Direction.DOWN})
+    add_animation(char, "WALK_RIGHT", {"moved", "direction"}, {true, Direction.RIGHT})
+    add_animation(char, "WALK_UP", {"moved", "direction"}, {true, Direction.UP})
+    add_animation(char, "WALK_LEFT", {"moved", "direction"}, {true, Direction.LEFT})
 end
 
 char_anim(player)
 
 enemy = level:add_character("enemy", 2, 10, 0.8, 0.8);
-enemy.image = imageManager:get_image('log')
-enemy.mapColor = SDL_Color.new(0, 250, 0, 255)
+enemy.speedX = 3
+enemy.speedY = 3
+-- enemy.mapColor = SDL_Color.new(0, 250, 0, 255)
 
 function log_anim(char)
-    shift = float_rect(-1, -1.5, 2, 2)
-    add_animation(char, "log", "LOG_DEFAULT", {"moved"}, {false}, shift)
-    add_animation(char, "log", "LOG_WALK_DOWN", {"moved", "direction"}, {true, Direction.DOWN}, shift)
-    add_animation(char, "log", "LOG_WALK_UP", {"moved", "direction"}, {true, Direction.UP}, shift)
-    add_animation(char, "log", "LOG_WALK_RIGHT", {"moved", "direction"}, {true, Direction.RIGHT}, shift)
-    add_animation(char, "log", "LOG_WALK_LEFT", {"moved", "direction"}, {true, Direction.LEFT}, shift)
+    add_animation(char, "LOG_DEFAULT", {"moved"}, {false})
+    add_animation(char, "LOG_WALK_DOWN", {"moved", "direction"}, {true, Direction.DOWN})
+    add_animation(char, "LOG_WALK_UP", {"moved", "direction"}, {true, Direction.UP})
+    add_animation(char, "LOG_WALK_RIGHT", {"moved", "direction"}, {true, Direction.RIGHT})
+    add_animation(char, "LOG_WALK_LEFT", {"moved", "direction"}, {true, Direction.LEFT})
 end
 log_anim(enemy)
 enemy:set_target(player)
@@ -99,10 +95,13 @@ local text_size = TILESIZEINPUT*2
 menu = screen:add_menu2(Position.RIGHT, 0, 0, buttonW*3, 0)
 
 --- minimap under the menu
-level:add_minimap(Position.RIGHT, rect_tile(0, buttonH*2, buttonW*3, buttonW*3))
+level:add_minimap(Position.RIGHT, rect(0, buttonH*2, buttonW*3, buttonW*3))
 
 function add_button(name, title, x, y)
-    local button = menu:add_button2(name, x*buttonW, y*buttonH, buttonW, buttonH, buttonSpriteW, buttonSpriteH, 0)
+    local button = menu:add_button_width_height(name,
+        rect(x*buttonW, y*buttonH, buttonW, buttonH),
+        buttonSpriteW, buttonSpriteH, 0
+    )
     button.image = imageManager:get_image('button')
     button.text = imageManager:add_text(name, title, colors.button, text_size, buttonW*10)
 end
@@ -130,7 +129,7 @@ screen.keybinds:add_keybind("zoom_out", KEYS.minus, screen:l_screen_zoom(0.5))
 
 add_button("fps", "FPS", 2, 1)
 screen.properties:set("showFPS", false)
-screen:schedule_button_update('fps', screen:l_property_update("showFPS", not screen.properties:get_bool("showFPS")))
+screen:schedule_button_update('fps', screen:l_property_toggle("showFPS"))
 
 -- Movement
 print(" > adding movement")

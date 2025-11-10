@@ -16,12 +16,12 @@ void Level::bake()
         damagableObjects.push_back(obj); // TODO: simply return characters?
     }
 
-    for (auto &t : currentBlocks->tiles)
+    for (auto &t : currentBlocks->get_tile_pointers())
     {
-        if(t.hasCollision) collisionObjects.push_back(&t);
-        if(t.obscuresVision) obscuringObjects.push_back(&t);
+        if(t->hasCollision) collisionObjects.push_back(t);
+        if(t->obscuresVision) obscuringObjects.push_back(t);
     }
-    
+
     for (auto t : currentMap->map_border_colision())
     {
         collisionObjects.push_back(t);
@@ -49,7 +49,7 @@ bool Level::evaluate(SDL_Event &event)
         screenClick = true;
         return true;
     }
-    else if (state == bScreen.UNCLICK)
+    else if (state >= bScreen.UNCLICK)
     {
         screenClick = false;
         return true;
@@ -76,16 +76,11 @@ void Level::move_chars(double DELTA_T)
     }
 }
 
-void Level::plot_map()
+void Level::plot()
 {
     set_viewPort();
     currentMap->render_map(*window, worldCoordinatesOnScreen, renderScale);
     currentBlocks->render_map(*window, worldCoordinatesOnScreen, renderScale);
-}
-
-void Level::plot()
-{
-    set_viewPort();
     // TODO: are all collision objects needed here?
 
     // First plot paths and add characters
@@ -110,10 +105,10 @@ void Level::plot()
     {
         if(!obj->doPlot) continue;
 
-        if(obj->has_animation()) obj->plot_animation(*window, worldCoordinatesOnScreen, renderScale, pause);
-        else obj->plot(*window, worldCoordinatesOnScreen, renderScale);
+        obj->plot(*window, worldCoordinatesOnScreen, renderScale, pause);
     }
     if(minimap){
+        minimap->set_viewPort();
         currentMap->render_minimap(*window, worldCoordinatesOnMinimap, renderScaleMinimap);
         currentBlocks->render_minimap(*window, worldCoordinatesOnMinimap, renderScaleMinimap, collisionObjects);
     }

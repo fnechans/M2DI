@@ -60,6 +60,13 @@ bool SDLW::init()
     return success;
 }
 
+void SDLW::toggleFullscreen()
+{
+    if (!fullscreen) SDL_SetWindowFullscreen(sdlWindow, SDL_WINDOW_FULLSCREEN_DESKTOP);
+    else SDL_SetWindowFullscreen(sdlWindow, 0);
+    fullscreen = !fullscreen;
+}
+
 void SDLW::close()
 {
     //Destroy window

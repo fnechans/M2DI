@@ -15,8 +15,10 @@
 class IMG_wrapper
 {
 public:
-    IMG_wrapper() { gFont = nullptr; }
-    ~IMG_wrapper() { clear(); }
+    IMG_wrapper() {}
+    ~IMG_wrapper() {
+        clear();
+    }
 
     //Loads media
     bool load_media(Window &, const char *path);
@@ -32,12 +34,15 @@ public:
     void set_color(Uint8 red, Uint8 green, Uint8 blue);
 
     //The image we will load and show on the screen
-    SDL_Texture *image = nullptr;
+    SDL_Texture *image{nullptr};
     int width = -1;
     int height = -1;
+    static IMG_wrapper defaultImage;
 
 private:
     bool surf_to_texture(SDL_Renderer *, SDL_Surface *loadedSurface);
-    TTF_Font *gFont;
+    TTF_Font *gFont{nullptr};
 };
+
+
 #endif

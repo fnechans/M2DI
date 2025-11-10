@@ -32,10 +32,12 @@ public:
     SDL_Renderer *sdlRenderer = nullptr;
 
     bool vsync() { return VSYNC; }
+    void toggleFullscreen();
 private:
     //The window we'll be rendering to
     SDL_Window *sdlWindow = nullptr;
     bool VSYNC;
+    bool fullscreen = false;
 };
 
 #endif

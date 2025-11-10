@@ -12,7 +12,9 @@ public:
         DEFAULT,
         HOVER,
         CLICK,
+        CLICKED,
         UNCLICK,
+        UNCLICK_ON_SCREEN,
         COUNT
     };
     button(SDL_Rect pos, int ws = 2, int hs = 1);
@@ -27,8 +29,8 @@ public:
     SDL_Rect screenPos;
     uint state = DEFAULT;
 
-    IMG_wrapper* image;
-    IMG_wrapper* text;
+    IMG_wrapper* image{nullptr};
+    IMG_wrapper* text{nullptr};
     void plot(Window &wrapper);
     int evaluate(SDL_Event &event, SDL_Rect viewPort);
 

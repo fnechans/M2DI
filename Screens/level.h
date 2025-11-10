@@ -27,7 +27,6 @@ public:
     bool screenClick = false;
     SDL_Rect mousePositionScreen;
     void move_chars(double DELTA_T);
-    void plot_map();
     void plot();
 
     void set_map()
@@ -43,6 +42,12 @@ public:
     void set_map_screen_position(Block *target)
     {
         currentMap->screen_position(worldCoordinatesOnScreen, viewPort, *target, renderScale);
+        activeWorldCoordinates = {
+            static_cast<int>(worldCoordinatesOnScreen.x / renderScale),
+            static_cast<int>(worldCoordinatesOnScreen.y / renderScale),
+            static_cast<int>(worldCoordinatesOnScreen.w / renderScale),
+            static_cast<int>(worldCoordinatesOnScreen.h / renderScale)
+        };
         if (minimap)
             currentMap->screen_position(worldCoordinatesOnMinimap, minimap->viewPort, *target, renderScaleMinimap);
     }
@@ -56,13 +61,24 @@ public:
         ai.increment();
         for (auto chr : characters)
         {
+            // TODO: implement "next to" properly
+            SDL_Rect hitbox_plus_one =
+            {
+                chr->hitbox.x - 1,
+                chr->hitbox.y - 1,
+                chr->hitbox.w + 2,
+                chr->hitbox.h + 2
+            };
             if (!chr->target)
                 continue;
-            if (ai.tick(50))
+            if (SDL_HasIntersection(&chr->target->hitbox, &hitbox_plus_one)){
+                // After this, follow_path still needed to reset velocity
+                chr->path.clear();
+            }
+            else if (ai.tick(50))
             {
                 auto tmp = ai.acko->find_path(chr, chr->target, get_collision_objects());
-                if (!tmp.empty())
-                    chr->path = tmp;
+                chr->path = tmp;
             }
             chr->follow_path(get_collision_objects());
         }
@@ -82,6 +98,10 @@ public:
 
     ObjectManager projectiles;
     Object &add_projectile(const std::string &name, double x, double y, double w, double h) { return *projectiles.add(name, x, y, w, h); }
+    button bScreen;
+    SDL_Rect activeWorldCoordinates{0, 0, 0, 0};
+    SDL_Rect worldCoordinatesOnScreen{0, 0, 0, 0};
+    SDL_Rect worldCoordinatesOnMinimap{0, 0, 0, 0};
 
 private:
     std::unique_ptr<Map_wrapper> currentMap;
@@ -96,9 +116,6 @@ private:
     bool ai_active = false;
 
     std::unique_ptr<Viewport> minimap = nullptr;
-    SDL_Rect worldCoordinatesOnScreen;
-    SDL_Rect worldCoordinatesOnMinimap;
-    button bScreen;
 };
 
 #endif

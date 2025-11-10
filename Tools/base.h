@@ -12,13 +12,14 @@
 #include <cmath>
 #include <variant>
 #include <functional>
+#include "tracy/Tracy.hpp" // Required
 
 typedef unsigned int uint;
 
 namespace base
 {
 
-    const uint TILESIZEPHYSICS = 1024; // defines physical size
+    const int TILESIZEPHYSICS = 1024; // defines physical size
                                        // so it is more related to
                                        // speed and such
 
@@ -35,48 +36,53 @@ class ValueChecker;
 class Properties
 {
 public:
-    uint count(const std::string &name) { return properties.count(name); }
+    uint count(const std::string &name) { return propertyMap.count(name); }
 
     //    template <typename T>
-    //    void set(const std::string &name, T value) { properties.emplace(name, value); }
+    //    void set(const std::string &name, T value) { propertyMap.emplace(name, value); }
     //
-    void set(const std::string &name, PropertyType value) { properties.emplace(name, value); }
+    void set(const std::string &name, PropertyType value) {
+        if (propertyMap.count(name) == 0)
+            propertyMap.emplace(name, value);
+        else
+            propertyMap.at(name) = value;
+    }
 
 
     template <typename T>
-    T& set_and_get(const std::string &name, T value) { properties.emplace(name, value); return get<T>(name); }
+    T& set_and_get(const std::string &name, T value) { propertyMap.emplace(name, value); return get<T>(name); }
 
     template <typename T>
     T& get(const std::string &name)
     {
-        if (properties.count(name) == 0)
+        if (propertyMap.count(name) == 0)
             throw std::runtime_error("Property of name " + name + " does "
                                                                   "not exists in the manager.");
-        return std::get<T>(properties.at(name));
+        return std::get<T>(propertyMap.at(name));
     }
 
     template <typename T>
     T *getp(const std::string &name)
     {
-        if (properties.count(name) == 0)
+        if (propertyMap.count(name) == 0)
             throw std::runtime_error("Property of name " + name + " does "
                                                                   "not exists in the manager.");
-        return &std::get<T>(properties.at(name));
+        return &std::get<T>(propertyMap.at(name));
     }
 
     PropertyType& operator[](const std::string &name)
     {
-        if (properties.count(name) == 0)
+        if (propertyMap.count(name) == 0)
             throw std::runtime_error("Property of name " + name + " does "
                                                                   "not exists in the manager.");
-        return properties.at(name);
+        return propertyMap.at(name);
     }
 
-    ValueChecker get_checker(const std::string &name, const PropertyType& target); 
+    ValueChecker get_checker(const std::string &name, const PropertyType& target);
 
 
 private:
-    std::map<std::string, PropertyType> properties;
+    std::map<std::string, PropertyType> propertyMap;
 };
 
 class HasProperties

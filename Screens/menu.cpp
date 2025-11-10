@@ -10,7 +10,7 @@ bool Menu::evaluate(SDL_Event &event)
     set_viewPort();
     for (auto &button : buttons)
     {
-        if (button.second.evaluate(event, viewPort) == button::CLICK || tools::key_down(event, buttonKeys[button.first]))
+        if (button.second.evaluate(event, viewPort) == button::UNCLICK_ON_SCREEN || tools::key_down(event, buttonKeys[button.first]))
         {
             buttonState[button.first] = true;
             return true;

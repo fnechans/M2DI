@@ -25,7 +25,7 @@ screen_ptr Screen::loop()
 {
     if (!isInit)
         init();
-    
+
 
     std::cout << "Starting new loop\n";
 
@@ -37,9 +37,13 @@ screen_ptr Screen::loop()
     uint nRender = 0;
     uint nEval = 0;
     Uint32 fps_step = next_game_step;
+    IMG_wrapper textFPS;
+    std::stringstream streamFPS;
 
     //tmp
     bool firstEvent = true; // force evaluate on first event
+
+    keybinds.add_keybind("fullscreen", SDLK_F11, l_fullscreen());
 
     while (!quit)
     {
@@ -53,7 +57,6 @@ screen_ptr Screen::loop()
             // Loop until all steps are executed or computer_is_too_slow_limit is reached
             while (firstEvent || ((next_game_step <= now) && (computer_is_too_slow_limit--)))
             {
-
                 nEval++;
                 menu->reset();
                 if (level) level->reset();
@@ -87,13 +90,23 @@ screen_ptr Screen::loop()
             }
             window->clear();
 
-            if (level) level->plot_map();
+            if (level) level->plot();
 
             for (auto& f : plots)
                 f();
 
-            if (level) level->plot();
             menu->plot();
+
+            SDL_Rect wp = {0, 0, window->sWidth, window->sHeight};
+            window->viewPort(&wp);
+            if(showFPS)
+            {
+                streamFPS.str("");
+                streamFPS << "FPS: " << currentFPS << "\t Tickrate: " << currentTickrate;
+                textFPS.load_text(*window, streamFPS.str(), {255, 100, 100, 255}, 16, 16 * 24);
+                textFPS.render_image(*window, 0, 0);
+            }
+
             window->render();
 
             user_finish();

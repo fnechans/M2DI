@@ -36,8 +36,8 @@ public:
 
     double cost(node start, node goal)
     {
-        int dX = start->position().x - goal->position().x;
-        int dY = start->position().y - goal->position().y;
+        double dX = start->position().x - goal->position().x;
+        double dY = start->position().y - goal->position().y;
         return std::sqrt(dX * dX + dY * dY);
     }
 
@@ -61,12 +61,16 @@ public:
         return lowestNode;
     }
 
-    std::vector<node> find_path(node start, node goal, std::vector<node>& collObjects)
+    std::vector<node> find_path(node start, node goal, std::vector<node>& collObjects, uint maxCostFactor = 5)
     {
+        if(goal == nullptr) throw std::runtime_error("goal is null");
+        if(start == nullptr) throw std::runtime_error("start is null");
 
         std::vector<node> closeSet = {};
-        openSet = {start};
-
+        openSet.clear();
+        openSet.push_back(start);
+        node current;
+        guessScore.clear();
         curMap.push_back(goal);
 
         comesFrom.clear();
@@ -79,11 +83,15 @@ public:
             bestScore[tile] = 1e6;
         }
 
-        node current;
 
         while (!openSet.empty())
         {
             current = bestOpen();
+            if (current == nullptr)
+            {
+                curMap.pop_back();
+                return {};
+            }
             if (current == goal)
             {
                 curMap.pop_back();
@@ -112,6 +120,7 @@ public:
                     continue;
 
                 double tentScore = bestScore[current] + cost(current, neighbor);
+                if (tentScore > maxCostFactor * guessScore[start]) continue;
                 if (tentScore < bestScore[neighbor])
                 {
                     comesFrom[neighbor] = current;

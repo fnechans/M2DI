@@ -1,7 +1,7 @@
 animantionData = {}
 sprites = Sprites.new()
 
-function create_animation(name, frequency, clips ,rpt)
+function create_animation(name, image_name, clips, shift, frequency, rpt)
     --[[
     frequency: how often the animation should be played
         in frames
@@ -10,19 +10,24 @@ function create_animation(name, frequency, clips ,rpt)
     rpt: should the animation repeat automatically
     ]]
     local animation = AnimationData.new()
+    local image = imageManager:get_image(image_name)
+    print("Adding animation: " .. name)
+    for i = 1, #clips do
+        print("    " .. name .. i)
+        sprites:add(name .. i, image, clips[i], colors.none, shift)
+        animation:add_sprite(sprites:at(name .. i))
+    end
     animation:set_frequency(frequency, FRAMES_PER_SECOND)
-    animation.clips = clips
     animation.rpt = rpt
     animantionData[name] = animation
     return animation
 end
 
-function add_animation(char, image_name, animation_name, properties, values, shift)
-    _anim = animantionData[animation_name]:get_animation()
-    _anim.image = imageManager:get_image(image_name)
+function add_animation(char, animation_name, properties, values)
+    local _anim = animantionData[animation_name]:get_animation()
     checkers = create_checker()
     for i = 1, #properties do
         add_checker(checkers, properties[i], values[i])
     end
-    char:add_animation(_anim, checkers, shift)
+    char:add_animation(_anim, checkers)
 end

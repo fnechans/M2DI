@@ -58,11 +58,11 @@ void init_enums(sol::state &lua)
                  "plus", SDLK_PLUS,
                  "minus", SDLK_MINUS);
 }
-std::vector<std::pair<std::string, PropertyType>> create_checkers() 
+std::vector<std::pair<std::string, PropertyType>> create_checkers()
 { return {}; }
 
 template <typename T>
-void add_checker(std::vector<std::pair<std::string, PropertyType>> &checkers, std::string checker, T type) 
+void add_checker(std::vector<std::pair<std::string, PropertyType>> &checkers, std::string checker, T type)
 { checkers.push_back({checker, type}); }
 
 void create_classes(sol::state &lua)
@@ -78,12 +78,14 @@ void create_classes(sol::state &lua)
     }
     {
         auto cl = lua.new_usertype<Object>("Object", sol::constructors<Object()>());
-        cl["image"] = &Object::image;
-        cl["mapColor"] = &Object::mapColor;
+        cl["sprite"] = &Object::sprite;
         cl["add_animation"] = &Object::add_animation;
         cl["properties"] = &Object::properties;
         cl["hitbox"] = &Object::hitbox;
         cl["set_target"] = &Object::set_target;
+        cl["doPlot"] = &Object::doPlot;
+        cl["speedX"] = &Object::speedX;
+        cl["speedY"] = &Object::speedY;
         lua["create_checker"] = &create_checkers;
         lua["add_checker"] = &add_checker<PropertyType>;
     }
@@ -99,38 +101,36 @@ void create_classes(sol::state &lua)
     {
         auto cl = lua.new_usertype<Properties>("Properties");
         cl["set"] = &Properties::set;
-        cl["get_int"] = &Properties::get<int>;
-        cl["get_double"] = &Properties::get<double>;
-        cl["get_string"] = &Properties::get<std::string>;
-        cl["get_bool"] = &Properties::get<bool>;
-        cl["getp_int"] = &Properties::getp<int>;
-        cl["getp_double"] = &Properties::getp<double>;
-        cl["getp_string"] = &Properties::getp<std::string>;
-        cl["getp_bool"] = &Properties::getp<bool>;
-    }
-
-    /// GRAPHICS
-    {
-        auto cl = lua.new_usertype<Animation>("Animation", sol::constructors<Animation()>());
-        cl["image"] = &Animation::image;
+        cl["get_int"] = &Properties::getp<int>;
+        cl["get_double"] = &Properties::getp<double>;
+        cl["get_string"] = &Properties::getp<std::string>;
+        cl["get_bool"] = &Properties::getp<bool>;
+        cl["get"] = &Properties::operator[];
     }
     {
         auto cl = lua.new_usertype<AnimationData>("AnimationData", sol::constructors<AnimationData()>());
         cl["set_frequency"] = &AnimationData::set_frequency;
         cl["rpt"] = &AnimationData::repeat;
-        cl["clips"] = &AnimationData::clips;
+        cl["add_sprite"] = &AnimationData::add_sprite;
         cl["get_animation"] = &AnimationData::get_animation;
+    }
+    {
+        auto cl = lua.new_usertype<Sprite>("Sprite");
+        cl["clip"] = &Sprite::clip;
+        cl["image"] = &Sprite::image;
     }
     {
         auto cl = lua.new_usertype<Sprites>("Sprites");
         cl["add"] = &Sprites::add;
+        cl["at"] = &Sprites::at;
+    }
+    {
+        sol::usertype<Chunk> cl = lua.new_usertype<Chunk>("Chunk", sol::constructors<Chunk(int, int, uint), Chunk(int, int, const std::string&, Sprites&, uint)>());
     }
     {
         // tilemap
         sol::usertype<Map_wrapper> cl = lua.new_usertype<Map_wrapper>("Map_wrapper");
-        cl["import_map"] = &Map_wrapper::import_map;
-        cl["map_border_colision"] = &Map_wrapper::map_border_colision;
-        cl["get_tile_pointers"] = &Map_wrapper::get_tile_pointers;
+        cl["add_chunk"] = &Map_wrapper::add_chunk;
     }
     {
         auto cl = lua.new_usertype<AI<Block*>>("AI");
@@ -170,7 +170,9 @@ void create_classes(sol::state &lua)
     /// SCREENS
     {
         sol::usertype<Menu> cl = lua.new_usertype<Menu>("Menu");
-        cl["add_button2"] = &Menu::add_button2;
+        cl["add_button_clip"] = &Menu::add_button_clip;
+        cl["add_button_clips"] = &Menu::add_button_clips;
+        cl["add_button_width_height"] = &Menu::add_button_width_height;
         cl["get_state"] = &Menu::get_state;
     }
     {
@@ -188,17 +190,22 @@ void create_classes(sol::state &lua)
         sol::usertype<Screen> cl = lua.new_usertype<Screen>("Screen");
         cl["add_menu2"] = &Screen::add_menu2;
         cl["add_level"] = &Screen::add_level;
-        cl["quit"] = &Screen::quit;
         cl["nextScreen"] = &Screen::nextScreen;
         cl["properties"] = &Screen::properties;
         cl["keybinds"] = &Screen::keybinds;
+
         cl["schedule_button_update"] = &Screen::schedule_button_update;
         cl["schedule_screen_position_update"] = &Screen::schedule_screen_position_update;
+        cl["schedule_screen_click_update"] = &Screen::schedule_screen_click_update;
+        cl["schedule_tile_click_update"] = &Screen::schedule_tile_click_update;
         cl["l_quit"] = &Screen::l_quit;
         cl["l_pause"] = &Screen::l_pause;
         cl["l_nextScreen"] = &Screen::l_nextScreen;
         cl["l_property_update"] = &Screen::l_property_update;
+        cl["l_property_toggle"] = &Screen::l_property_toggle;
         cl["l_screen_zoom"] = &Screen::l_screen_zoom;
+        cl["l_update_tile_from_sprite"] = &Screen::l_update_tile_from_sprite;
+
         cl["schedule_plot"] = &Screen::schedule_plot;
         cl["l_plot_on_level"] = &Screen::l_plot_on_level;
         cl["l_plot_on_menu"] = &Screen::l_plot_on_menu;

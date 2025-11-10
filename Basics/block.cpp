@@ -5,14 +5,12 @@
 #include <exception>
 #include <variant>
 
-Block::Block(uint x, uint y, uint w, uint h)
+Block::Block(int x, int y, uint w, uint h)
 {
     hitbox.x = x;
     hitbox.y = y;
-    hitbox.w = w;
-    hitbox.h = h;
-
-    mapColor = {0, 0, 0, 0};
+    hitbox.w = static_cast<int>(w);
+    hitbox.h = static_cast<int>(h);
 }
 
 Block::Block(const Block &other)
@@ -21,9 +19,9 @@ Block::Block(const Block &other)
     // once we remove animation
     hitbox = other.hitbox;
 
-    mapColor = other.mapColor;
-    clip = other.clip;
-    image = other.image;
+    sprite = other.sprite;
+    currentAnimation = other.currentAnimation;
+    // TODO: animations (difficult due to checker)
 
     doPlot = other.doPlot;
     hasCollision = other.hasCollision;
@@ -32,32 +30,31 @@ Block::Block(const Block &other)
 
 bool Block::on_screen(SDL_Rect& screen, double renderScale)
 {
-    if (!((hitbox.x+hitbox.w) * renderScale < screen.x || hitbox.x * renderScale > screen.x + screen.w ||
-          (hitbox.y+hitbox.h) * renderScale < screen.y || hitbox.y * renderScale > screen.y + screen.h))
-    {
-        return true;
-    }
-    return false;
+    if ((hitbox.x+hitbox.w) * renderScale < screen.x) return false;
+    if (hitbox.x * renderScale > screen.x + screen.w) return false;
+    if ((hitbox.y+hitbox.h) * renderScale < screen.y) return false;
+    if (hitbox.y * renderScale > screen.y + screen.h) return false;
+    return true;
 }
 
-void Block::plot(Window &window, SDL_Rect& screen, double renderScale)
+bool Block::on_screen_quick(SDL_Rect& screen)
 {
-    if (!on_screen(screen, renderScale))
-        return;
-
-    SDL_Rect renderRect = base::toScreen(screen, hitbox, renderScale);
-    image->render_image(window, &renderRect, &clip);
+    if ((hitbox.x+hitbox.w) < screen.x) return false;
+    if (hitbox.x > screen.x + screen.w) return false;
+    if ((hitbox.y+hitbox.h) < screen.y) return false;
+    if (hitbox.y > screen.y + screen.h) return false;
+    return true;
 }
 
-void Block::add_animation(Animation &animation, std::vector<std::pair<std::string, PropertyType>> &checkers, Fl_Rect shift)
+
+void Block::add_animation(Animation &animation, std::vector<std::pair<std::string, PropertyType>> &checkers)
 {
     std::vector<ValueChecker> tmp_checkers;
     for (auto &checker : checkers)
     {
         tmp_checkers.push_back(properties.get_checker(checker.first, checker.second));
     }
-    SDL_Rect real_shift = {shift.x * base::TILESIZEPHYSICS, shift.y * base::TILESIZEPHYSICS, shift.w * base::TILESIZEPHYSICS, shift.h * base::TILESIZEPHYSICS};
-    animations.push_back(AnimationHelper{std::move(animation), std::move(tmp_checkers), real_shift});
+    animations.push_back(AnimationHelper{std::move(animation), std::move(tmp_checkers)});
 }
 
 void Block::set_animation()
@@ -77,26 +74,30 @@ void Block::set_animation()
     }
 }
 
-void Block::plot_animation(Window &window, SDL_Rect& screen, double renderScale, bool pause)
+void Block::plot(Window &window, SDL_Rect& screen, double renderScale, bool pause)
 {
     // whether to skip the actual plotting (but keeps the animation playing and sets up the position_screen)
     bool skipPlot = !on_screen(screen, renderScale);
 
     if (currentAnimation)
     {
-        SDL_Rect positionScreen = base::toScreen(screen, position(), renderScale);
         auto &anim = currentAnimation->animation;
-        SDL_Rect renderRect = currentAnimation->shift;
-        renderRect.x *= renderScale;
-        renderRect.y *= renderScale;
-        renderRect.w *= renderScale;
-        renderRect.h *= renderScale;
-        renderRect.x += positionScreen.x;
-        renderRect.y += positionScreen.y;
-        if (pause)
-            anim.pause();
-        anim.run_and_plot(window, renderRect, skipPlot);
-        if (pause)
-            anim.play();
+
+        if (!pause) anim.run();
+
+        SDL_Rect renderRect = anim.get_render_rect(screen, position(), renderScale);
+        anim.plot(window, &renderRect, skipPlot);
+
+        return;
     }
+
+    if (skipPlot || sprite == nullptr)
+        return;
+
+    SDL_Rect renderRect = base::toScreen(screen, hitbox, renderScale);
+
+    sprite->plot(window, &renderRect);
+
+    return;
+
 }
